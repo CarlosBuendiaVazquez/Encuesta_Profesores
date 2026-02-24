@@ -1363,39 +1363,346 @@ function actualizarPeriodoDisplay() {
     }
 }
 
-// ===== FUNCIONES DE POCKETBASE =====
+// ===== VARIABLES GLOBALES PARA PAGINACIÓN =====
+let todasLasEncuestas = [];
+let encuestasFiltradas = [];
+let paginaActual = 1;
+let itemsPorPagina = 10;
+
+// ===== FUNCIÓN PRINCIPAL PARA VER ENCUESTAS =====
 async function verTodasLasEncuestas() {
     try {
         mostrarNotificacion('Cargando encuestas...', 'info');
         
-        const encuestas = await pb.collection('encuestas').getFullList({
-            sort: '-created'
+        // Obtener TODAS las encuestas de PocketBase
+        todasLasEncuestas = await pb.collection('encuestas').getFullList({
+            sort: '-created' // Más recientes primero
         });
         
-        console.log('📋 Encuestas recibidas:', encuestas);
+        console.log('📋 Encuestas recibidas:', todasLasEncuestas);
         
-        if (encuestas.length === 0) {
+        if (!todasLasEncuestas || todasLasEncuestas.length === 0) {
             mostrarNotificacion('No hay encuestas guardadas', 'info');
             return;
         }
         
-        // Crear un modal simple para mostrar las encuestas
-        let mensaje = `📊 Total: ${encuestas.length} encuestas\n\n`;
-        encuestas.slice(0, 5).forEach(enc => {
-            mensaje += `• ${enc.profesor?.nombre || 'Sin nombre'}: ${enc.materias?.length || 0} materias, ${enc.horarios?.length || 0} horarios\n`;
-        });
+        encuestasFiltradas = [...todasLasEncuestas];
+        paginaActual = 1;
         
-        if (encuestas.length > 5) {
-            mensaje += `\n... y ${encuestas.length - 5} más. Revisa la consola (F12) para ver todos.`;
-        }
-        
-        alert(mensaje);
-        mostrarNotificacion(`📊 ${encuestas.length} encuestas encontradas`, 'success');
+        mostrarModalEncuestasAvanzado();
         
     } catch (error) {
-        console.error('Error al obtener encuestas:', error);
-        mostrarNotificacion('Error al obtener encuestas: ' + error.message, 'error');
+        console.error('❌ Error al obtener encuestas:', error);
+        mostrarNotificacion('Error al obtener encuestas: ' + (error.message || 'Error desconocido'), 'error');
     }
+}
+
+// ===== MOSTRAR MODAL AVANZADO =====
+function mostrarModalEncuestasAvanzado() {
+    // Calcular estadísticas
+    const totalEncuestas = todasLasEncuestas.length;
+    const totalBorradores = todasLasEncuestas.filter(e => e.es_borrador).length;
+    const totalEnviadas = totalEncuestas - totalBorradores;
+    const totalMaterias = todasLasEncuestas.reduce((acc, e) => acc + (e.materias?.length || 0), 0);
+    const totalHorarios = todasLasEncuestas.reduce((acc, e) => acc + (e.horarios?.length || 0), 0);
+    
+    let modalHTML = `
+        <div class="gestion-modal" id="modalVerEncuestas" style="z-index: 30000;">
+            <div class="gestion-contenido" style="max-width: 1000px;">
+                <div class="gestion-header">
+                    <h3><i class="fas fa-clipboard-list"></i> Todas las Encuestas</h3>
+                    <button class="gestion-cerrar" onclick="cerrarModalEncuestas()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="gestion-body" style="max-height: 80vh; overflow-y: auto;">
+                    
+                    <!-- ESTADÍSTICAS -->
+                    <div class="encuestas-stats">
+                        <div class="stat-item">
+                            <div class="stat-valor">${totalEncuestas}</div>
+                            <div class="stat-label">Total Encuestas</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-valor">${totalEnviadas}</div>
+                            <div class="stat-label">Enviadas</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-valor">${totalBorradores}</div>
+                            <div class="stat-label">Borradores</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-valor">${totalMaterias}</div>
+                            <div class="stat-label">Materias</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-valor">${totalHorarios}</div>
+                            <div class="stat-label">Horarios</div>
+                        </div>
+                    </div>
+                    
+                    <!-- FILTROS -->
+                    <div class="encuestas-filtros">
+                        <input type="text" class="filtro-input" id="filtroNombre" placeholder="Buscar por nombre...">
+                        <select class="filtro-select" id="filtroTipo">
+                            <option value="todos">Todos</option>
+                            <option value="enviadas">Solo enviadas</option>
+                            <option value="borradores">Solo borradores</option>
+                        </select>
+                        <select class="filtro-select" id="filtroPeriodo">
+                            <option value="todos">Todos los períodos</option>
+                            <option value="ene-jun">ENE - JUN</option>
+                            <option value="ago-dic">AGO - DIC</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="aplicarFiltros()">
+                            <i class="fas fa-filter"></i> Filtrar
+                        </button>
+                    </div>
+                    
+                    <!-- LISTA DE ENCUESTAS -->
+                    <div id="encuestasListaContainer"></div>
+                    
+                    <!-- PAGINACIÓN -->
+                    <div id="paginacionContainer" class="paginacion"></div>
+                    
+                </div>
+                <div class="gestion-footer">
+                    <button class="btn btn-secondary" onclick="cerrarModalEncuestas()">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Eliminar modal anterior si existe
+    const modalAnterior = document.getElementById('modalVerEncuestas');
+    if (modalAnterior) modalAnterior.remove();
+    
+    // Agregar nuevo modal
+    const modalContainer = document.createElement('div');
+    modalContainer.innerHTML = modalHTML;
+    document.body.appendChild(modalContainer.firstElementChild);
+    
+    // Renderizar lista inicial
+    renderizarListaEncuestas();
+    
+    // Agregar event listeners para filtros en tiempo real
+    document.getElementById('filtroNombre').addEventListener('input', aplicarFiltros);
+    document.getElementById('filtroTipo').addEventListener('change', aplicarFiltros);
+    document.getElementById('filtroPeriodo').addEventListener('change', aplicarFiltros);
+}
+
+// ===== APLICAR FILTROS =====
+function aplicarFiltros() {
+    const nombreFiltro = document.getElementById('filtroNombre').value.toLowerCase().trim();
+    const tipoFiltro = document.getElementById('filtroTipo').value;
+    const periodoFiltro = document.getElementById('filtroPeriodo').value;
+    
+    encuestasFiltradas = todasLasEncuestas.filter(enc => {
+        // Filtro por nombre
+        const nombre = enc.profesor?.nombre?.toLowerCase() || '';
+        if (nombreFiltro && !nombre.includes(nombreFiltro)) return false;
+        
+        // Filtro por tipo
+        if (tipoFiltro === 'enviadas' && enc.es_borrador) return false;
+        if (tipoFiltro === 'borradores' && !enc.es_borrador) return false;
+        
+        // Filtro por período
+        if (periodoFiltro !== 'todos' && enc.periodo !== periodoFiltro) return false;
+        
+        return true;
+    });
+    
+    paginaActual = 1;
+    renderizarListaEncuestas();
+}
+
+// ===== RENDERIZAR LISTA DE ENCUESTAS =====
+function renderizarListaEncuestas() {
+    const container = document.getElementById('encuestasListaContainer');
+    if (!container) return;
+    
+    const inicio = (paginaActual - 1) * itemsPorPagina;
+    const fin = inicio + itemsPorPagina;
+    const encuestasPagina = encuestasFiltradas.slice(inicio, fin);
+    
+    let html = '<div class="encuestas-lista">';
+    
+    encuestasPagina.forEach((enc, index) => {
+        const profesor = enc.profesor || {};
+        const fecha = enc.fecha ? new Date(enc.fecha).toLocaleString('es-MX') : 'Fecha desconocida';
+        const tipo = enc.es_borrador ? 'borrador' : 'enviada';
+        const tipoTexto = enc.es_borrador ? 'Borrador' : 'Enviada';
+        const periodoTexto = enc.periodo === 'ene-jun' ? 'ENE - JUN' : (enc.periodo === 'ago-dic' ? 'AGO - DIC' : 'No especificado');
+        const iniciales = profesor.nombre ? profesor.nombre.split(' ').map(p => p[0]).join('').substring(0, 2).toUpperCase() : '??';
+        
+        html += `
+            <div class="encuesta-card ${tipo}" onclick="toggleEncuestaDetalle('enc-${index}')">
+                <div class="encuesta-header">
+                    <div class="encuesta-profesor">
+                        <div class="encuesta-avatar">${iniciales}</div>
+                        <div class="encuesta-info">
+                            <h4>${profesor.nombre || 'Nombre no especificado'}</h4>
+                            <p>
+                                <i class="fas fa-envelope"></i> ${profesor.correo || 'Sin correo'}
+                                <i class="fas fa-id-card" style="margin-left: 10px;"></i> ${profesor.codigo || 'Sin clave'}
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="encuesta-badge ${tipo === 'borrador' ? 'badge-borrador' : 'badge-enviada'}">${tipoTexto}</span>
+                    </div>
+                </div>
+                
+                <div class="encuesta-resumen">
+                    <span class="resumen-item"><i class="fas fa-calendar"></i> ${periodoTexto}</span>
+                    <span class="resumen-item"><i class="fas fa-book"></i> ${enc.materias?.length || 0} materias</span>
+                    <span class="resumen-item"><i class="fas fa-clock"></i> ${enc.horarios?.length || 0} horarios</span>
+                    <span class="resumen-item"><i class="fas fa-briefcase"></i> ${profesor.tipoPlaza || 'Plaza no especificada'}</span>
+                </div>
+                
+                <div class="encuesta-footer">
+                    <span><i class="far fa-clock"></i> ${fecha}</span>
+                    <div class="encuesta-acciones">
+                        <button class="btn-encuesta" onclick="event.stopPropagation(); exportarEncuestaIndividual('${enc.id}')">
+                            <i class="fas fa-download"></i> Exportar
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="encuesta-detalles" id="enc-${index}">
+                    <div class="detalle-seccion">
+                        <h5><i class="fas fa-user-graduate"></i> Datos completos del profesor</h5>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                            <div><strong>Teléfono:</strong> ${profesor.telefono || 'No especificado'}</div>
+                            <div><strong>Horas semanales:</strong> ${profesor.horasPlaza || 'No aplica'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="detalle-seccion">
+                        <h5><i class="fas fa-book-open"></i> Materias seleccionadas</h5>
+                        <div class="detalle-materias">
+        `;
+        
+        if (enc.materias && enc.materias.length > 0) {
+            enc.materias.forEach(m => {
+                const carrerasTexto = m.carreras ? m.carreras.map(c => `${c.carrera} - Sem ${c.semestre}`).join(', ') : 'Sin carrera';
+                html += `
+                    <div class="detalle-materia-item">
+                        <strong>${m.nombre}</strong>
+                        <small>${carrerasTexto}</small>
+                        <div><small>Nivel: ${m.nivel || 'No especificado'}</small></div>
+                    </div>
+                `;
+            });
+        } else {
+            html += '<div class="detalle-materia-item">No hay materias seleccionadas</div>';
+        }
+        
+        html += `
+                        </div>
+                    </div>
+                    
+                    <div class="detalle-seccion">
+                        <h5><i class="fas fa-clock"></i> Horarios seleccionados</h5>
+                        <div class="detalle-horarios">
+        `;
+        
+        if (enc.horarios && enc.horarios.length > 0) {
+            const horariosPorDia = {};
+            enc.horarios.forEach(h => {
+                if (!horariosPorDia[h.dia]) horariosPorDia[h.dia] = [];
+                horariosPorDia[h.dia].push(h);
+            });
+            
+            Object.keys(horariosPorDia).sort().forEach(dia => {
+                html += `<div style="grid-column: 1 / -1;"><strong>${dia}:</strong></div>`;
+                horariosPorDia[dia].forEach(h => {
+                    html += `
+                        <div class="detalle-horario-item">
+                            <i class="fas fa-clock"></i> ${h.texto}
+                        </div>
+                    `;
+                });
+            });
+        } else {
+            html += '<div class="detalle-horario-item">No hay horarios seleccionados</div>';
+        }
+        
+        html += `
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
+    
+    // Renderizar paginación
+    renderizarPaginacion();
+}
+
+// ===== RENDERIZAR PAGINACIÓN =====
+function renderizarPaginacion() {
+    const container = document.getElementById('paginacionContainer');
+    if (!container) return;
+    
+    const totalPaginas = Math.ceil(encuestasFiltradas.length / itemsPorPagina);
+    
+    let html = '';
+    
+    if (totalPaginas > 1) {
+        html = `
+            <button class="btn-pagina" onclick="cambiarPagina(${paginaActual - 1})" ${paginaActual === 1 ? 'disabled' : ''}>
+                <i class="fas fa-chevron-left"></i> Anterior
+            </button>
+            <span class="pagina-actual">Página ${paginaActual} de ${totalPaginas}</span>
+            <button class="btn-pagina" onclick="cambiarPagina(${paginaActual + 1})" ${paginaActual === totalPaginas ? 'disabled' : ''}>
+                Siguiente <i class="fas fa-chevron-right"></i>
+            </button>
+        `;
+    }
+    
+    container.innerHTML = html;
+}
+
+// ===== CAMBIAR PÁGINA =====
+function cambiarPagina(nuevaPagina) {
+    paginaActual = nuevaPagina;
+    renderizarListaEncuestas();
+}
+
+// ===== TOGGLE DETALLE DE ENCUESTA =====
+function toggleEncuestaDetalle(id) {
+    const elemento = document.getElementById(id);
+    if (elemento) {
+        elemento.style.display = elemento.style.display === 'block' ? 'none' : 'block';
+    }
+}
+
+// ===== EXPORTAR ENCUESTA INDIVIDUAL =====
+function exportarEncuestaIndividual(id) {
+    const encuesta = todasLasEncuestas.find(e => e.id === id);
+    if (!encuesta) return;
+    
+    const dataStr = JSON.stringify(encuesta, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = `encuesta_${encuesta.profesor?.nombre || 'sin_nombre'}_${encuesta.id}.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+    
+    mostrarNotificacion('✅ Encuesta exportada', 'success');
+}
+
+// ===== CERRAR MODAL =====
+function cerrarModalEncuestas() {
+    const modal = document.getElementById('modalVerEncuestas');
+    if (modal) modal.remove();
 }
 
 function exportarAExcel() {
@@ -2076,3 +2383,4 @@ function inicializarAplicacion() {
 
 // ===== EJECUCIÓN =====
 document.addEventListener('DOMContentLoaded', inicializarAplicacion);
+

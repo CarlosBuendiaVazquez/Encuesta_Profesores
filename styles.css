@@ -2028,3 +2028,329 @@ label {
         width: 100%;
     }
 }
+
+/* ===== PANEL DE VISUALIZACIÓN DE ENCUESTAS ===== */
+.encuestas-stats {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.stat-item {
+    text-align: center;
+    flex: 1;
+    min-width: 120px;
+}
+
+.stat-valor {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.encuestas-filtros {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 12px;
+}
+
+.filtro-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 12px 15px;
+    border: 2px solid #dfe6e9;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.filtro-input:focus {
+    border-color: #3498db;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.filtro-select {
+    padding: 12px 15px;
+    border: 2px solid #dfe6e9;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background: white;
+    min-width: 150px;
+}
+
+.encuestas-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.encuesta-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    transition: all 0.3s ease;
+    animation: slideIn 0.3s ease;
+    position: relative;
+    cursor: pointer;
+}
+
+.encuesta-card:hover {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    border-color: #3498db;
+}
+
+.encuesta-card.borrador {
+    border-left: 6px solid #f39c12;
+}
+
+.encuesta-card.enviada {
+    border-left: 6px solid #2ecc71;
+}
+
+.encuesta-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.encuesta-profesor {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.encuesta-avatar {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+.encuesta-info h4 {
+    color: #2c3e50;
+    margin-bottom: 5px;
+    font-size: 1.1rem;
+}
+
+.encuesta-info p {
+    color: #7f8c8d;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.encuesta-badge {
+    padding: 6px 12px;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.badge-borrador {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.badge-enviada {
+    background: #d5edda;
+    color: #155724;
+}
+
+.encuesta-resumen {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.resumen-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #2c3e50;
+    font-size: 0.9rem;
+    background: #f8f9fa;
+    padding: 8px 15px;
+    border-radius: 30px;
+}
+
+.resumen-item i {
+    color: #3498db;
+}
+
+.encuesta-detalles {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 15px;
+    margin-top: 10px;
+    display: none;
+}
+
+.encuesta-card.expandida .encuesta-detalles {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
+
+.detalle-seccion {
+    margin-bottom: 20px;
+}
+
+.detalle-seccion h5 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.detalle-seccion h5 i {
+    color: #3498db;
+}
+
+.detalle-materias, .detalle-horarios {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 10px;
+}
+
+.detalle-materia-item, .detalle-horario-item {
+    background: white;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    font-size: 0.9rem;
+}
+
+.detalle-materia-item strong {
+    color: #2c3e50;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.detalle-materia-item small {
+    color: #7f8c8d;
+}
+
+.detalle-horario-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.detalle-horario-item i {
+    color: #27ae60;
+}
+
+.encuesta-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #ecf0f1;
+    font-size: 0.85rem;
+    color: #95a5a6;
+}
+
+.encuesta-acciones {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-encuesta {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #f0f0f0;
+    color: #2c3e50;
+}
+
+.btn-encuesta:hover {
+    background: #3498db;
+    color: white;
+}
+
+/* ===== PAGINACIÓN ===== */
+.paginacion {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 2px solid #ecf0f1;
+}
+
+.btn-pagina {
+    padding: 8px 12px;
+    border: 2px solid #dfe6e9;
+    border-radius: 8px;
+    background: white;
+    color: #2c3e50;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 600;
+}
+
+.btn-pagina:hover:not(:disabled) {
+    border-color: #3498db;
+    color: #3498db;
+}
+
+.btn-pagina:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagina-actual {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
