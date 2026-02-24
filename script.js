@@ -277,7 +277,7 @@ const carrerasDataAGODIC = {
 };
 
 // ===== VARIABLES GLOBALES =====
-let carrerasData = carrerasDataENEJUN; // Por defecto ENE-JUN
+let carrerasData = carrerasDataENEJUN;
 let datosProfesor = {
     nombre: '',
     correo: '',
@@ -292,8 +292,19 @@ let horariosSeleccionados = [];
 let filtroCarreraActual = '';
 let materiaSeleccionadaTemp = null;
 let turnoActivo = 'matutino';
-let periodoActivo = 'ene-jun'; // 'ene-jun' o 'ago-dic'
+let periodoActivo = 'ene-jun';
 let adminActivo = false;
+
+// ===== CONEXIÓN A POCKETBASE =====
+const POCKETBASE_URL = 'http://127.0.0.1:8090'; // Cambia esto cuando subas PocketBase a producción
+let pb;
+
+try {
+    pb = new PocketBase(POCKETBASE_URL);
+    console.log('✅ Conectado a PocketBase');
+} catch (error) {
+    console.error('❌ Error conectando a PocketBase:', error);
+}
 
 // ===== SISTEMA DE ACCESO ADMIN POR URL =====
 const ADMIN_SECRET = 'admin2026';
@@ -312,38 +323,30 @@ function verificarAccesoAdmin() {
 
 // ===== CARGAR DATOS GUARDADOS DE LOCALSTORAGE =====
 function cargarDatosGuardados() {
-    // Cargar período activo
     const periodoGuardado = localStorage.getItem('periodoActivo');
     if (periodoGuardado && (periodoGuardado === 'ene-jun' || periodoGuardado === 'ago-dic')) {
         periodoActivo = periodoGuardado;
         carrerasData = periodoActivo === 'ene-jun' ? carrerasDataENEJUN : carrerasDataAGODIC;
     }
     
-    // Cargar materias de ENE-JUN
     const materiasENEJUNGuardadas = localStorage.getItem('carrerasDataENEJUN');
     if (materiasENEJUNGuardadas) {
         try {
             const datos = JSON.parse(materiasENEJUNGuardadas);
             Object.assign(carrerasDataENEJUN, datos);
             console.log('📚 Materias ENE-JUN cargadas de localStorage');
-        } catch (e) {
-            console.error('Error cargando materias ENE-JUN:', e);
-        }
+        } catch (e) {}
     }
     
-    // Cargar materias de AGO-DIC
     const materiasAGODICGuardadas = localStorage.getItem('carrerasDataAGODIC');
     if (materiasAGODICGuardadas) {
         try {
             const datos = JSON.parse(materiasAGODICGuardadas);
             Object.assign(carrerasDataAGODIC, datos);
             console.log('📚 Materias AGO-DIC cargadas de localStorage');
-        } catch (e) {
-            console.error('Error cargando materias AGO-DIC:', e);
-        }
+        } catch (e) {}
     }
     
-    // Cargar profesores
     const profesoresGuardados = localStorage.getItem('profesoresDB');
     if (profesoresGuardados) {
         try {
@@ -351,28 +354,20 @@ function cargarDatosGuardados() {
             profesoresDB.length = 0;
             profesoresDB.push(...datos);
             console.log('👥 Profesores cargados de localStorage');
-        } catch (e) {
-            console.error('Error cargando profesores:', e);
-        }
+        } catch (e) {}
     }
 }
 
-// ===== FUNCIONES PARA GUARDAR PERÍODO EN LOCALSTORAGE =====
 function guardarPeriodoEnStorage(periodo) {
     localStorage.setItem('periodoActivo', periodo);
-    console.log(`💾 Período guardado: ${periodo}`);
 }
 
 function cargarPeriodoDeStorage() {
     const periodoGuardado = localStorage.getItem('periodoActivo');
-    if (periodoGuardado && (periodoGuardado === 'ene-jun' || periodoGuardado === 'ago-dic')) {
-        console.log(`📂 Período cargado de storage: ${periodoGuardado}`);
-        return periodoGuardado;
-    }
-    return 'ene-jun';
+    return (periodoGuardado === 'ene-jun' || periodoGuardado === 'ago-dic') ? periodoGuardado : 'ene-jun';
 }
 
-// ===== GENERAR LISTA GLOBAL DE MATERIAS CON CARRERAS Y SEMESTRES =====
+// ===== GENERAR LISTA GLOBAL DE MATERIAS =====
 function generarListaGlobalMaterias() {
     const materiasMap = new Map();
     
@@ -1368,8 +1363,39 @@ function actualizarPeriodoDisplay() {
     }
 }
 
-function verTodasLasEncuestas() {
-    mostrarNotificacion('Función: Ver todas las encuestas (próximamente)', 'info');
+// ===== FUNCIONES DE POCKETBASE =====
+async function verTodasLasEncuestas() {
+    try {
+        mostrarNotificacion('Cargando encuestas...', 'info');
+        
+        const encuestas = await pb.collection('encuestas').getFullList({
+            sort: '-created'
+        });
+        
+        console.log('📋 Encuestas recibidas:', encuestas);
+        
+        if (encuestas.length === 0) {
+            mostrarNotificacion('No hay encuestas guardadas', 'info');
+            return;
+        }
+        
+        // Crear un modal simple para mostrar las encuestas
+        let mensaje = `📊 Total: ${encuestas.length} encuestas\n\n`;
+        encuestas.slice(0, 5).forEach(enc => {
+            mensaje += `• ${enc.profesor?.nombre || 'Sin nombre'}: ${enc.materias?.length || 0} materias, ${enc.horarios?.length || 0} horarios\n`;
+        });
+        
+        if (encuestas.length > 5) {
+            mensaje += `\n... y ${encuestas.length - 5} más. Revisa la consola (F12) para ver todos.`;
+        }
+        
+        alert(mensaje);
+        mostrarNotificacion(`📊 ${encuestas.length} encuestas encontradas`, 'success');
+        
+    } catch (error) {
+        console.error('Error al obtener encuestas:', error);
+        mostrarNotificacion('Error al obtener encuestas: ' + error.message, 'error');
+    }
 }
 
 function exportarAExcel() {
@@ -1380,7 +1406,7 @@ function exportarAPDF() {
     mostrarNotificacion('Función: Exportar a PDF (próximamente)', 'info');
 }
 
-// ===== GESTIÓN DE MATERIAS =====
+// ===== GESTIÓN DE MATERIAS (IGUAL QUE ANTES) =====
 function gestionarMaterias() {
     console.log('📚 Abriendo gestión de materias...');
     mostrarNotificacion('Abriendo editor de materias...', 'info', 2000);
@@ -1857,8 +1883,8 @@ function actualizarResumenHorarios() {
     }
 }
 
-// ===== ENVÍO DE ENCUESTA =====
-function enviarEncuesta(esBorrador = false) {
+// ===== ENVÍO DE ENCUESTA CON POCKETBASE =====
+async function enviarEncuesta(esBorrador = false) {
     if (!datosProfesor.nombre || !datosProfesor.correo || !datosProfesor.codigo) {
         mostrarNotificacion('Ingresa tu nombre, correo electrónico y clave docente', 'warning');
         if (!datosProfesor.nombre) document.getElementById('buscadorProfesores').focus();
@@ -1889,34 +1915,25 @@ function enviarEncuesta(esBorrador = false) {
         return;
     }
     
-    const encuesta = {
-        id: Date.now(),
-        profesor: { ...datosProfesor },
-        materias: [...materiasSeleccionadas],
-        horarios: [...horariosSeleccionados],
-        fecha: new Date().toLocaleString('es-MX'),
-        esBorrador: esBorrador,
-        periodo: periodoActivo
-    };
-    
-    let encuestasExistentes = [];
     try {
-        const datos = localStorage.getItem('encuestas_profesores');
-        if (datos) encuestasExistentes = JSON.parse(datos);
-    } catch (e) {
-        console.error('Error al cargar encuestas:', e);
-    }
-    
-    encuestasExistentes.push(encuesta);
-    
-    try {
-        localStorage.setItem('encuestas_profesores', JSON.stringify(encuestasExistentes));
+        // Guardar en PocketBase
+        const encuesta = await pb.collection('encuestas').create({
+            profesor: datosProfesor,
+            materias: materiasSeleccionadas,
+            horarios: horariosSeleccionados,
+            periodo: periodoActivo,
+            es_borrador: esBorrador,
+            fecha: new Date().toISOString()
+        });
+        
+        console.log('✅ Encuesta guardada en PocketBase:', encuesta);
         
         if (esBorrador) {
             mostrarNotificacion('📝 Borrador guardado exitosamente', 'success', 5000);
         } else {
             mostrarNotificacion('✅ ¡Encuesta enviada exitosamente!', 'success', 6000);
             
+            // Reset del formulario
             datosProfesor = {
                 nombre: '',
                 correo: '',
@@ -1978,9 +1995,9 @@ function enviarEncuesta(esBorrador = false) {
                 mostrarNotificacion('✨ Formulario listo para una nueva encuesta', 'info', 4000);
             }, 1000);
         }
-    } catch (e) {
-        console.error('Error al guardar:', e);
-        mostrarNotificacion('Error al guardar los datos', 'error');
+    } catch (error) {
+        console.error('❌ Error al guardar en PocketBase:', error);
+        mostrarNotificacion('Error al guardar la encuesta: ' + error.message, 'error');
     }
 }
 
@@ -2019,6 +2036,7 @@ function inicializarAplicacion() {
     console.log(`👤 Total de profesores en base: ${profesoresDB.length}`);
     console.log(`👑 Acceso admin: ?admin=admin2026 en la URL`);
     console.log(`📅 Período activo: ${periodoActivo}`);
+    console.log(`🗄️ Base de datos: PocketBase en ${POCKETBASE_URL}`);
     
     try {
         inicializarDatosProfesor();
@@ -2044,6 +2062,8 @@ function inicializarAplicacion() {
             
             if (!adminActivo) {
                 mostrarNotificacion('🔒 Acceso restringido', 'info', 4000);
+            } else {
+                mostrarNotificacion('👑 Modo administrador activo', 'info', 4000);
             }
         }, 500);
         
