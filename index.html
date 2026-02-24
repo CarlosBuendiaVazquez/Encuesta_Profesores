@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Encuesta para Maestros</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-chalkboard-teacher"></i> Sistema de Encuesta para Maestros</h1>
+            <p class="subtitle">Registro de datos personales, materias de interés y disponibilidad horaria</p>
+        </header>
+
+        <!-- ===== ACCESO ADMINISTRADOR (OCULTO POR DEFECTO) ===== -->
+        <div class="admin-access" id="adminAccess" style="display: none;">
+            <div class="admin-panel">
+                <div class="admin-header">
+                    <h3><i class="fas fa-crown"></i> Panel de Administración</h3>
+                    <button class="btn-close-admin" id="closeAdminBtn" title="Cerrar panel">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="admin-content">
+                    <div class="admin-section">
+                        <h4><i class="fas fa-calendar-alt"></i> Período Académico</h4>
+                        <div class="periodo-selector">
+                            <button class="periodo-btn active" id="periodoENEJUN" data-periodo="ene-jun">
+                                <i class="fas fa-sun"></i> ENE - JUN
+                            </button>
+                            <button class="periodo-btn" id="periodoAGODIC" data-periodo="ago-dic">
+                                <i class="fas fa-snowflake"></i> AGO - DIC
+                            </button>
+                        </div>
+                        <p class="periodo-actual">Período activo: <span id="periodoActualDisplay">ENE - JUN</span></p>
+                    </div>
+                    
+                    <div class="admin-section">
+                        <h4><i class="fas fa-database"></i> Datos Guardados</h4>
+                        <button class="admin-btn" id="verEncuestasBtn">
+                            <i class="fas fa-eye"></i> Ver todas las encuestas
+                        </button>
+                        <button class="admin-btn" id="exportarExcelBtn">
+                            <i class="fas fa-file-excel"></i> Exportar a Excel
+                        </button>
+                        <button class="admin-btn" id="exportarPDFBtn">
+                            <i class="fas fa-file-pdf"></i> Exportar a PDF
+                        </button>
+                    </div>
+                    
+                    <div class="admin-section">
+                        <h4><i class="fas fa-cog"></i> Configuración</h4>
+                        <button class="admin-btn" id="gestionarMateriasBtn">
+                            <i class="fas fa-book"></i> Gestionar materias
+                        </button>
+                        <button class="admin-btn" id="gestionarProfesoresBtn">
+                            <i class="fas fa-users"></i> Gestionar profesores
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTÓN OCULTO PARA ACTIVAR MODO ADMIN (solo visible si hay acceso por URL) -->
+        <div class="admin-trigger" id="adminTrigger" title="Doble clic para panel administrador" style="display: none;">
+            <i class="fas fa-crown"></i>
+        </div>
+
+        <!-- Sistema de notificaciones visuales -->
+        <div id="notificationArea" class="notification-container"></div>
+
+        <!-- ===== PANEL 1: DATOS DEL PROFESOR ===== -->
+        <div class="panel">
+            <h2 class="panel-title"><i class="fas fa-user-graduate"></i> Datos del Profesor</h2>
+            <p>Selecciona tu nombre del buscador o elige "Otro" para ingresarlo manualmente.</p>
+            
+            <!-- BUSCADOR DE PROFESORES -->
+            <div class="buscador-profesores">
+                <label for="buscadorProfesores"><i class="fas fa-search"></i> Buscar profesor por nombre:</label>
+                <div class="buscador-container">
+                    <input 
+                        type="text" 
+                        id="buscadorProfesores" 
+                        class="input-buscador-unico" 
+                        placeholder="Escribe para buscar..."
+                        autocomplete="off"
+                    >
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+                
+                <!-- RESULTADOS DE BÚSQUEDA -->
+                <div class="resultados-busqueda" id="resultadosProfesores">
+                    <div class="resultados-header">
+                        <span><i class="fas fa-users"></i> Profesores encontrados</span>
+                        <span class="contador-resultados" id="contadorProfesores">0 profesores</span>
+                    </div>
+                    <div class="resultados-lista" id="listaProfesores">
+                        <!-- Los resultados se insertan aquí -->
+                    </div>
+                    <!-- OPCIÓN "OTRO" SIEMPRE VISIBLE -->
+                    <div class="opcion-otro" id="opcionOtroProfesor">
+                        <div class="otro-item" onclick="mostrarCampoOtroProfesor()">
+                            <div class="otro-info">
+                                <h4><i class="fas fa-user-plus"></i> Otro profesor (no está en la lista)</h4>
+                                <p>Haz clic aquí para ingresar manualmente</p>
+                            </div>
+                            <i class="fas fa-arrow-right" style="color: #3498db; font-size: 1.2rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- CAMPO VISIBLE PARA OTRO PROFESOR -->
+            <div id="otroProfesorContainer" class="otro-profesor-container" style="display: none;">
+                <div class="otro-profesor-card">
+                    <div class="otro-profesor-header">
+                        <i class="fas fa-user-edit"></i>
+                        <span>Ingresar nombre manualmente</span>
+                    </div>
+                    <div class="otro-profesor-body">
+                        <input 
+                            type="text" 
+                            id="otroProfesorInput" 
+                            class="form-input otro-profesor-input" 
+                            placeholder="Escribe el nombre completo del profesor..."
+                        >
+                        <div class="otro-profesor-actions">
+                            <button class="btn btn-success" onclick="confirmarOtroProfesor()">
+                                <i class="fas fa-check"></i> Confirmar
+                            </button>
+                            <button class="btn btn-secondary" onclick="cancelarOtroProfesor()">
+                                <i class="fas fa-times"></i> Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- CAMPO OCULTO PARA ALMACENAR EL NOMBRE -->
+            <input type="hidden" id="nombreProfesor" value="">
+            
+            <!-- FORMULARIO DE DATOS DEL PROFESOR -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="correoProfesor">Correo electrónico <span class="required">*</span></label>
+                    <input type="email" id="correoProfesor" class="form-input" placeholder="Ej: juan.perez@universidad.edu">
+                </div>
+                
+                <div class="form-group">
+                    <label for="codigoProfesor">Clave Docente (SIE) <span class="required">*</span></label>
+                    <input type="text" id="codigoProfesor" class="form-input" placeholder="Ej: SIE-2025-001">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="telefonoProfesor">Teléfono de contacto</label>
+                    <input type="tel" id="telefonoProfesor" class="form-input" placeholder="Ej: 555-123-4567">
+                </div>
+                
+                <div class="form-group">
+                    <label for="tipoPlaza">Tipo de plaza <span class="required">*</span></label>
+                    <select id="tipoPlaza" class="form-input select-plaza">
+                        <option value="">-- Selecciona tu tipo de plaza --</option>
+                        <option value="tiempo_completo">Tiempo completo</option>
+                        <option value="tres_cuartos">3/4 de tiempo</option>
+                        <option value="medio_tiempo">Medio tiempo</option>
+                        <option value="honorarios">Honorarios</option>
+                        <option value="por_horas">Por horas</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- CAMPO DE HORAS (CONDICIONAL) - VERSIÓN COMPACTA -->
+            <div class="form-row" id="horasPlazaContainer" style="display: none;">
+                <div class="form-group horas-compactas">
+                    <label for="horasPlaza">Horas semanales <span class="required">*</span></label>
+                    <div class="horas-input-group">
+                        <input type="number" id="horasPlaza" class="form-input horas-input" placeholder="20" min="1" max="40" step="1" value="20">
+                        <span class="horas-label">horas/sem</span>
+                    </div>
+                    <small class="text-ayuda">Mínimo 1, máximo 40 horas</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== PANEL 2: MATERIAS ===== -->
+        <div class="panel">
+            <h2 class="panel-title"><i class="fas fa-book-open"></i> Materias que puedo / me gustaría impartir</h2>
+            <p>Selecciona las materias que deseas impartir. Puedes filtrar por carrera y buscar directamente.</p>
+            
+            <!-- FILTRO POR CARRERA CON INDICADOR DE PERÍODO -->
+            <div class="filtro-carrera">
+                <div class="carrera-header">
+                    <label for="selectCarrera"><i class="fas fa-filter"></i> Filtrar por carrera (opcional):</label>
+                    <span class="periodo-badge" id="periodoBadge">ENE - JUN</span>
+                </div>
+                <select id="selectCarrera" class="select-carrera">
+                    <option value="">-- Todas las carreras --</option>
+                    <option value="arquitectura">Arquitectura</option>
+                    <option value="civil">Ing. Civil</option>
+                    <option value="electromecanica">Ing. Electromecánica</option>
+                    <option value="ferroviaria">Ing. Ferroviaria</option>
+                    <option value="mecatronica">Ing. Mecatrónica</option>
+                </select>
+            </div>
+            
+            <!-- BUSCADOR DE MATERIAS -->
+            <div class="buscador-unico">
+                <label for="buscadorMaterias"><i class="fas fa-search"></i> Buscar materia:</label>
+                <div class="buscador-container">
+                    <input 
+                        type="text" 
+                        id="buscadorMaterias" 
+                        class="input-buscador-unico" 
+                        placeholder="Escribe el nombre de la materia..."
+                        autocomplete="off"
+                    >
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+                
+                <!-- RESULTADOS DE BÚSQUEDA -->
+                <div class="resultados-busqueda" id="resultadosBusqueda">
+                    <div class="resultados-header">
+                        <span><i class="fas fa-book"></i> Resultados de búsqueda</span>
+                        <span class="contador-resultados" id="contadorResultados">0 materias</span>
+                    </div>
+                    <div class="resultados-lista" id="resultadosLista">
+                        <div class="resultado-placeholder">
+                            <i class="fas fa-arrow-up"></i> Haz clic para ver todas las materias
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- SELECTOR DE NIVEL -->
+                <div class="selector-nivel-container" id="selectorNivelContainer" style="display: none;">
+                    <div class="materia-seleccionada-preview" id="materiaSeleccionadaPreview"></div>
+                    <div class="nivel-selector">
+                        <label for="selectNivel"><i class="fas fa-flag"></i> Nivel de preferencia:</label>
+                        <div class="nivel-actions">
+                            <select class="select-nivel" id="selectNivel">
+                                <option value="">Selecciona nivel</option>
+                                <option value="alta">Alta preferencia</option>
+                                <option value="media">Media preferencia</option>
+                                <option value="baja">Baja preferencia</option>
+                            </select>
+                            <button class="btn btn-primary" id="addMateriaBtn" type="button">
+                                <i class="fas fa-plus"></i> Agregar materia
+                            </button>
+                            <button class="btn btn-secondary" id="cancelarSeleccionBtn" type="button">
+                                <i class="fas fa-times"></i> Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- MATERIAS SELECCIONADAS -->
+            <div class="materias-seleccionadas-header">
+                <h3><i class="fas fa-check-circle"></i> Mis materias seleccionadas (<span id="contadorMateriasSeleccionadas">0</span>)</h3>
+            </div>
+            <div class="materias-container" id="materiasContainer">
+                <div class="empty-state" id="emptyMaterias">
+                    <i class="fas fa-info-circle" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                    <p>No has seleccionado ninguna materia aún. Busca y agrega tus materias.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== PANEL 3: HORARIOS COMPACTOS CON BOTÓN LIMPIAR ===== -->
+        <div class="panel">
+            <h2 class="panel-title"><i class="fas fa-clock"></i> Disponibilidad Horaria</h2>
+            <p class="subtitulo-importante">
+                <i class="fas fa-info-circle"></i> 
+                Selecciona los horarios en los que estarías disponible.
+            </p>
+            
+            <!-- BARRA SUPERIOR: PESTAÑAS + BOTÓN LIMPIAR -->
+            <div class="barra-superior-horarios">
+                <div class="pestanas-turnos">
+                    <button class="pestana-btn active" id="pestanaMatutino" data-turno="matutino">
+                        <i class="fas fa-sun"></i> Matutino (7-14h)
+                    </button>
+                    <button class="pestana-btn" id="pestanaVespertino" data-turno="vespertino">
+                        <i class="fas fa-moon"></i> Vespertino (14-22h)
+                    </button>
+                </div>
+                <button class="btn-limpiar-integrado" id="btnLimpiarTodo" title="Limpiar todos los horarios">
+                    <i class="fas fa-eraser"></i> Limpiar todo
+                </button>
+            </div>
+            
+            <!-- CONTENEDOR CON SCROLL SUAVE -->
+            <div class="cuadricula-scroll-container">
+                <!-- CUADRÍCULA DE HORARIOS -->
+                <div class="horarios-cuadricula-limpia" id="cuadriculaHorarios">
+                    
+                    <!-- ENCABEZADO DE DÍAS (ABREVIADOS) -->
+                    <div class="encabezado-dias-limpio">
+                        <div class="dia-header-limpio" data-dia="Lunes" title="Lunes">Lun</div>
+                        <div class="dia-header-limpio" data-dia="Martes" title="Martes">Mar</div>
+                        <div class="dia-header-limpio" data-dia="Miercoles" title="Miércoles">Mié</div>
+                        <div class="dia-header-limpio" data-dia="Jueves" title="Jueves">Jue</div>
+                        <div class="dia-header-limpio" data-dia="Viernes" title="Viernes">Vie</div>
+                    </div>
+                    
+                    <!-- CUERPO DE LA CUADRÍCULA (SE GENERA CON JS) -->
+                    <div class="cuadricula-cuerpo-limpio" id="cuerpoCuadriculaLimpia">
+                        <!-- Las filas se generan según el turno activo -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- LEYENDA DE COLORES (MÁS COMPACTA) -->
+            <div class="leyenda-horarios">
+                <div class="leyenda-item">
+                    <span class="leyenda-color disponible-color"></span>
+                    <span>Disponible</span>
+                </div>
+                <div class="leyenda-item">
+                    <span class="leyenda-color seleccionado-color"></span>
+                    <span>Seleccionado</span>
+                </div>
+                <div class="leyenda-item">
+                    <i class="fas fa-mouse-pointer"></i>
+                    <span>Clic para seleccionar</span>
+                </div>
+                <div class="leyenda-item">
+                    <i class="fas fa-arrows-alt-h"></i>
+                    <span>Desliza</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== PANEL 4: RESUMEN ===== -->
+        <div class="summary-panel">
+            <h2 class="summary-title"><i class="fas fa-clipboard-check"></i> Resumen de tu encuesta</h2>
+            <div class="summary-content">
+                <div class="summary-item">
+                    <h4><i class="fas fa-user"></i> Información del profesor</h4>
+                    <ul class="summary-list" id="summaryProfesor">
+                        <li>No has ingresado datos aún</li>
+                    </ul>
+                </div>
+                <div class="summary-item">
+                    <h4><i class="fas fa-book"></i> Materias seleccionadas</h4>
+                    <ul class="summary-list" id="summaryMaterias">
+                        <li>No has seleccionado materias aún</li>
+                    </ul>
+                </div>
+                <div class="summary-item">
+                    <h4><i class="fas fa-clock"></i> Horarios seleccionados</h4>
+                    <ul class="summary-list" id="summaryHorarios">
+                        <li>No has seleccionado horarios aún</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="actions">
+                <button class="btn btn-secondary btn-lg" id="saveDraftBtn" type="button">
+                    <i class="fas fa-save"></i> Guardar Borrador
+                </button>
+                <button class="btn btn-success btn-lg" id="submitBtn" type="button">
+                    <i class="fas fa-paper-plane"></i> Enviar Encuesta
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== FOOTER INSTITUCIONAL ===== -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3><i class="fas fa-university"></i> Universidad</h3>
+                    <p>Tecnológico Nacional De México Instituto Tecnológico De Cancún</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3><i class="fas fa-building"></i> Departamento</h3>
+                    <p>Departamento De Ingenierías</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3><i class="fas fa-user-tie"></i> Jefe del Departamento</h3>
+                    <p>Esquivel Briseño Carlos Roberto</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3><i class="fas fa-map-marker-alt"></i> Dirección</h3>
+                    <p>Av. Rodrigo Gómez Km. 3, Centro, 77515 Cancún, Q.R.</p>
+                    <p><i class="fas fa-phone"></i> 01 (998) 8-80-74-32</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2026 - Sistema de Encuesta para Maestros. Todos los derechos reservados.</p>
+                <p class="footer-version">Versión 2.0.0</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
