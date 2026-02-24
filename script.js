@@ -312,16 +312,21 @@ try {
 // Obtener período activo desde PocketBase
 async function obtenerPeriodoGlobal() {
     try {
+        console.log('🔍 Intentando obtener período global...');
         const records = await pb.collection('config').getList(1, 1, {
             filter: 'key = "periodo_activo"'
         });
         
+        console.log('📦 Respuesta de PocketBase:', records);
+        
         if (records.items.length > 0) {
+            console.log('✅ Período encontrado:', records.items[0].value);
             return records.items[0].value;
         }
-        return 'ene-jun'; // valor por defecto
+        console.log('⚠️ No se encontró período, usando default');
+        return 'ene-jun';
     } catch (error) {
-        console.error('Error obteniendo período global:', error);
+        console.error('❌ Error obteniendo período global:', error);
         return 'ene-jun';
     }
 }
@@ -376,7 +381,7 @@ async function guardarPeriodoGlobal(nuevoPeriodo) {
         // Actualizar variable local
         periodoActivo = nuevoPeriodo;
         
-        // ACTUALIZAR INTERFAZ - AHORA SÍ FUNCIONARÁ
+        // ACTUALIZAR INTERFAZ
         actualizarInterfazPeriodo();
         
         // Cambiar las materias
@@ -432,15 +437,156 @@ function actualizarInterfazPeriodo() {
     if (periodoBadge) {
         periodoBadge.textContent = textoPeriodo;
         console.log('✅ Badge actualizado:', textoPeriodo);
-    } else {
-        console.warn('⚠️ No se encontró elemento periodoBadge');
     }
     
     if (periodoDisplay) {
         periodoDisplay.textContent = textoPeriodo;
         console.log('✅ Display actualizado:', textoPeriodo);
-    } else {
-        console.warn('⚠️ No se encontró elemento periodoDisplay');
+    }
+}
+
+// ===== FUNCIONES PARA MATERIAS GLOBALES (EN POCKETBASE) =====
+
+// Guardar materias ENE-JUN en PocketBase
+async function guardarMateriasENEJUN() {
+    if (!adminActivo) {
+        mostrarNotificacion('No tienes permisos de administrador', 'warning');
+        return false;
+    }
+    
+    try {
+        // Buscar si ya existe un registro
+        const records = await pb.collection('materias_enejun').getList(1, 1);
+        
+        if (records.items.length > 0) {
+            // Actualizar existente
+            await pb.collection('materias_enejun').update(records.items[0].id, {
+                data: carrerasDataENEJUN
+            });
+            console.log('✅ Materias ENE-JUN actualizadas en PocketBase');
+        } else {
+            // Crear nuevo
+            await pb.collection('materias_enejun').create({
+                data: carrerasDataENEJUN
+            });
+            console.log('✅ Materias ENE-JUN creadas en PocketBase');
+        }
+        return true;
+    } catch (error) {
+        console.error('❌ Error guardando materias ENE-JUN:', error);
+        return false;
+    }
+}
+
+// Guardar materias AGO-DIC en PocketBase
+async function guardarMateriasAGODIC() {
+    if (!adminActivo) {
+        mostrarNotificacion('No tienes permisos de administrador', 'warning');
+        return false;
+    }
+    
+    try {
+        const records = await pb.collection('materias_agodic').getList(1, 1);
+        
+        if (records.items.length > 0) {
+            await pb.collection('materias_agodic').update(records.items[0].id, {
+                data: carrerasDataAGODIC
+            });
+            console.log('✅ Materias AGO-DIC actualizadas en PocketBase');
+        } else {
+            await pb.collection('materias_agodic').create({
+                data: carrerasDataAGODIC
+            });
+            console.log('✅ Materias AGO-DIC creadas en PocketBase');
+        }
+        return true;
+    } catch (error) {
+        console.error('❌ Error guardando materias AGO-DIC:', error);
+        return false;
+    }
+}
+
+// Cargar materias desde PocketBase
+async function cargarMateriasGlobales() {
+    try {
+        // Cargar ENE-JUN
+        const recordsENEJUN = await pb.collection('materias_enejun').getList(1, 1);
+        if (recordsENEJUN.items.length > 0) {
+            const data = recordsENEJUN.items[0].data;
+            // Actualizar objeto manteniendo la estructura
+            Object.keys(data).forEach(key => {
+                carrerasDataENEJUN[key] = data[key];
+            });
+            console.log('📚 Materias ENE-JUN cargadas de PocketBase');
+        }
+        
+        // Cargar AGO-DIC
+        const recordsAGODIC = await pb.collection('materias_agodic').getList(1, 1);
+        if (recordsAGODIC.items.length > 0) {
+            const data = recordsAGODIC.items[0].data;
+            Object.keys(data).forEach(key => {
+                carrerasDataAGODIC[key] = data[key];
+            });
+            console.log('📚 Materias AGO-DIC cargadas de PocketBase');
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('❌ Error cargando materias globales:', error);
+        return false;
+    }
+}
+
+// ===== FUNCIONES PARA PROFESORES GLOBALES (EN POCKETBASE) =====
+
+// Guardar profesores en PocketBase
+async function guardarProfesoresGlobales() {
+    if (!adminActivo) {
+        mostrarNotificacion('No tienes permisos de administrador', 'warning');
+        return false;
+    }
+    
+    try {
+        // Primero, eliminar todos los registros existentes
+        const existentes = await pb.collection('profesores').getFullList();
+        for (let prof of existentes) {
+            await pb.collection('profesores').delete(prof.id);
+        }
+        
+        // Luego crear los nuevos
+        for (let nombre of profesoresDB) {
+            await pb.collection('profesores').create({
+                nombre: nombre
+            });
+        }
+        
+        console.log('✅ Profesores guardados en PocketBase');
+        return true;
+    } catch (error) {
+        console.error('❌ Error guardando profesores:', error);
+        return false;
+    }
+}
+
+// Cargar profesores desde PocketBase
+async function cargarProfesoresGlobales() {
+    try {
+        const records = await pb.collection('profesores').getFullList({
+            sort: 'nombre'
+        });
+        
+        if (records.length > 0) {
+            profesoresDB.length = 0;
+            records.forEach(r => profesoresDB.push(r.nombre));
+            console.log(`👥 ${profesoresDB.length} profesores cargados de PocketBase`);
+            return true;
+        } else {
+            console.log('⚠️ No hay profesores en PocketBase, usando locales');
+            return false;
+        }
+    } catch (error) {
+        console.error('❌ Error cargando profesores:', error);
+        return false;
     }
 }
 
@@ -1444,73 +1590,33 @@ async function cambiarPeriodo(nuevoPeriodo) {
     }
 }
 
-// ===== FUNCIONES DE POCKETBASE =====
+// ===== VARIABLES GLOBALES PARA PAGINACIÓN =====
+let todasLasEncuestas = [];
+let encuestasFiltradas = [];
+let paginaActual = 1;
+let itemsPorPagina = 10;
+
+// ===== FUNCIÓN PRINCIPAL PARA VER ENCUESTAS =====
 async function verTodasLasEncuestas() {
     try {
         mostrarNotificacion('Cargando encuestas...', 'info');
         
-        const encuestas = await pb.collection('encuestas').getFullList({
-            sort: '-created'
+        // Obtener TODAS las encuestas de PocketBase
+        todasLasEncuestas = await pb.collection('encuestas').getFullList({
+            sort: '-created' // Más recientes primero
         });
         
-        console.log('📋 Encuestas recibidas:', encuestas);
+        console.log('📋 Encuestas recibidas:', todasLasEncuestas);
         
-        if (!encuestas || encuestas.length === 0) {
+        if (!todasLasEncuestas || todasLasEncuestas.length === 0) {
             mostrarNotificacion('No hay encuestas guardadas', 'info');
             return;
         }
         
-        let modalHTML = `
-            <div class="gestion-modal" id="modalVerEncuestas" style="z-index: 30000;">
-                <div class="gestion-contenido" style="max-width: 800px;">
-                    <div class="gestion-header">
-                        <h3><i class="fas fa-clipboard-list"></i> Todas las Encuestas (${encuestas.length})</h3>
-                        <button class="gestion-cerrar" onclick="cerrarModalEncuestas()">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                    <div class="gestion-body" style="max-height: 500px; overflow-y: auto;">
-        `;
+        encuestasFiltradas = [...todasLasEncuestas];
+        paginaActual = 1;
         
-        encuestas.forEach((enc, index) => {
-            const profesor = enc.profesor || { nombre: 'Sin nombre' };
-            const fecha = enc.fecha ? new Date(enc.fecha).toLocaleString('es-MX') : 'Fecha desconocida';
-            const tipo = enc.es_borrador ? '📝 Borrador' : '✅ Enviada';
-            
-            modalHTML += `
-                <div style="background: #f8f9fa; padding: 15px; margin-bottom: 15px; border-radius: 8px; border-left: 4px solid ${enc.es_borrador ? '#f39c12' : '#2ecc71'};">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                        <strong>${profesor.nombre || 'Sin nombre'}</strong>
-                        <span>${tipo}</span>
-                    </div>
-                    <div style="font-size: 0.9rem; color: #666;">
-                        <div>📧 ${profesor.correo || 'Sin correo'}</div>
-                        <div>🆔 ${profesor.codigo || 'Sin clave'}</div>
-                        <div>📚 Materias: ${enc.materias?.length || 0}</div>
-                        <div>🕐 Horarios: ${enc.horarios?.length || 0}</div>
-                        <div>📅 ${fecha}</div>
-                    </div>
-                </div>
-            `;
-        });
-        
-        modalHTML += `
-                    </div>
-                    <div class="gestion-footer">
-                        <button class="btn btn-secondary" onclick="cerrarModalEncuestas()">Cerrar</button>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        const modalAnterior = document.getElementById('modalVerEncuestas');
-        if (modalAnterior) modalAnterior.remove();
-        
-        const modalContainer = document.createElement('div');
-        modalContainer.innerHTML = modalHTML;
-        document.body.appendChild(modalContainer.firstElementChild);
-        
-        mostrarNotificacion(`📊 ${encuestas.length} encuestas encontradas`, 'success');
+        mostrarModalEncuestasAvanzado();
         
     } catch (error) {
         console.error('❌ Error al obtener encuestas:', error);
@@ -1518,6 +1624,274 @@ async function verTodasLasEncuestas() {
     }
 }
 
+// ===== MOSTRAR MODAL AVANZADO =====
+function mostrarModalEncuestasAvanzado() {
+    // Calcular estadísticas - SOLO TOTAL
+    const totalEncuestas = todasLasEncuestas.length;
+    
+    let modalHTML = `
+        <div class="gestion-modal" id="modalVerEncuestas" style="z-index: 30000;">
+            <div class="gestion-contenido" style="max-width: 1000px;">
+                <div class="gestion-header">
+                    <h3><i class="fas fa-clipboard-list"></i> Todas las Encuestas</h3>
+                    <button class="gestion-cerrar" onclick="cerrarModalEncuestas()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="gestion-body" style="max-height: 80vh; overflow-y: auto;">
+                    
+                    <!-- ESTADÍSTICAS - SOLO TOTAL -->
+                    <div class="encuestas-stats" style="justify-content: center;">
+                        <div class="stat-item">
+                            <div class="stat-valor">${totalEncuestas}</div>
+                            <div class="stat-label">Total Encuestas</div>
+                        </div>
+                    </div>
+                    
+                    <!-- FILTROS - SOLO NOMBRE Y PERÍODO (SIN TIPO) -->
+                    <div class="encuestas-filtros">
+                        <input type="text" class="filtro-input" id="filtroNombre" placeholder="Buscar por nombre del profesor..." style="flex: 2;">
+                        <select class="filtro-select" id="filtroPeriodo" style="flex: 1;">
+                            <option value="todos">Todos los períodos</option>
+                            <option value="ene-jun">ENE - JUN</option>
+                            <option value="ago-dic">AGO - DIC</option>
+                        </select>
+                    </div>
+                    
+                    <!-- LISTA DE ENCUESTAS -->
+                    <div id="encuestasListaContainer"></div>
+                    
+                    <!-- PAGINACIÓN -->
+                    <div id="paginacionContainer" class="paginacion"></div>
+                    
+                </div>
+                <div class="gestion-footer">
+                    <button class="btn btn-secondary" onclick="cerrarModalEncuestas()">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Eliminar modal anterior si existe
+    const modalAnterior = document.getElementById('modalVerEncuestas');
+    if (modalAnterior) modalAnterior.remove();
+    
+    // Agregar nuevo modal
+    const modalContainer = document.createElement('div');
+    modalContainer.innerHTML = modalHTML;
+    document.body.appendChild(modalContainer.firstElementChild);
+    
+    // Renderizar lista inicial
+    renderizarListaEncuestas();
+    
+    // Agregar event listeners para filtros (solo nombre y período)
+    document.getElementById('filtroNombre').addEventListener('input', aplicarFiltros);
+    document.getElementById('filtroPeriodo').addEventListener('change', aplicarFiltros);
+}
+
+// ===== APLICAR FILTROS =====
+function aplicarFiltros() {
+    const nombreFiltro = document.getElementById('filtroNombre').value.toLowerCase().trim();
+    const periodoFiltro = document.getElementById('filtroPeriodo').value;
+    
+    encuestasFiltradas = todasLasEncuestas.filter(enc => {
+        // Filtro por nombre
+        const nombre = enc.profesor?.nombre?.toLowerCase() || '';
+        if (nombreFiltro && !nombre.includes(nombreFiltro)) return false;
+        
+        // Filtro por período
+        if (periodoFiltro !== 'todos' && enc.periodo !== periodoFiltro) return false;
+        
+        return true;
+    });
+    
+    paginaActual = 1;
+    renderizarListaEncuestas();
+}
+
+// ===== RENDERIZAR LISTA DE ENCUESTAS =====
+function renderizarListaEncuestas() {
+    const container = document.getElementById('encuestasListaContainer');
+    if (!container) return;
+    
+    const inicio = (paginaActual - 1) * itemsPorPagina;
+    const fin = inicio + itemsPorPagina;
+    const encuestasPagina = encuestasFiltradas.slice(inicio, fin);
+    
+    let html = '<div class="encuestas-lista">';
+    
+    encuestasPagina.forEach((enc, index) => {
+        const profesor = enc.profesor || {};
+        const fecha = enc.fecha ? new Date(enc.fecha).toLocaleString('es-MX') : 'Fecha desconocida';
+        const tipo = enc.es_borrador ? 'borrador' : 'enviada';
+        const periodoTexto = enc.periodo === 'ene-jun' ? 'ENE - JUN' : (enc.periodo === 'ago-dic' ? 'AGO - DIC' : 'No especificado');
+        const iniciales = profesor.nombre ? profesor.nombre.split(' ').map(p => p[0]).join('').substring(0, 2).toUpperCase() : '??';
+        
+        html += `
+            <div class="encuesta-card ${tipo}" onclick="toggleEncuestaDetalle('enc-${index}')">
+                <div class="encuesta-header">
+                    <div class="encuesta-profesor">
+                        <div class="encuesta-avatar">${iniciales}</div>
+                        <div class="encuesta-info">
+                            <h4>${profesor.nombre || 'Nombre no especificado'}</h4>
+                            <p>
+                                <i class="fas fa-envelope"></i> ${profesor.correo || 'Sin correo'}
+                                <i class="fas fa-id-card" style="margin-left: 10px;"></i> ${profesor.codigo || 'Sin clave'}
+                            </p>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="encuesta-badge ${tipo === 'borrador' ? 'badge-borrador' : 'badge-enviada'}">${tipo === 'borrador' ? 'Borrador' : 'Enviada'}</span>
+                    </div>
+                </div>
+                
+                <div class="encuesta-resumen">
+                    <span class="resumen-item"><i class="fas fa-calendar"></i> ${periodoTexto}</span>
+                    <span class="resumen-item"><i class="fas fa-book"></i> ${enc.materias?.length || 0} materias</span>
+                    <span class="resumen-item"><i class="fas fa-clock"></i> ${enc.horarios?.length || 0} horarios</span>
+                    <span class="resumen-item"><i class="fas fa-briefcase"></i> ${profesor.tipoPlaza || 'Plaza no especificada'}</span>
+                </div>
+                
+                <div class="encuesta-footer">
+                    <span><i class="far fa-clock"></i> ${fecha}</span>
+                </div>
+                
+                <div class="encuesta-detalles" id="enc-${index}">
+                    <div class="detalle-seccion">
+                        <h5><i class="fas fa-user-graduate"></i> Datos completos del profesor</h5>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                            <div>
+                                <strong><i class="fas fa-phone"></i> Teléfono:</strong><br>
+                                <span style="color: #2c3e50;">${profesor.telefono || 'No especificado'}</span>
+                            </div>
+                            <div>
+                                <strong><i class="fas fa-id-card"></i> Clave Docente:</strong><br>
+                                <span style="color: #2c3e50;">${profesor.codigo || 'No especificada'}</span>
+                            </div>
+        `;
+        
+        // Solo mostrar horas semanales si el tipo de plaza es 'por_horas'
+        if (profesor.tipoPlaza === 'por_horas' && profesor.horasPlaza) {
+            html += `
+                            <div>
+                                <strong><i class="fas fa-clock"></i> Horas semanales:</strong><br>
+                                <span style="color: #2c3e50;">${profesor.horasPlaza}</span>
+                            </div>
+            `;
+        }
+        
+        html += `
+                        </div>
+                    </div>
+                    
+                    <div class="detalle-seccion">
+                        <h5><i class="fas fa-book-open"></i> Materias seleccionadas</h5>
+                        <div class="detalle-materias">
+        `;
+        
+        if (enc.materias && enc.materias.length > 0) {
+            enc.materias.forEach(m => {
+                const carrerasTexto = m.carreras ? m.carreras.map(c => `${c.carrera} - Sem ${c.semestre}`).join(', ') : 'Sin carrera';
+                html += `
+                    <div class="detalle-materia-item">
+                        <strong>${m.nombre}</strong>
+                        <small>${carrerasTexto}</small>
+                        <div><small>Nivel: ${m.nivel || 'No especificado'}</small></div>
+                    </div>
+                `;
+            });
+        } else {
+            html += '<div class="detalle-materia-item">No hay materias seleccionadas</div>';
+        }
+        
+        html += `
+                        </div>
+                    </div>
+                    
+                    <div class="detalle-seccion">
+                        <h5><i class="fas fa-clock"></i> Horarios seleccionados</h5>
+                        <div class="detalle-horarios">
+        `;
+        
+        if (enc.horarios && enc.horarios.length > 0) {
+            const horariosPorDia = {};
+            enc.horarios.forEach(h => {
+                if (!horariosPorDia[h.dia]) horariosPorDia[h.dia] = [];
+                horariosPorDia[h.dia].push(h);
+            });
+            
+            Object.keys(horariosPorDia).sort().forEach(dia => {
+                html += `<div style="grid-column: 1 / -1;"><strong>${dia}:</strong></div>`;
+                horariosPorDia[dia].forEach(h => {
+                    html += `
+                        <div class="detalle-horario-item">
+                            <i class="fas fa-clock"></i> ${h.texto}
+                        </div>
+                    `;
+                });
+            });
+        } else {
+            html += '<div class="detalle-horario-item">No hay horarios seleccionados</div>';
+        }
+        
+        html += `
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    container.innerHTML = html;
+    
+    // Renderizar paginación
+    renderizarPaginacion();
+}
+
+// ===== RENDERIZAR PAGINACIÓN =====
+function renderizarPaginacion() {
+    const container = document.getElementById('paginacionContainer');
+    if (!container) return;
+    
+    const totalPaginas = Math.ceil(encuestasFiltradas.length / itemsPorPagina);
+    
+    let html = '';
+    
+    if (totalPaginas > 1) {
+        html = `
+            <button class="btn-pagina" onclick="cambiarPagina(${paginaActual - 1})" ${paginaActual === 1 ? 'disabled' : ''}>
+                <i class="fas fa-chevron-left"></i> Anterior
+            </button>
+            <span class="pagina-actual">Página ${paginaActual} de ${totalPaginas}</span>
+            <button class="btn-pagina" onclick="cambiarPagina(${paginaActual + 1})" ${paginaActual === totalPaginas ? 'disabled' : ''}>
+                Siguiente <i class="fas fa-chevron-right"></i>
+            </button>
+        `;
+    }
+    
+    container.innerHTML = html;
+}
+
+// ===== CAMBIAR PÁGINA =====
+function cambiarPagina(nuevaPagina) {
+    paginaActual = nuevaPagina;
+    renderizarListaEncuestas();
+}
+
+// ===== TOGGLE DETALLE DE ENCUESTA =====
+function toggleEncuestaDetalle(id) {
+    const elemento = document.getElementById(id);
+    if (elemento) {
+        if (elemento.style.display === 'block') {
+            elemento.style.display = 'none';
+        } else {
+            elemento.style.display = 'block';
+        }
+    }
+}
+
+// ===== CERRAR MODAL =====
 function cerrarModalEncuestas() {
     const modal = document.getElementById('modalVerEncuestas');
     if (modal) modal.remove();
@@ -1531,7 +1905,7 @@ function exportarAPDF() {
     mostrarNotificacion('Función: Exportar a PDF (próximamente)', 'info');
 }
 
-// ===== GESTIÓN DE MATERIAS (IGUAL QUE ANTES) =====
+// ===== GESTIÓN DE MATERIAS =====
 function gestionarMaterias() {
     console.log('📚 Abriendo gestión de materias...');
     mostrarNotificacion('Abriendo editor de materias...', 'info', 2000);
@@ -1677,7 +2051,7 @@ function eliminarMateria(carreraKey, index, periodo) {
     }
 }
 
-function guardarCambiosMaterias() {
+async function guardarCambiosMaterias() {
     try {
         const materiasModificadas = [];
         
@@ -1709,6 +2083,7 @@ function guardarCambiosMaterias() {
             }
         });
         
+        // Aplicar cambios a los objetos en memoria
         materiasModificadas.forEach(item => {
             const data = item.periodo === 'ene-jun' ? carrerasDataENEJUN : carrerasDataAGODIC;
             
@@ -1727,12 +2102,22 @@ function guardarCambiosMaterias() {
             }
         });
         
-        localStorage.setItem('carrerasDataENEJUN', JSON.stringify(carrerasDataENEJUN));
-        localStorage.setItem('carrerasDataAGODIC', JSON.stringify(carrerasDataAGODIC));
+        // GUARDAR EN POCKETBASE
+        const guardadoENEJUN = await guardarMateriasENEJUN();
+        const guardadoAGODIC = await guardarMateriasAGODIC();
         
-        todasLasMaterias = generarListaGlobalMaterias();
-        
-        mostrarNotificacion('✅ Materias guardadas correctamente', 'success');
+        if (guardadoENEJUN && guardadoAGODIC) {
+            // Actualizar localStorage como backup
+            localStorage.setItem('carrerasDataENEJUN', JSON.stringify(carrerasDataENEJUN));
+            localStorage.setItem('carrerasDataAGODIC', JSON.stringify(carrerasDataAGODIC));
+            
+            // Regenerar lista global
+            todasLasMaterias = generarListaGlobalMaterias();
+            
+            mostrarNotificacion('✅ Materias guardadas correctamente (global)', 'success');
+        } else {
+            mostrarNotificacion('⚠️ Error al guardar en PocketBase, pero se guardó localmente', 'warning');
+        }
         
         setTimeout(() => {
             cerrarGestionMaterias();
@@ -1846,10 +2231,11 @@ function eliminarProfesor(index) {
     }
 }
 
-function guardarCambiosProfesores() {
+async function guardarCambiosProfesores() {
     try {
         const nuevosProfesores = [];
         
+        // Recopilar modificaciones
         document.querySelectorAll('.profesor-item-gestion:not(.nuevo) .profesor-nombre-input').forEach(input => {
             const index = parseInt(input.dataset.index);
             const nuevoNombre = input.value.trim();
@@ -1859,6 +2245,7 @@ function guardarCambiosProfesores() {
             }
         });
         
+        // Recopilar nuevos profesores
         document.querySelectorAll('.profesor-item-gestion.nuevo .profesor-nombre-input').forEach(input => {
             const nombre = input.value.trim();
             if (nombre) {
@@ -1866,13 +2253,23 @@ function guardarCambiosProfesores() {
             }
         });
         
+        // Agregar nuevos profesores
         profesoresDB.push(...nuevosProfesores);
         
+        // Ordenar
         profesoresDB.sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
         
-        localStorage.setItem('profesoresDB', JSON.stringify(profesoresDB));
+        // GUARDAR EN POCKETBASE
+        const guardado = await guardarProfesoresGlobales();
         
-        mostrarNotificacion('✅ Profesores guardados correctamente', 'success');
+        if (guardado) {
+            // Guardar en localStorage como backup
+            localStorage.setItem('profesoresDB', JSON.stringify(profesoresDB));
+            
+            mostrarNotificacion('✅ Profesores guardados correctamente (global)', 'success');
+        } else {
+            mostrarNotificacion('⚠️ Error al guardar en PocketBase, pero se guardó localmente', 'warning');
+        }
         
         setTimeout(() => {
             cerrarGestionProfesores();
@@ -2141,8 +2538,17 @@ function configurarBotones() {
 async function inicializarAplicacion() {
     console.log('🚀 Iniciando Sistema de Encuesta para Maestros...');
     
-    // Cargar período desde PocketBase (NO desde localStorage)
+    // Cargar período desde PocketBase
     periodoActivo = await obtenerPeriodoGlobal();
+    
+    // Cargar materias y profesores desde PocketBase
+    try {
+        await cargarMateriasGlobales();
+        await cargarProfesoresGlobales();
+        console.log('✅ Datos globales cargados de PocketBase');
+    } catch (error) {
+        console.warn('⚠️ Usando datos locales:', error);
+    }
     
     // Cargar las materias correspondientes
     if (periodoActivo === 'ene-jun') {
