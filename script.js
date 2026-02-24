@@ -296,7 +296,8 @@ let periodoActivo = 'ene-jun';
 let adminActivo = false;
 
 // ===== CONEXIÓN A POCKETBASE =====
-const POCKETBASE_URL = 'http://127.0.0.1:8090'; // Cambia esto cuando subas PocketBase a producción
+const POCKETBASE_URL = 'https://encuestas-profesores-pb.fly.dev';
+
 let pb;
 
 try {
