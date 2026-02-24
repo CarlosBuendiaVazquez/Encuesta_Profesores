@@ -328,46 +328,120 @@ async function obtenerPeriodoGlobal() {
 
 // Guardar período en PocketBase (solo admin)
 async function guardarPeriodoGlobal(nuevoPeriodo) {
+    console.log('🔍 Intentando guardar período:', nuevoPeriodo);
+    console.log('👑 ¿Es admin?', adminActivo);
+    
+    if (!adminActivo) {
+        mostrarNotificacion('No tienes permisos de administrador', 'warning');
+        return false;
+    }
+    
     try {
-        const records = await pb.collection('config').getList(1, 1, {
-            filter: 'key = "periodo_activo"'
-        });
+        // Intentar obtener el registro existente
+        let records;
+        try {
+            records = await pb.collection('config').getList(1, 1, {
+                filter: 'key = "periodo_activo"'
+            });
+            console.log('📦 Registros encontrados:', records);
+        } catch (listError) {
+            console.error('❌ Error al listar config:', listError);
+            if (listError.status === 404) {
+                mostrarNotificacion('La colección "config" no existe. Créala en PocketBase', 'error');
+                return false;
+            }
+            throw listError;
+        }
         
+        // Si existe, actualizar
         if (records.items.length > 0) {
-            // Actualizar existente
+            console.log('🔄 Actualizando registro existente:', records.items[0].id);
             await pb.collection('config').update(records.items[0].id, {
                 value: nuevoPeriodo
             });
-        } else {
-            // Crear nuevo
+            console.log('✅ Período actualizado');
+            mostrarNotificacion(`Período actualizado a ${nuevoPeriodo === 'ene-jun' ? 'ENE-JUN' : 'AGO-DIC'}`, 'success');
+        } 
+        // Si no existe, crear nuevo
+        else {
+            console.log('➕ Creando nuevo registro');
             await pb.collection('config').create({
                 key: 'periodo_activo',
                 value: nuevoPeriodo
             });
+            console.log('✅ Período creado');
+            mostrarNotificacion(`Período creado: ${nuevoPeriodo === 'ene-jun' ? 'ENE-JUN' : 'AGO-DIC'}`, 'success');
         }
         
         // Actualizar variable local
         periodoActivo = nuevoPeriodo;
         
-        // Actualizar interfaz
+        // ACTUALIZAR INTERFAZ - AHORA SÍ FUNCIONARÁ
         actualizarInterfazPeriodo();
         
-        console.log('✅ Período global actualizado:', nuevoPeriodo);
+        // Cambiar las materias
+        if (nuevoPeriodo === 'ene-jun') {
+            carrerasData = carrerasDataENEJUN;
+        } else {
+            carrerasData = carrerasDataAGODIC;
+        }
+        todasLasMaterias = generarListaGlobalMaterias();
+        
+        // Actualizar vista de materias
+        if (document.getElementById('resultadosBusqueda').style.display === 'block') {
+            mostrarTodasLasMateriasDelFiltro();
+        }
+        
+        // Actualizar los tabs en el panel admin
+        const btnENEJUN = document.getElementById('periodoENEJUN');
+        const btnAGODIC = document.getElementById('periodoAGODIC');
+        
+        if (nuevoPeriodo === 'ene-jun') {
+            btnENEJUN?.classList.add('active');
+            btnAGODIC?.classList.remove('active');
+        } else {
+            btnAGODIC?.classList.add('active');
+            btnENEJUN?.classList.remove('active');
+        }
+        
+        console.log('✅ Período global actualizado correctamente');
         return true;
+        
     } catch (error) {
-        console.error('Error guardando período global:', error);
+        console.error('❌ Error guardando período global:', error);
+        console.error('Status:', error.status);
+        console.error('Data:', error.data);
+        
+        if (error.status === 400) {
+            mostrarNotificacion('Error: La colección "config" no está bien configurada', 'error');
+        } else {
+            mostrarNotificacion('Error al guardar el período: ' + (error.message || 'Error desconocido'), 'error');
+        }
         return false;
     }
 }
 
 // Actualizar interfaz con el período actual
 function actualizarInterfazPeriodo() {
+    console.log('🔄 Actualizando interfaz con período:', periodoActivo);
+    
     const periodoBadge = document.getElementById('periodoBadge');
     const periodoDisplay = document.getElementById('periodoActualDisplay');
     const textoPeriodo = periodoActivo === 'ene-jun' ? 'ENE - JUN' : 'AGO - DIC';
     
-    if (periodoBadge) periodoBadge.textContent = textoPeriodo;
-    if (periodoDisplay) periodoDisplay.textContent = textoPeriodo;
+    if (periodoBadge) {
+        periodoBadge.textContent = textoPeriodo;
+        console.log('✅ Badge actualizado:', textoPeriodo);
+    } else {
+        console.warn('⚠️ No se encontró elemento periodoBadge');
+    }
+    
+    if (periodoDisplay) {
+        periodoDisplay.textContent = textoPeriodo;
+        console.log('✅ Display actualizado:', textoPeriodo);
+    } else {
+        console.warn('⚠️ No se encontró elemento periodoDisplay');
+    }
 }
 
 // ===== SISTEMA DE ACCESO ADMIN POR URL =====
