@@ -276,6 +276,10 @@ const carrerasDataAGODIC = {
     }
 };
 
+// ===== RESPALDO DE DATOS ORIGINALES =====
+const carrerasDataENEJUNOriginal = JSON.parse(JSON.stringify(carrerasDataENEJUN));
+const carrerasDataAGODICOriginal = JSON.parse(JSON.stringify(carrerasDataAGODIC));
+
 // ===== VARIABLES GLOBALES =====
 let carrerasData = carrerasDataENEJUN;
 let datosProfesor = {
@@ -506,35 +510,94 @@ async function guardarMateriasAGODIC() {
     }
 }
 
-// Cargar materias desde PocketBase
+// Cargar materias desde PocketBase (VERSIÓN CORREGIDA)
 async function cargarMateriasGlobales() {
+    let cargoAlguna = false;
+    let errorAlCargar = false;
+    
     try {
         // Cargar ENE-JUN
         const recordsENEJUN = await pb.collection('materias_enejun').getList(1, 1);
         if (recordsENEJUN.items.length > 0) {
             const data = recordsENEJUN.items[0].data;
-            // Actualizar objeto manteniendo la estructura
-            Object.keys(data).forEach(key => {
-                carrerasDataENEJUN[key] = data[key];
-            });
-            console.log('📚 Materias ENE-JUN cargadas de PocketBase');
+            // Verificar que data no esté vacío
+            if (data && Object.keys(data).length > 0) {
+                // Limpiar el objeto original antes de reasignar
+                Object.keys(carrerasDataENEJUN).forEach(key => delete carrerasDataENEJUN[key]);
+                // Copiar los nuevos datos
+                Object.assign(carrerasDataENEJUN, data);
+                console.log('📚 Materias ENE-JUN cargadas de PocketBase');
+                cargoAlguna = true;
+            } else {
+                console.log('⚠️ Datos de ENE-JUN vacíos en PocketBase, usando locales');
+            }
+        } else {
+            console.log('⚠️ No hay materias ENE-JUN en PocketBase, usando locales');
+            // Asegurar que los datos locales están completos
+            if (Object.keys(carrerasDataENEJUN).length === 0) {
+                console.log('🔄 Restaurando datos ENE-JUN por defecto');
+                // Si por algún motivo se borraron, restaurar desde el objeto original
+                Object.assign(carrerasDataENEJUN, carrerasDataENEJUNOriginal);
+            }
         }
-        
+    } catch (error) {
+        console.error('❌ Error cargando materias ENE-JUN:', error);
+        errorAlCargar = true;
+    }
+    
+    try {
         // Cargar AGO-DIC
         const recordsAGODIC = await pb.collection('materias_agodic').getList(1, 1);
         if (recordsAGODIC.items.length > 0) {
             const data = recordsAGODIC.items[0].data;
-            Object.keys(data).forEach(key => {
-                carrerasDataAGODIC[key] = data[key];
-            });
-            console.log('📚 Materias AGO-DIC cargadas de PocketBase');
+            if (data && Object.keys(data).length > 0) {
+                // Limpiar el objeto original antes de reasignar
+                Object.keys(carrerasDataAGODIC).forEach(key => delete carrerasDataAGODIC[key]);
+                // Copiar los nuevos datos
+                Object.assign(carrerasDataAGODIC, data);
+                console.log('📚 Materias AGO-DIC cargadas de PocketBase');
+                cargoAlguna = true;
+            } else {
+                console.log('⚠️ Datos de AGO-DIC vacíos en PocketBase, usando locales');
+            }
+        } else {
+            console.log('⚠️ No hay materias AGO-DIC en PocketBase, usando locales');
+            // Asegurar que los datos locales están completos
+            if (Object.keys(carrerasDataAGODIC).length === 0) {
+                console.log('🔄 Restaurando datos AGO-DIC por defecto');
+                // Si por algún motivo se borraron, restaurar desde el objeto original
+                Object.assign(carrerasDataAGODIC, carrerasDataAGODICOriginal);
+            }
+        }
+    } catch (error) {
+        console.error('❌ Error cargando materias AGO-DIC:', error);
+        errorAlCargar = true;
+    }
+    
+    // Si hubo error o no se cargó nada, asegurar que los datos por defecto estén presentes
+    if (errorAlCargar || !cargoAlguna) {
+        console.log('📚 Usando/restaurando materias locales');
+        
+        // Restaurar ENE-JUN si está vacío
+        if (Object.keys(carrerasDataENEJUN).length === 0) {
+            console.log('🔄 Restaurando ENE-JUN por defecto');
+            Object.assign(carrerasDataENEJUN, carrerasDataENEJUNOriginal);
         }
         
-        return true;
-    } catch (error) {
-        console.error('❌ Error cargando materias globales:', error);
-        return false;
+        // Restaurar AGO-DIC si está vacío
+        if (Object.keys(carrerasDataAGODIC).length === 0) {
+            console.log('🔄 Restaurando AGO-DIC por defecto');
+            Object.assign(carrerasDataAGODIC, carrerasDataAGODICOriginal);
+        }
+        
+        // Guardar los datos locales en PocketBase para futuras cargas
+        if (adminActivo) {
+            await guardarMateriasENEJUN();
+            await guardarMateriasAGODIC();
+        }
     }
+    
+    return cargoAlguna;
 }
 
 // ===== FUNCIONES PARA PROFESORES GLOBALES (EN POCKETBASE) =====
@@ -1550,8 +1613,6 @@ function inicializarModoAdmin() {
     document.getElementById('exportarPDFBtn')?.addEventListener('click', exportarAPDF);
     document.getElementById('gestionarMateriasBtn')?.addEventListener('click', gestionarMaterias);
     document.getElementById('gestionarProfesoresBtn')?.addEventListener('click', gestionarProfesores);
-    
-    mostrarNotificacion('👑 Modo administrador activado', 'info', 5000);
 }
 
 async function cambiarPeriodo(nuevoPeriodo) {
@@ -2111,8 +2172,15 @@ async function guardarCambiosMaterias() {
             localStorage.setItem('carrerasDataENEJUN', JSON.stringify(carrerasDataENEJUN));
             localStorage.setItem('carrerasDataAGODIC', JSON.stringify(carrerasDataAGODIC));
             
-            // Regenerar lista global
+            // Regenerar lista global de materias (para la búsqueda)
             todasLasMaterias = generarListaGlobalMaterias();
+            
+            // Si el período actual es el que se modificó, actualizar la vista
+            if (periodoGestionActual === periodoActivo) {
+                if (document.getElementById('resultadosBusqueda').style.display === 'block') {
+                    mostrarTodasLasMateriasDelFiltro();
+                }
+            }
             
             mostrarNotificacion('✅ Materias guardadas correctamente (global)', 'success');
         } else {
@@ -2405,8 +2473,8 @@ function actualizarResumenHorarios() {
     }
 }
 
-// ===== ENVÍO DE ENCUESTA CON POCKETBASE =====
-async function enviarEncuesta(esBorrador = false) {
+// ===== ENVÍO DE ENCUESTA CON POCKETBASE (SIN BORRADOR) =====
+async function enviarEncuesta() {
     if (!datosProfesor.nombre || !datosProfesor.correo || !datosProfesor.codigo) {
         mostrarNotificacion('Ingresa tu nombre, correo electrónico y clave docente', 'warning');
         if (!datosProfesor.nombre) document.getElementById('buscadorProfesores').focus();
@@ -2432,7 +2500,7 @@ async function enviarEncuesta(esBorrador = false) {
         return;
     }
     
-    if (horariosSeleccionados.length === 0 && !esBorrador) {
+    if (horariosSeleccionados.length === 0) {
         mostrarNotificacion('Selecciona al menos un horario disponible', 'warning');
         return;
     }
@@ -2443,78 +2511,76 @@ async function enviarEncuesta(esBorrador = false) {
             materias: materiasSeleccionadas,
             horarios: horariosSeleccionados,
             periodo: periodoActivo,
-            es_borrador: esBorrador,
+            es_borrador: false,
             fecha: new Date().toISOString()
         });
         
         console.log('✅ Encuesta guardada en PocketBase:', encuesta);
         
-        if (esBorrador) {
-            mostrarNotificacion('📝 Borrador guardado exitosamente', 'success', 5000);
-        } else {
-            mostrarNotificacion('✅ ¡Encuesta enviada exitosamente!', 'success', 6000);
-            
-            datosProfesor = {
-                nombre: '',
-                correo: '',
-                telefono: '',
-                codigo: '',
-                tipoPlaza: '',
-                horasPlaza: ''
-            };
-            
-            document.getElementById('nombreProfesor').value = '';
-            document.getElementById('buscadorProfesores').value = '';
-            document.getElementById('buscadorProfesores').placeholder = 'Escribe para buscar...';
-            document.getElementById('correoProfesor').value = '';
-            document.getElementById('telefonoProfesor').value = '';
-            document.getElementById('codigoProfesor').value = '';
-            document.getElementById('tipoPlaza').value = '';
-            
-            const horasContainer = document.getElementById('horasPlazaContainer');
-            horasContainer.style.display = 'none';
-            document.getElementById('horasPlaza').value = '';
-            
-            document.getElementById('otroProfesorContainer').style.display = 'none';
-            document.getElementById('otroProfesorInput').value = '';
-            
-            materiasSeleccionadas = [];
-            horariosSeleccionados = [];
-            filtroCarreraActual = '';
-            materiaSeleccionadaTemp = null;
-            turnoActivo = 'matutino';
-            
-            const pestanaMatutino = document.getElementById('pestanaMatutino');
-            const pestanaVespertino = document.getElementById('pestanaVespertino');
-            if (pestanaMatutino) pestanaMatutino.classList.add('active');
-            if (pestanaVespertino) pestanaVespertino.classList.remove('active');
-            
-            renderizarMaterias();
-            actualizarContadorMaterias();
-            generarCuadriculaPorTurno('matutino');
-            
-            const selectCarrera = document.getElementById('selectCarrera');
-            if (selectCarrera) selectCarrera.value = '';
-            
-            const buscadorMaterias = document.getElementById('buscadorMaterias');
-            if (buscadorMaterias) buscadorMaterias.value = '';
-            
-            const resultadosBusqueda = document.getElementById('resultadosBusqueda');
-            if (resultadosBusqueda) resultadosBusqueda.style.display = 'none';
-            
-            const selectorNivel = document.getElementById('selectorNivelContainer');
-            if (selectorNivel) selectorNivel.style.display = 'none';
-            
-            actualizarResumenProfesor();
-            actualizarResumenMaterias();
-            actualizarResumenHorarios();
-            
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            
-            setTimeout(() => {
-                mostrarNotificacion('✨ Formulario listo para una nueva encuesta', 'info', 4000);
-            }, 1000);
-        }
+        mostrarNotificacion('✅ ¡Encuesta enviada exitosamente!', 'success', 6000);
+        
+        // Reset del formulario
+        datosProfesor = {
+            nombre: '',
+            correo: '',
+            telefono: '',
+            codigo: '',
+            tipoPlaza: '',
+            horasPlaza: ''
+        };
+        
+        document.getElementById('nombreProfesor').value = '';
+        document.getElementById('buscadorProfesores').value = '';
+        document.getElementById('buscadorProfesores').placeholder = 'Escribe para buscar...';
+        document.getElementById('correoProfesor').value = '';
+        document.getElementById('telefonoProfesor').value = '';
+        document.getElementById('codigoProfesor').value = '';
+        document.getElementById('tipoPlaza').value = '';
+        
+        const horasContainer = document.getElementById('horasPlazaContainer');
+        horasContainer.style.display = 'none';
+        document.getElementById('horasPlaza').value = '';
+        
+        document.getElementById('otroProfesorContainer').style.display = 'none';
+        document.getElementById('otroProfesorInput').value = '';
+        
+        materiasSeleccionadas = [];
+        horariosSeleccionados = [];
+        filtroCarreraActual = '';
+        materiaSeleccionadaTemp = null;
+        turnoActivo = 'matutino';
+        
+        const pestanaMatutino = document.getElementById('pestanaMatutino');
+        const pestanaVespertino = document.getElementById('pestanaVespertino');
+        if (pestanaMatutino) pestanaMatutino.classList.add('active');
+        if (pestanaVespertino) pestanaVespertino.classList.remove('active');
+        
+        renderizarMaterias();
+        actualizarContadorMaterias();
+        generarCuadriculaPorTurno('matutino');
+        
+        const selectCarrera = document.getElementById('selectCarrera');
+        if (selectCarrera) selectCarrera.value = '';
+        
+        const buscadorMaterias = document.getElementById('buscadorMaterias');
+        if (buscadorMaterias) buscadorMaterias.value = '';
+        
+        const resultadosBusqueda = document.getElementById('resultadosBusqueda');
+        if (resultadosBusqueda) resultadosBusqueda.style.display = 'none';
+        
+        const selectorNivel = document.getElementById('selectorNivelContainer');
+        if (selectorNivel) selectorNivel.style.display = 'none';
+        
+        actualizarResumenProfesor();
+        actualizarResumenMaterias();
+        actualizarResumenHorarios();
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        setTimeout(() => {
+            mostrarNotificacion('✨ Formulario listo para una nueva encuesta', 'info', 4000);
+        }, 1000);
+        
     } catch (error) {
         console.error('❌ Error al guardar en PocketBase:', error);
         mostrarNotificacion('Error al guardar la encuesta: ' + (error.message || 'Error desconocido'), 'error');
@@ -2523,14 +2589,10 @@ async function enviarEncuesta(esBorrador = false) {
 
 // ===== CONFIGURACIÓN DE BOTONES =====
 function configurarBotones() {
-    const btnBorrador = document.getElementById('saveDraftBtn');
-    if (btnBorrador) {
-        btnBorrador.addEventListener('click', () => enviarEncuesta(true));
-    }
-    
+    // Eliminado el botón de borrador, solo queda enviar
     const btnEnviar = document.getElementById('submitBtn');
     if (btnEnviar) {
-        btnEnviar.addEventListener('click', () => enviarEncuesta(false));
+        btnEnviar.addEventListener('click', () => enviarEncuesta());
     }
 }
 
@@ -2576,14 +2638,7 @@ async function inicializarAplicacion() {
         
         setTimeout(() => {
             actualizarInterfazPeriodo();
-            
             mostrarNotificacion(`🎓 Período actual: ${periodoActivo === 'ene-jun' ? 'ENE - JUN' : 'AGO - DIC'}`, 'info', 4000);
-            
-            if (!adminActivo) {
-                mostrarNotificacion('🔒 Acceso restringido', 'info', 4000);
-            } else {
-                mostrarNotificacion('👑 Modo administrador activo', 'info', 4000);
-            }
         }, 500);
         
         console.log('✅ Sistema listo');
