@@ -1401,10 +1401,6 @@ async function verTodasLasEncuestas() {
 function mostrarModalEncuestasAvanzado() {
     // Calcular estadísticas
     const totalEncuestas = todasLasEncuestas.length;
-    const totalBorradores = todasLasEncuestas.filter(e => e.es_borrador).length;
-    const totalEnviadas = totalEncuestas - totalBorradores;
-    const totalMaterias = todasLasEncuestas.reduce((acc, e) => acc + (e.materias?.length || 0), 0);
-    const totalHorarios = todasLasEncuestas.reduce((acc, e) => acc + (e.horarios?.length || 0), 0);
     
     let modalHTML = `
         <div class="gestion-modal" id="modalVerEncuestas" style="z-index: 30000;">
@@ -1417,46 +1413,22 @@ function mostrarModalEncuestasAvanzado() {
                 </div>
                 <div class="gestion-body" style="max-height: 80vh; overflow-y: auto;">
                     
-                    <!-- ESTADÍSTICAS -->
+                    <!-- ESTADÍSTICAS - SOLO TOTAL DE ENCUESTAS -->
                     <div class="encuestas-stats">
                         <div class="stat-item">
                             <div class="stat-valor">${totalEncuestas}</div>
                             <div class="stat-label">Total Encuestas</div>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-valor">${totalEnviadas}</div>
-                            <div class="stat-label">Enviadas</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-valor">${totalBorradores}</div>
-                            <div class="stat-label">Borradores</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-valor">${totalMaterias}</div>
-                            <div class="stat-label">Materias</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-valor">${totalHorarios}</div>
-                            <div class="stat-label">Horarios</div>
-                        </div>
                     </div>
                     
-                    <!-- FILTROS -->
+                    <!-- FILTROS - SIN BOTÓN -->
                     <div class="encuestas-filtros">
                         <input type="text" class="filtro-input" id="filtroNombre" placeholder="Buscar por nombre...">
-                        <select class="filtro-select" id="filtroTipo">
-                            <option value="todos">Todos</option>
-                            <option value="enviadas">Solo enviadas</option>
-                            <option value="borradores">Solo borradores</option>
-                        </select>
                         <select class="filtro-select" id="filtroPeriodo">
                             <option value="todos">Todos los períodos</option>
                             <option value="ene-jun">ENE - JUN</option>
                             <option value="ago-dic">AGO - DIC</option>
                         </select>
-                        <button class="btn btn-primary" onclick="aplicarFiltros()">
-                            <i class="fas fa-filter"></i> Filtrar
-                        </button>
                     </div>
                     
                     <!-- LISTA DE ENCUESTAS -->
@@ -1487,24 +1459,18 @@ function mostrarModalEncuestasAvanzado() {
     
     // Agregar event listeners para filtros en tiempo real
     document.getElementById('filtroNombre').addEventListener('input', aplicarFiltros);
-    document.getElementById('filtroTipo').addEventListener('change', aplicarFiltros);
     document.getElementById('filtroPeriodo').addEventListener('change', aplicarFiltros);
 }
 
 // ===== APLICAR FILTROS =====
 function aplicarFiltros() {
     const nombreFiltro = document.getElementById('filtroNombre').value.toLowerCase().trim();
-    const tipoFiltro = document.getElementById('filtroTipo').value;
     const periodoFiltro = document.getElementById('filtroPeriodo').value;
     
     encuestasFiltradas = todasLasEncuestas.filter(enc => {
         // Filtro por nombre
         const nombre = enc.profesor?.nombre?.toLowerCase() || '';
         if (nombreFiltro && !nombre.includes(nombreFiltro)) return false;
-        
-        // Filtro por tipo
-        if (tipoFiltro === 'enviadas' && enc.es_borrador) return false;
-        if (tipoFiltro === 'borradores' && !enc.es_borrador) return false;
         
         // Filtro por período
         if (periodoFiltro !== 'todos' && enc.periodo !== periodoFiltro) return false;
@@ -1531,7 +1497,6 @@ function renderizarListaEncuestas() {
         const profesor = enc.profesor || {};
         const fecha = enc.fecha ? new Date(enc.fecha).toLocaleString('es-MX') : 'Fecha desconocida';
         const tipo = enc.es_borrador ? 'borrador' : 'enviada';
-        const tipoTexto = enc.es_borrador ? 'Borrador' : 'Enviada';
         const periodoTexto = enc.periodo === 'ene-jun' ? 'ENE - JUN' : (enc.periodo === 'ago-dic' ? 'AGO - DIC' : 'No especificado');
         const iniciales = profesor.nombre ? profesor.nombre.split(' ').map(p => p[0]).join('').substring(0, 2).toUpperCase() : '??';
         
@@ -1548,9 +1513,6 @@ function renderizarListaEncuestas() {
                             </p>
                         </div>
                     </div>
-                    <div>
-                        <span class="encuesta-badge ${tipo === 'borrador' ? 'badge-borrador' : 'badge-enviada'}">${tipoTexto}</span>
-                    </div>
                 </div>
                 
                 <div class="encuesta-resumen">
@@ -1562,19 +1524,28 @@ function renderizarListaEncuestas() {
                 
                 <div class="encuesta-footer">
                     <span><i class="far fa-clock"></i> ${fecha}</span>
-                    <div class="encuesta-acciones">
-                        <button class="btn-encuesta" onclick="event.stopPropagation(); exportarEncuestaIndividual('${enc.id}')">
-                            <i class="fas fa-download"></i> Exportar
-                        </button>
-                    </div>
                 </div>
                 
                 <div class="encuesta-detalles" id="enc-${index}">
-                    <div class="detalle-seccion">
-                        <h5><i class="fas fa-user-graduate"></i> Datos completos del profesor</h5>
-                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
-                            <div><strong>Teléfono:</strong> ${profesor.telefono || 'No especificado'}</div>
-                            <div><strong>Horas semanales:</strong> ${profesor.horasPlaza || 'No aplica'}</div>
+    <div class="detalle-seccion">
+        <h5><i class="fas fa-user-graduate"></i> Datos completos del profesor</h5>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+            <div>
+                <strong><i class="fas fa-phone"></i> Teléfono:</strong><br>
+                <span style="color: #2c3e50;">${profesor.telefono || 'No especificado'}</span>
+            </div>
+            <div>
+                <strong><i class="fas fa-id-card"></i> Clave Docente:</strong><br>
+                <span style="color: #2c3e50;">${profesor.codigo || 'No especificada'}</span>
+            </div>
+`;
+        
+        // Solo mostrar horas semanales si el tipo de plaza es 'por_horas'
+        if (profesor.tipoPlaza === 'por_horas' && profesor.horasPlaza) {
+            html += `<div><strong>Horas semanales:</strong> ${profesor.horasPlaza}</div>`;
+        }
+        
+        html += `
                         </div>
                     </div>
                     
@@ -1681,29 +1652,12 @@ function toggleEncuestaDetalle(id) {
     }
 }
 
-// ===== EXPORTAR ENCUESTA INDIVIDUAL =====
-function exportarEncuestaIndividual(id) {
-    const encuesta = todasLasEncuestas.find(e => e.id === id);
-    if (!encuesta) return;
-    
-    const dataStr = JSON.stringify(encuesta, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    
-    const exportFileDefaultName = `encuesta_${encuesta.profesor?.nombre || 'sin_nombre'}_${encuesta.id}.json`;
-    
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
-    
-    mostrarNotificacion('✅ Encuesta exportada', 'success');
-}
-
 // ===== CERRAR MODAL =====
 function cerrarModalEncuestas() {
     const modal = document.getElementById('modalVerEncuestas');
     if (modal) modal.remove();
 }
+
 
 function exportarAExcel() {
     mostrarNotificacion('Función: Exportar a Excel (próximamente)', 'info');
@@ -2383,4 +2337,3 @@ function inicializarAplicacion() {
 
 // ===== EJECUCIÓN =====
 document.addEventListener('DOMContentLoaded', inicializarAplicacion);
-

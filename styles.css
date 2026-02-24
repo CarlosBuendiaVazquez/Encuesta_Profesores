@@ -2037,14 +2037,13 @@ label {
     border-radius: 12px;
     margin-bottom: 25px;
     display: flex;
-    justify-content: space-around;
+    justify-content: center; /* Centrado porque solo hay un item */
     flex-wrap: wrap;
     gap: 15px;
 }
 
 .stat-item {
     text-align: center;
-    flex: 1;
     min-width: 120px;
 }
 
@@ -2070,7 +2069,7 @@ label {
 }
 
 .filtro-input {
-    flex: 1;
+    flex: 2;
     min-width: 200px;
     padding: 12px 15px;
     border: 2px solid #dfe6e9;
@@ -2086,6 +2085,7 @@ label {
 }
 
 .filtro-select {
+    flex: 1;
     padding: 12px 15px;
     border: 2px solid #dfe6e9;
     border-radius: 8px;
@@ -2286,7 +2286,8 @@ label {
     color: #95a5a6;
 }
 
-.encuesta-acciones {
+/* Eliminar o comentar estos estilos ya no son necesarios */
+/* .encuesta-acciones {
     display: flex;
     gap: 10px;
 }
@@ -2305,7 +2306,7 @@ label {
 .btn-encuesta:hover {
     background: #3498db;
     color: white;
-}
+} */
 
 /* ===== PAGINACIÓN ===== */
 .paginacion {
@@ -2353,4 +2354,36 @@ label {
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* ===== MEJORAS PARA DETALLES DEL PROFESOR ===== */
+.detalle-seccion .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.detalle-seccion .detalle-item {
+    background: white;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.detalle-seccion .detalle-item strong {
+    color: #2c3e50;
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.85rem;
+}
+
+.detalle-seccion .detalle-item strong i {
+    color: #3498db;
+    margin-right: 5px;
+}
+
+.detalle-seccion .detalle-item span {
+    color: #2c3e50;
+    font-size: 0.95rem;
+    font-weight: 500;
 }
