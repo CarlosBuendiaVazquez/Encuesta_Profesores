@@ -306,6 +306,12 @@ let turnoActivo = 'matutino';
 let periodoActivo = 'ene-jun';
 let adminActivo = false;
 
+// ===== VARIABLES PARA FILTROS EN GESTIÓN =====
+let filtroGestionMaterias = '';
+let filtroGestionCarrera = '';
+let materiasGestionOriginal = [];
+let filtroGestionProfesores = '';
+
 // ===== CONEXIÓN A POCKETBASE =====
 const POCKETBASE_URL = 'https://encuestas-profesores-pb.fly.dev';
 let pb;
@@ -655,12 +661,42 @@ async function cargarMateriasGlobales() {
     return true;
 }
 
-// ===== FUNCIONES PARA PROFESORES GLOBALES (EN POCKETBASE) =====
+// ===== FUNCIONES PARA PROFESORES GLOBALES (VERSIÓN CORREGIDA) =====
 
-// Guardar profesores en PocketBase (VERSIÓN CORREGIDA)
+// Cargar profesores desde PocketBase
+async function cargarProfesoresGlobales() {
+    console.log('👥 Cargando profesores desde PocketBase...');
+    
+    try {
+        const records = await pb.collection('profesores').getFullList({
+            sort: 'nombre'
+        });
+        
+        if (records.length > 0) {
+            // Vaciar el array actual
+            profesoresDB.length = 0;
+            
+            // Llenar con los datos de PocketBase
+            records.forEach(r => profesoresDB.push(r.nombre));
+            
+            console.log(`✅ ${profesoresDB.length} profesores cargados de PocketBase`);
+            return true;
+        } else {
+            console.log('⚠️ No hay profesores en PocketBase, guardando locales...');
+            // Guardar los locales en PocketBase
+            await guardarProfesoresGlobales();
+            return false;
+        }
+    } catch (error) {
+        console.error('❌ Error cargando profesores:', error);
+        return false;
+    }
+}
+
+// Guardar profesores en PocketBase (VERSIÓN ROBUSTA)
 async function guardarProfesoresGlobales() {
     if (!adminActivo) {
-        mostrarNotificacion('No tienes permisos de administrador', 'warning');
+        console.log('⛔ No es admin, no se guarda');
         return false;
     }
     
@@ -668,69 +704,50 @@ async function guardarProfesoresGlobales() {
     console.log('Total a guardar:', profesoresDB.length);
     
     try {
-        // Primero, obtener los existentes
+        // Verificar que la colección existe
+        try {
+            await pb.collection('profesores').getFirstListItem('id != ""');
+        } catch (e) {
+            console.log('⚠️ La colección profesores no existe, creándola...');
+            // Si no existe, la creamos (aunque debería existir)
+        }
+        
+        // Obtener todos los existentes
         const existentes = await pb.collection('profesores').getFullList();
         console.log('Existentes en PocketBase:', existentes.length);
         
-        // Eliminar existentes
+        // Eliminar todos los existentes
         for (let prof of existentes) {
             await pb.collection('profesores').delete(prof.id);
             console.log(`🗑️ Eliminado: ${prof.nombre}`);
         }
         
         // Crear los nuevos
-        let contador = 0;
+        let exitosos = 0;
         for (let nombre of profesoresDB) {
+            if (!nombre || nombre.trim() === '') continue;
+            
             try {
                 await pb.collection('profesores').create({
-                    nombre: nombre
+                    nombre: nombre.trim()
                 });
-                contador++;
-                console.log(`✅ Creado (${contador}/${profesoresDB.length}): ${nombre}`);
+                exitosos++;
             } catch (error) {
                 console.error(`❌ Error creando: ${nombre}`, error);
             }
         }
         
-        console.log(`✅ ${contador} profesores guardados en PocketBase`);
+        console.log(`✅ ${exitosos} profesores guardados en PocketBase`);
         
-        // Verificar que se guardaron todos
+        // Verificar
         const verificacion = await pb.collection('profesores').getFullList();
         console.log('Verificación final:', verificacion.length, 'profesores en PocketBase');
         
-        return contador === profesoresDB.length;
+        return exitosos === profesoresDB.length;
         
     } catch (error) {
         console.error('❌ Error guardando profesores:', error);
         return false;
-    }
-}
-
-// ===== FORZAR RECARGA DE PROFESORES =====
-async function recargarProfesores() {
-    console.log('🔄 Recargando todos los profesores desde el código...');
-    
-    // Mostrar cuántos hay en el código
-    console.log('Profesores en código:', profesoresDB.length);
-    console.log('Primeros 5:', profesoresDB.slice(0, 5));
-    console.log('Últimos 5:', profesoresDB.slice(-5));
-    
-    // Guardar en PocketBase
-    const resultado = await guardarProfesoresGlobales();
-    
-    if (resultado) {
-        console.log('✅ Profesores recargados correctamente');
-        
-        // Verificar en PocketBase
-        const enPB = await pb.collection('profesores').getFullList();
-        console.log('Ahora en PocketBase:', enPB.length, 'profesores');
-        
-        // Recargar la página para ver los cambios
-        setTimeout(() => {
-            location.reload();
-        }, 2000);
-    } else {
-        console.error('❌ Error al recargar profesores');
     }
 }
 
@@ -2067,7 +2084,7 @@ function exportarAPDF() {
     mostrarNotificacion('Función: Exportar a PDF (próximamente)', 'info');
 }
 
-// ===== GESTIÓN DE MATERIAS =====
+// ===== GESTIÓN DE MATERIAS CON FILTROS =====
 function gestionarMaterias() {
     console.log('📚 Abriendo gestión de materias...');
     mostrarNotificacion('Abriendo editor de materias...', 'info', 2000);
@@ -2115,6 +2132,9 @@ let periodoGestionActual = 'ene-jun';
 
 function cambiarTabMateria(periodo, event) {
     periodoGestionActual = periodo;
+    // Resetear filtros al cambiar de período
+    filtroGestionMaterias = '';
+    filtroGestionCarrera = '';
     
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('active');
@@ -2130,54 +2150,163 @@ function cargarMateriasParaGestion(periodo) {
     
     if (!container) return;
     
+    // Guardar los valores actuales de los filtros antes de regenerar
+    const filtroActual = filtroGestionMaterias;
+    const carreraActual = filtroGestionCarrera;
+    
     let html = '';
     
-    Object.entries(data).forEach(([key, carrera]) => {
-        html += `
-            <div class="gestion-carrera" data-carrera-key="${key}">
-                <div class="carrera-titulo">
-                    <label>Nombre de la carrera:</label>
-                    <input type="text" class="carrera-nombre-input" 
-                           value="${carrera.nombre.replace(/"/g, '&quot;')}" 
-                           data-carrera-key="${key}"
-                           data-periodo="${periodo}">
+    // Agregar los filtros ENCIMA de las carreras
+    html += `
+        <div class="gestion-filtros" style="margin-bottom: 20px; padding: 15px; background: #f0f7ff; border-radius: 8px;">
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <div style="flex: 2;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">🔍 Buscar materia:</label>
+                    <input type="text" id="filtroMateriaInput" class="filtro-input" 
+                           placeholder="Escribe el nombre de la materia..." 
+                           style="width: 100%; padding: 10px; border: 2px solid #dfe6e9; border-radius: 6px;"
+                           value="${filtroActual}">
                 </div>
-                <div class="materias-lista" id="materias-${key}-${periodo}">
-        `;
+                <div style="flex: 1;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">📚 Filtrar por carrera:</label>
+                    <select id="filtroCarreraSelect" class="filtro-select" style="width: 100%; padding: 10px; border: 2px solid #dfe6e9; border-radius: 6px;">
+                        <option value="">Todas las carreras</option>
+                        ${Object.keys(data).map(key => `<option value="${key}" ${carreraActual === key ? 'selected' : ''}>${data[key].nombre}</option>`).join('')}
+                    </select>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Normalizar el término de búsqueda (quitar acentos)
+    const terminoBusqueda = filtroGestionMaterias ? quitarAcentos(filtroGestionMaterias.toLowerCase()) : '';
+    
+    // Filtrar materias según los criterios
+    const materiasFiltradas = {};
+    
+    Object.entries(data).forEach(([carreraKey, carrera]) => {
+        // Aplicar filtro por carrera
+        if (filtroGestionCarrera && filtroGestionCarrera !== carreraKey) {
+            return;
+        }
         
-        carrera.materias.forEach((materia, index) => {
+        // Filtrar materias por nombre (sin acentos)
+        const materiasFiltradasCarrera = carrera.materias.filter(materia => {
+            if (!terminoBusqueda) return true;
+            const nombreNormalizado = quitarAcentos(materia.nombre.toLowerCase());
+            return nombreNormalizado.includes(terminoBusqueda);
+        });
+        
+        if (materiasFiltradasCarrera.length > 0) {
+            materiasFiltradas[carreraKey] = {
+                nombre: carrera.nombre,
+                materias: materiasFiltradasCarrera
+            };
+        }
+    });
+    
+    // Si no hay resultados, mostrar mensaje
+    if (Object.keys(materiasFiltradas).length === 0) {
+        html += `
+            <div style="text-align: center; padding: 40px; background: #f8f9fa; border-radius: 8px;">
+                <i class="fas fa-search" style="font-size: 3rem; color: #bdc3c7; margin-bottom: 15px;"></i>
+                <p style="color: #7f8c8d;">No se encontraron materias con "${filtroGestionMaterias}"</p>
+            </div>
+        `;
+    } else {
+        // Mostrar las carreras filtradas
+        Object.entries(materiasFiltradas).forEach(([carreraKey, carrera]) => {
             html += `
-                <div class="materia-item" data-index="${index}">
-                    <input type="text" class="materia-nombre" 
-                           value="${materia.nombre.replace(/"/g, '&quot;')}" 
-                           placeholder="Nombre de la materia"
-                           data-carrera="${key}"
-                           data-index="${index}"
-                           data-periodo="${periodo}">
-                    <input type="number" class="materia-semestre" 
-                           value="${materia.semestre}" 
-                           placeholder="Semestre"
-                           min="1" max="12"
-                           data-carrera="${key}"
-                           data-index="${index}"
-                           data-periodo="${periodo}">
-                    <button class="btn-remove-materia" onclick="eliminarMateria('${key}', ${index}, '${periodo}')">
-                        <i class="fas fa-trash"></i>
+                <div class="gestion-carrera" data-carrera-key="${carreraKey}">
+                    <div class="carrera-titulo">
+                        <label>Nombre de la carrera:</label>
+                        <input type="text" class="carrera-nombre-input" 
+                               value="${carrera.nombre.replace(/"/g, '&quot;')}" 
+                               data-carrera-key="${carreraKey}"
+                               data-periodo="${periodo}">
+                    </div>
+                    <div class="materias-lista" id="materias-${carreraKey}-${periodo}">
+            `;
+            
+            carrera.materias.forEach((materia, index) => {
+                // Encontrar el índice original para mantener consistencia al guardar
+                const indexOriginal = data[carreraKey].materias.findIndex(m => 
+                    m.nombre === materia.nombre && m.semestre === materia.semestre
+                );
+                
+                html += `
+                    <div class="materia-item" data-index="${indexOriginal}">
+                        <input type="text" class="materia-nombre" 
+                               value="${materia.nombre.replace(/"/g, '&quot;')}" 
+                               placeholder="Nombre de la materia"
+                               data-carrera="${carreraKey}"
+                               data-index="${indexOriginal}"
+                               data-periodo="${periodo}">
+                        <input type="number" class="materia-semestre" 
+                               value="${materia.semestre}" 
+                               placeholder="Semestre"
+                               min="1" max="12"
+                               data-carrera="${carreraKey}"
+                               data-index="${indexOriginal}"
+                               data-periodo="${periodo}">
+                        <button class="btn-remove-materia" onclick="eliminarMateria('${carreraKey}', ${indexOriginal}, '${periodo}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            });
+            
+            html += `
+                    </div>
+                    <button class="btn-add-materia" onclick="agregarMateria('${carreraKey}', '${periodo}')">
+                        <i class="fas fa-plus"></i> Agregar materia
                     </button>
                 </div>
             `;
         });
-        
-        html += `
-                </div>
-                <button class="btn-add-materia" onclick="agregarMateria('${key}', '${periodo}')">
-                    <i class="fas fa-plus"></i> Agregar materia
-                </button>
-            </div>
-        `;
-    });
+    }
     
     container.innerHTML = html;
+    
+    // Agregar event listeners para los filtros con debounce
+    setTimeout(() => {
+        const inputFiltro = document.getElementById('filtroMateriaInput');
+        const selectCarrera = document.getElementById('filtroCarreraSelect');
+        
+        if (inputFiltro) {
+            let timeoutId;
+            inputFiltro.addEventListener('input', function() {
+                // Guardar la posición del cursor
+                const cursorPos = this.selectionStart;
+                const valor = this.value;
+                
+                // Cancelar timeout anterior
+                clearTimeout(timeoutId);
+                
+                // Establecer nuevo timeout para actualizar después de 300ms
+                timeoutId = setTimeout(() => {
+                    filtroGestionMaterias = valor;
+                    cargarMateriasParaGestion(periodo);
+                    
+                    // Restaurar el foco y la posición del cursor después de la actualización
+                    setTimeout(() => {
+                        const nuevoInput = document.getElementById('filtroMateriaInput');
+                        if (nuevoInput) {
+                            nuevoInput.focus();
+                            nuevoInput.setSelectionRange(cursorPos, cursorPos);
+                        }
+                    }, 10);
+                }, 300);
+            });
+        }
+        
+        if (selectCarrera) {
+            selectCarrera.addEventListener('change', function() {
+                filtroGestionCarrera = this.value;
+                cargarMateriasParaGestion(periodo);
+            });
+        }
+    }, 100);
 }
 
 function agregarMateria(carreraKey, periodo) {
@@ -2205,11 +2334,42 @@ function agregarMateria(carreraKey, periodo) {
     container.appendChild(nuevaMateria);
 }
 
-function eliminarMateria(carreraKey, index, periodo) {
+async function eliminarMateria(carreraKey, index, periodo) {
     if (confirm('¿Estás seguro de eliminar esta materia?')) {
-        const data = periodo === 'ene-jun' ? carrerasDataENEJUNTrabajo : carrerasDataAGODICTrabajo;
-        data[carreraKey].materias.splice(index, 1);
-        cargarMateriasParaGestion(periodo);
+        console.log(`🗑️ Eliminando materia ${index} de ${carreraKey} (${periodo})`);
+        
+        // Eliminar de los datos de trabajo
+        const dataTrabajo = periodo === 'ene-jun' ? carrerasDataENEJUNTrabajo : carrerasDataAGODICTrabajo;
+        const materiaEliminada = dataTrabajo[carreraKey].materias[index];
+        
+        if (materiaEliminada) {
+            console.log(`📝 Materia eliminada: ${materiaEliminada.nombre}`);
+            dataTrabajo[carreraKey].materias.splice(index, 1);
+            
+            // Guardar en PocketBase
+            console.log('📤 Guardando cambio en PocketBase...');
+            
+            if (periodo === 'ene-jun') {
+                await guardarCarreraENEJUN(carreraKey);
+            } else {
+                await guardarCarreraAGODIC(carreraKey);
+            }
+            
+            // Regenerar lista global
+            todasLasMaterias = generarListaGlobalMaterias();
+            
+            // Actualizar la vista
+            cargarMateriasParaGestion(periodo);
+            
+            // Si la carrera actual es la visible, actualizar también la vista principal
+            if (periodo === periodoActivo) {
+                if (document.getElementById('resultadosBusqueda').style.display === 'block') {
+                    mostrarTodasLasMateriasDelFiltro();
+                }
+            }
+            
+            mostrarNotificacion('✅ Materia eliminada correctamente', 'success');
+        }
     }
 }
 
@@ -2314,21 +2474,24 @@ function cerrarGestionMaterias() {
     if (modal) modal.remove();
 }
 
-// ===== GESTIÓN DE PROFESORES =====
+// ===== GESTIÓN DE PROFESORES CON FILTROS =====
 function gestionarProfesores() {
     console.log('👥 Abriendo gestión de profesores...');
     mostrarNotificacion('Abriendo editor de profesores...', 'info', 2000);
     
+    // Resetear filtro al abrir
+    filtroGestionProfesores = '';
+    
     const modalHTML = `
         <div class="gestion-modal" id="gestionProfesoresModal">
-            <div class="gestion-contenido">
+            <div class="gestion-contenido" style="max-width: 600px;">
                 <div class="gestion-header">
-                    <h3><i class="fas fa-users"></i> Gestionar Profesores</h3>
+                    <h3><i class="fas fa-users"></i> Gestionar Profesores (${profesoresDB.length})</h3>
                     <button class="gestion-cerrar" onclick="cerrarGestionProfesores()">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                <div class="gestion-body">
+                <div class="gestion-body" style="max-height: 70vh; overflow-y: auto;">
                     <div class="gestion-lista-profesores" id="listaProfesoresGestion">
                         <div class="cargando">Cargando profesores...</div>
                     </div>
@@ -2345,83 +2508,240 @@ function gestionarProfesores() {
         </div>
     `;
     
+    // Eliminar modal anterior si existe
+    const modalAnterior = document.getElementById('gestionProfesoresModal');
+    if (modalAnterior) modalAnterior.remove();
+    
+    // Agregar nuevo modal
     const modalContainer = document.createElement('div');
     modalContainer.innerHTML = modalHTML;
     document.body.appendChild(modalContainer.firstElementChild);
     
-    cargarProfesoresParaGestion();
+    // Cargar lista de profesores
+    setTimeout(() => {
+        cargarProfesoresParaGestion();
+    }, 100);
 }
 
 function cargarProfesoresParaGestion() {
+    console.log('📋 Cargando lista de profesores para gestión...');
+    
     const container = document.getElementById('listaProfesoresGestion');
-    if (!container) return;
+    if (!container) {
+        console.error('❌ No se encontró el contenedor listaProfesoresGestion');
+        return;
+    }
+    
+    // Guardar el valor actual del filtro
+    const filtroActual = filtroGestionProfesores;
+    
+    // Normalizar el término de búsqueda (quitar acentos)
+    const terminoBusqueda = filtroGestionProfesores ? quitarAcentos(filtroGestionProfesores.toLowerCase()) : '';
+    
+    // Filtrar profesores (sin acentos)
+    const profesoresFiltrados = profesoresDB.filter(nombre => {
+        if (!terminoBusqueda) return true;
+        const nombreNormalizado = quitarAcentos(nombre.toLowerCase());
+        return nombreNormalizado.includes(terminoBusqueda);
+    });
     
     let html = `
-        <div class="profesor-item-gestion">
-            <button class="btn-add-profesor" onclick="agregarProfesor()">
+        <div style="margin-bottom: 20px; padding: 15px; background: #f0f7ff; border-radius: 8px;">
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">
+                        <i class="fas fa-search"></i> Buscar profesor:
+                    </label>
+                    <input type="text" id="filtroProfesorInput" class="filtro-input" 
+                           placeholder="Escribe el nombre del profesor..." 
+                           style="width: 100%; padding: 10px; border: 2px solid #dfe6e9; border-radius: 6px;"
+                           value="${filtroActual}">
+                </div>
+            </div>
+            <div style="margin-top: 10px; font-size: 0.9rem; color: #7f8c8d;">
+                <i class="fas fa-info-circle"></i> Mostrando ${profesoresFiltrados.length} de ${profesoresDB.length} profesores
+            </div>
+        </div>
+    `;
+    
+    html += `
+        <div class="profesor-item-gestion" style="background: #f0f7ff; border: 2px dashed #27ae60;">
+            <button class="btn-add-profesor" onclick="agregarProfesor()" style="width: 100%; padding: 15px;">
                 <i class="fas fa-user-plus"></i> Agregar nuevo profesor
             </button>
         </div>
     `;
     
-    profesoresDB.forEach((nombre, index) => {
+    if (profesoresFiltrados.length === 0) {
         html += `
-            <div class="profesor-item-gestion" data-index="${index}">
-                <input type="text" class="profesor-nombre-input" 
-                       value="${nombre.replace(/"/g, '&quot;')}" 
-                       data-index="${index}"
-                       placeholder="Nombre completo del profesor">
-                <button class="btn-remove-profesor" onclick="eliminarProfesor(${index})">
-                    <i class="fas fa-trash"></i>
-                </button>
+            <div style="text-align: center; padding: 40px; background: #f8f9fa; border-radius: 8px;">
+                <i class="fas fa-search" style="font-size: 3rem; color: #bdc3c7; margin-bottom: 15px;"></i>
+                <p style="color: #7f8c8d;">No se encontraron profesores con "${filtroGestionProfesores}"</p>
             </div>
         `;
-    });
+    } else {
+        profesoresFiltrados.forEach((nombre, index) => {
+            // Encontrar el índice original
+            const indexOriginal = profesoresDB.findIndex(p => p === nombre);
+            
+            // Escapar comillas para evitar errores
+            const nombreEscapado = nombre.replace(/"/g, '&quot;');
+            
+            html += `
+                <div class="profesor-item-gestion" data-index="${indexOriginal}" data-original="${nombreEscapado}">
+                    <input type="text" class="profesor-nombre-input" 
+                           value="${nombreEscapado}" 
+                           data-index="${indexOriginal}"
+                           placeholder="Nombre completo del profesor">
+                    <button class="btn-remove-profesor" onclick="eliminarProfesor(${indexOriginal})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+        });
+    }
     
     html += `
         <div class="profesores-nuevos" id="profesoresNuevosContainer">
-            <h4>Nuevos profesores:</h4>
+            <h4 style="margin-top: 20px; color: #2c3e50;">Nuevos profesores:</h4>
             <div id="nuevosProfesoresLista"></div>
         </div>
     `;
     
     container.innerHTML = html;
+    
+    // Agregar event listener para el filtro con debounce
+    setTimeout(() => {
+        const inputFiltro = document.getElementById('filtroProfesorInput');
+        if (inputFiltro) {
+            let timeoutId;
+            inputFiltro.addEventListener('input', function() {
+                // Guardar la posición del cursor
+                const cursorPos = this.selectionStart;
+                const valor = this.value;
+                
+                // Cancelar timeout anterior
+                clearTimeout(timeoutId);
+                
+                // Establecer nuevo timeout para actualizar después de 300ms
+                timeoutId = setTimeout(() => {
+                    filtroGestionProfesores = valor;
+                    cargarProfesoresParaGestion();
+                    
+                    // Restaurar el foco y la posición del cursor después de la actualización
+                    setTimeout(() => {
+                        const nuevoInput = document.getElementById('filtroProfesorInput');
+                        if (nuevoInput) {
+                            nuevoInput.focus();
+                            nuevoInput.setSelectionRange(cursorPos, cursorPos);
+                        }
+                    }, 10);
+                }, 300);
+            });
+        }
+    }, 100);
 }
 
 function agregarProfesor() {
+    console.log('➕ Agregando nuevo profesor');
+    
     const container = document.getElementById('nuevosProfesoresLista');
+    if (!container) {
+        console.error('❌ No se encontró el contenedor nuevosProfesoresLista');
+        return;
+    }
     
     const nuevoProfesor = document.createElement('div');
     nuevoProfesor.className = 'profesor-item-gestion nuevo';
+    nuevoProfesor.style.background = '#f0f7ff';
+    nuevoProfesor.style.border = '2px dashed #27ae60';
     nuevoProfesor.innerHTML = `
         <input type="text" class="profesor-nombre-input nuevo" 
-               placeholder="Nombre del nuevo profesor">
-        <button class="btn-remove-profesor" onclick="this.parentElement.remove()">
+               placeholder="Nombre completo del nuevo profesor"
+               style="flex: 1; padding: 12px; border: 2px solid #dfe6e9; border-radius: 6px;">
+        <button class="btn-remove-profesor" onclick="this.parentElement.remove()" 
+                style="background: #e74c3c; color: white; border: none; width: 40px; height: 40px; border-radius: 6px; cursor: pointer;">
             <i class="fas fa-times"></i>
         </button>
     `;
     
     container.appendChild(nuevoProfesor);
+    
+    // Enfocar el input
+    setTimeout(() => {
+        const input = nuevoProfesor.querySelector('input');
+        if (input) input.focus();
+    }, 100);
 }
 
-function eliminarProfesor(index) {
-    if (confirm('¿Estás seguro de eliminar este profesor?')) {
+async function eliminarProfesor(index) {
+    console.log(`🗑️ Intentando eliminar profesor en índice ${index}:`, profesoresDB[index]);
+    
+    if (!confirm(`¿Estás seguro de eliminar a "${profesoresDB[index]}"?`)) {
+        return;
+    }
+    
+    try {
+        // Guardar el nombre para el mensaje
+        const nombreEliminado = profesoresDB[index];
+        
+        // Eliminar del array local
         profesoresDB.splice(index, 1);
+        console.log('✅ Eliminado del array local');
+        
+        // Guardar en PocketBase
+        console.log('📤 Guardando cambios en PocketBase...');
+        const guardado = await guardarProfesoresGlobales();
+        
+        if (guardado) {
+            console.log('✅ Cambios guardados en PocketBase');
+            
+            // Actualizar localStorage
+            localStorage.setItem('profesoresDB', JSON.stringify(profesoresDB));
+            
+            // Recargar la lista en el modal
+            cargarProfesoresParaGestion();
+            
+            mostrarNotificacion(`✅ Profesor "${nombreEliminado}" eliminado correctamente`, 'success');
+        } else {
+            console.error('❌ Error guardando en PocketBase');
+            mostrarNotificacion('⚠️ Error al guardar en PocketBase', 'warning');
+            
+            // Recargar la lista para mantener consistencia
+            cargarProfesoresParaGestion();
+        }
+        
+    } catch (error) {
+        console.error('❌ Error en eliminarProfesor:', error);
+        mostrarNotificacion('❌ Error al eliminar', 'error');
+        
+        // Recargar la lista
         cargarProfesoresParaGestion();
     }
 }
 
 async function guardarCambiosProfesores() {
+    console.log('💾 INICIANDO GUARDADO DE PROFESORES');
+    
     try {
-        const nuevosProfesores = [];
+        const modificados = [];
+        const nuevos = [];
         
-        // Recopilar modificaciones
+        // Recopilar modificaciones de existentes
         document.querySelectorAll('.profesor-item-gestion:not(.nuevo) .profesor-nombre-input').forEach(input => {
             const index = parseInt(input.dataset.index);
             const nuevoNombre = input.value.trim();
             
-            if (nuevoNombre && profesoresDB[index] !== nuevoNombre) {
-                profesoresDB[index] = nuevoNombre;
+            if (nuevoNombre) {
+                modificados.push({ index, nuevoNombre });
+            }
+        });
+        
+        // Aplicar modificaciones
+        modificados.forEach(item => {
+            if (item.index >= 0 && item.index < profesoresDB.length) {
+                console.log(`✏️ Modificando índice ${item.index}: ${profesoresDB[item.index]} → ${item.nuevoNombre}`);
+                profesoresDB[item.index] = item.nuevoNombre;
             }
         });
         
@@ -2429,34 +2749,45 @@ async function guardarCambiosProfesores() {
         document.querySelectorAll('.profesor-item-gestion.nuevo .profesor-nombre-input').forEach(input => {
             const nombre = input.value.trim();
             if (nombre) {
-                nuevosProfesores.push(nombre);
+                nuevos.push(nombre);
+                console.log(`➕ Nuevo profesor: ${nombre}`);
             }
         });
         
         // Agregar nuevos profesores
-        profesoresDB.push(...nuevosProfesores);
+        if (nuevos.length > 0) {
+            profesoresDB.push(...nuevos);
+        }
         
-        // Ordenar
+        // Ordenar alfabéticamente
         profesoresDB.sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
         
-        // GUARDAR EN POCKETBASE
+        console.log('📋 Total de profesores después de cambios:', profesoresDB.length);
+        
+        // Guardar en PocketBase
+        console.log('📤 Guardando en PocketBase...');
         const guardado = await guardarProfesoresGlobales();
         
         if (guardado) {
-            // Guardar en localStorage como backup
+            console.log('✅ Profesores guardados en PocketBase');
+            
+            // Actualizar localStorage
             localStorage.setItem('profesoresDB', JSON.stringify(profesoresDB));
             
-            mostrarNotificacion('✅ Profesores guardados correctamente (global)', 'success');
+            mostrarNotificacion(`✅ ${modificados.length + nuevos.length} cambio(s) guardados correctamente`, 'success');
+            
+            // Cerrar modal después de 1.5 segundos
+            setTimeout(() => {
+                cerrarGestionProfesores();
+            }, 1500);
+            
         } else {
-            mostrarNotificacion('⚠️ Error al guardar en PocketBase, pero se guardó localmente', 'warning');
+            console.error('❌ Error guardando en PocketBase');
+            mostrarNotificacion('⚠️ Error al guardar en PocketBase', 'warning');
         }
         
-        setTimeout(() => {
-            cerrarGestionProfesores();
-        }, 1500);
-        
     } catch (error) {
-        console.error('Error al guardar:', error);
+        console.error('❌ Error en guardarCambiosProfesores:', error);
         mostrarNotificacion('❌ Error al guardar los cambios', 'error');
     }
 }
@@ -2527,10 +2858,8 @@ function actualizarResumenProfesor() {
                 case 'tiempo_completo': textoPlaza = 'Tiempo completo'; break;
                 case 'tres_cuartos': textoPlaza = '3/4 de tiempo'; break;
                 case 'medio_tiempo': textoPlaza = 'Medio tiempo'; break;
+                case 'por_horas': textoPlaza = 'Por horas-base'; break;
                 case 'honorarios': textoPlaza = 'Honorarios'; break;
-                case 'por_horas': 
-                    textoPlaza = `Por horas (${datosProfesor.horasPlaza || '?'} h/sem)`;
-                    break;
             }
             html += `<li><strong>Tipo de plaza:</strong> ${textoPlaza}</li>`;
         }

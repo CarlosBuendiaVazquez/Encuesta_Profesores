@@ -145,19 +145,19 @@
             <div class="form-row">
                 <div class="form-group">
                     <label for="correoProfesor">Correo electrónico <span class="required">*</span></label>
-                    <input type="email" id="correoProfesor" class="form-input" placeholder="Ej: juan.perez@universidad.edu">
+                    <input type="email" id="correoProfesor" class="form-input">
                 </div>
                 
                 <div class="form-group">
                     <label for="codigoProfesor">Clave Docente (SIE) <span class="required">*</span></label>
-                    <input type="text" id="codigoProfesor" class="form-input" placeholder="Ej: SIE-2025-001">
+                    <input type="text" id="codigoProfesor" class="form-input">
                 </div>
             </div>
             
             <div class="form-row">
                 <div class="form-group">
                     <label for="telefonoProfesor">Teléfono de contacto</label>
-                    <input type="tel" id="telefonoProfesor" class="form-input" placeholder="Ej: 555-123-4567">
+                    <input type="tel" id="telefonoProfesor" class="form-input">
                 </div>
                 
                 <div class="form-group">
@@ -167,8 +167,8 @@
                         <option value="tiempo_completo">Tiempo completo</option>
                         <option value="tres_cuartos">3/4 de tiempo</option>
                         <option value="medio_tiempo">Medio tiempo</option>
+                        <option value="por_horas">Por horas-base</option>
                         <option value="honorarios">Honorarios</option>
-                        <option value="por_horas">Por horas</option>
                     </select>
                 </div>
             </div>
@@ -335,42 +335,41 @@
         </div>
 
         <!-- ===== PANEL 4: RESUMEN ===== -->
-<div class="summary-panel">
-    <h2 class="summary-title"><i class="fas fa-clipboard-check"></i> Resumen de tu encuesta</h2>
-    <div class="summary-content">
-        <div class="summary-item">
-            <h4><i class="fas fa-user"></i> Información del profesor</h4>
-            <ul class="summary-list" id="summaryProfesor">
-                <li>No has ingresado datos aún</li>
-            </ul>
+        <div class="summary-panel">
+            <h2 class="summary-title"><i class="fas fa-clipboard-check"></i> Resumen de tu encuesta</h2>
+            <div class="summary-content">
+                <div class="summary-item">
+                    <h4><i class="fas fa-user"></i> Información del profesor</h4>
+                    <ul class="summary-list" id="summaryProfesor">
+                        <li>No has ingresado datos aún</li>
+                    </ul>
+                </div>
+                <div class="summary-item">
+                    <h4><i class="fas fa-book"></i> Materias seleccionadas</h4>
+                    <ul class="summary-list" id="summaryMaterias">
+                        <li>No has seleccionado materias aún</li>
+                    </ul>
+                </div>
+                <div class="summary-item">
+                    <h4><i class="fas fa-clock"></i> Horarios seleccionados</h4>
+                    <ul class="summary-list" id="summaryHorarios">
+                        <li>No has seleccionado horarios aún</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="actions">
+                <button class="btn btn-success btn-lg" id="submitBtn" type="button">
+                    <i class="fas fa-paper-plane"></i> Enviar Encuesta
+                </button>
+            </div>
         </div>
-        <div class="summary-item">
-            <h4><i class="fas fa-book"></i> Materias seleccionadas</h4>
-            <ul class="summary-list" id="summaryMaterias">
-                <li>No has seleccionado materias aún</li>
-            </ul>
-        </div>
-        <div class="summary-item">
-            <h4><i class="fas fa-clock"></i> Horarios seleccionados</h4>
-            <ul class="summary-list" id="summaryHorarios">
-                <li>No has seleccionado horarios aún</li>
-            </ul>
-        </div>
-    </div>
-    
-    <div class="actions">
-        <!-- ELIMINADO: <button class="btn btn-secondary btn-lg" id="saveDraftBtn" type="button">Guardar Borrador</button> -->
-        <button class="btn btn-success btn-lg" id="submitBtn" type="button">
-            <i class="fas fa-paper-plane"></i> Enviar Encuesta
-        </button>
-    </div>
-</div>
 
         <!-- ===== FOOTER INSTITUCIONAL ===== -->
         <footer class="footer">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3><i class="fas fa-university"></i> Universidad prueba</h3>
+                    <h3><i class="fas fa-university"></i> Universidad</h3>
                     <p>Tecnológico Nacional De México Instituto Tecnológico De Cancún</p>
                 </div>
                 
@@ -393,7 +392,7 @@
             
             <div class="footer-bottom">
                 <p>&copy; 2026 - Sistema de Encuesta para Maestros. Todos los derechos reservados.</p>
-                <p class="footer-version">Versión 3.0.0 - PocketBase</p>
+                <p class="footer-version">Versión 3.0.0</p>
             </div>
         </footer>
     </div>
