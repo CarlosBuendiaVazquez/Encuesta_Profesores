@@ -276,9 +276,16 @@ const carrerasDataAGODIC = {
     }
 };
 
-// ===== RESPALDO DE DATOS ORIGINALES =====
+// ===== VARIABLES PARA CONTROLAR CARGA =====
+let datosInicialesCargados = false;
+
+// ===== RESPALDO DE DATOS ORIGINALES (NO MODIFICAR) =====
 const carrerasDataENEJUNOriginal = JSON.parse(JSON.stringify(carrerasDataENEJUN));
 const carrerasDataAGODICOriginal = JSON.parse(JSON.stringify(carrerasDataAGODIC));
+
+// ===== DATOS DE TRABAJO (SE MODIFICAN) =====
+let carrerasDataENEJUNTrabajo = JSON.parse(JSON.stringify(carrerasDataENEJUN));
+let carrerasDataAGODICTrabajo = JSON.parse(JSON.stringify(carrerasDataAGODIC));
 
 // ===== VARIABLES GLOBALES =====
 let carrerasData = carrerasDataENEJUN;
@@ -309,6 +316,47 @@ try {
     console.log('✅ Conectado a PocketBase en Fly.io');
 } catch (error) {
     console.error('❌ Error conectando a PocketBase:', error);
+}
+
+// ===== FUNCIÓN DE DIAGNÓSTICO =====
+async function diagnosticarMaterias() {
+    console.log('🔍 DIAGNÓSTICO DE MATERIAS');
+    console.log('1️⃣ Datos locales actuales:');
+    console.log('   ENE-JUN:', carrerasDataENEJUNTrabajo);
+    console.log('   AGO-DIC:', carrerasDataAGODICTrabajo);
+    
+    try {
+        console.log('2️⃣ Leyendo de PocketBase...');
+        
+        // Leer ENE-JUN
+        const eneJun = await pb.collection('materias_enejun').getFullList();
+        console.log('   📦 ENE-JUN registros:', eneJun.length);
+        eneJun.forEach(rec => {
+            console.log(`   - ${rec.carrera}: ${rec.materias?.length || 0} materias`);
+        });
+        
+        // Leer AGO-DIC
+        const agoDic = await pb.collection('materias_agodic').getFullList();
+        console.log('   📦 AGO-DIC registros:', agoDic.length);
+        agoDic.forEach(rec => {
+            console.log(`   - ${rec.carrera}: ${rec.materias?.length || 0} materias`);
+        });
+        
+        if (eneJun.length > 0) {
+            console.log('✅ PocketBase tiene datos ENE-JUN');
+        } else {
+            console.log('❌ PocketBase NO tiene datos ENE-JUN');
+        }
+        
+        if (agoDic.length > 0) {
+            console.log('✅ PocketBase tiene datos AGO-DIC');
+        } else {
+            console.log('❌ PocketBase NO tiene datos AGO-DIC');
+        }
+        
+    } catch (error) {
+        console.error('❌ Error leyendo de PocketBase:', error);
+    }
 }
 
 // ===== FUNCIONES PARA PERÍODO GLOBAL (EN POCKETBASE) =====
@@ -390,9 +438,9 @@ async function guardarPeriodoGlobal(nuevoPeriodo) {
         
         // Cambiar las materias
         if (nuevoPeriodo === 'ene-jun') {
-            carrerasData = carrerasDataENEJUN;
+            carrerasData = carrerasDataENEJUNTrabajo;
         } else {
-            carrerasData = carrerasDataAGODIC;
+            carrerasData = carrerasDataAGODICTrabajo;
         }
         todasLasMaterias = generarListaGlobalMaterias();
         
@@ -449,208 +497,261 @@ function actualizarInterfazPeriodo() {
     }
 }
 
-// ===== FUNCIONES PARA MATERIAS GLOBALES (EN POCKETBASE) =====
+// ===== FUNCIONES PARA MATERIAS GLOBALES - VERSIÓN OPTIMIZADA =====
 
-// Guardar materias ENE-JUN en PocketBase
-async function guardarMateriasENEJUN() {
-    if (!adminActivo) {
-        mostrarNotificacion('No tienes permisos de administrador', 'warning');
-        return false;
-    }
+// Guardar una carrera específica de ENE-JUN
+async function guardarCarreraENEJUN(carreraKey) {
+    if (!adminActivo) return false;
     
     try {
-        // Buscar si ya existe un registro
-        const records = await pb.collection('materias_enejun').getList(1, 1);
+        const carreraData = carrerasDataENEJUNTrabajo[carreraKey];
+        const recordId = `enejun_${carreraKey}`;
+        
+        // Buscar por recordId
+        const records = await pb.collection('materias_enejun').getList(1, 1, {
+            filter: `recordId = "${recordId}"`
+        });
         
         if (records.items.length > 0) {
-            // Actualizar existente
             await pb.collection('materias_enejun').update(records.items[0].id, {
-                data: carrerasDataENEJUN
+                recordId: recordId,
+                carrera: carreraKey,
+                nombreCarrera: carreraData.nombre,
+                materias: carreraData.materias
             });
-            console.log('✅ Materias ENE-JUN actualizadas en PocketBase');
         } else {
-            // Crear nuevo
             await pb.collection('materias_enejun').create({
-                data: carrerasDataENEJUN
+                recordId: recordId,
+                carrera: carreraKey,
+                nombreCarrera: carreraData.nombre,
+                materias: carreraData.materias
             });
-            console.log('✅ Materias ENE-JUN creadas en PocketBase');
         }
+        console.log(`✅ Carrera ${carreraKey} (ENE-JUN) guardada`);
         return true;
     } catch (error) {
-        console.error('❌ Error guardando materias ENE-JUN:', error);
+        console.error(`❌ Error guardando carrera ${carreraKey}:`, error);
         return false;
     }
 }
 
-// Guardar materias AGO-DIC en PocketBase
-async function guardarMateriasAGODIC() {
-    if (!adminActivo) {
-        mostrarNotificacion('No tienes permisos de administrador', 'warning');
-        return false;
-    }
+// Guardar una carrera específica de AGO-DIC
+async function guardarCarreraAGODIC(carreraKey) {
+    if (!adminActivo) return false;
     
     try {
-        const records = await pb.collection('materias_agodic').getList(1, 1);
+        const carreraData = carrerasDataAGODICTrabajo[carreraKey];
+        const recordId = `agodic_${carreraKey}`;
+        
+        const records = await pb.collection('materias_agodic').getList(1, 1, {
+            filter: `recordId = "${recordId}"`
+        });
         
         if (records.items.length > 0) {
             await pb.collection('materias_agodic').update(records.items[0].id, {
-                data: carrerasDataAGODIC
+                recordId: recordId,
+                carrera: carreraKey,
+                nombreCarrera: carreraData.nombre,
+                materias: carreraData.materias
             });
-            console.log('✅ Materias AGO-DIC actualizadas en PocketBase');
         } else {
             await pb.collection('materias_agodic').create({
-                data: carrerasDataAGODIC
+                recordId: recordId,
+                carrera: carreraKey,
+                nombreCarrera: carreraData.nombre,
+                materias: carreraData.materias
             });
-            console.log('✅ Materias AGO-DIC creadas en PocketBase');
         }
+        console.log(`✅ Carrera ${carreraKey} (AGO-DIC) guardada`);
         return true;
     } catch (error) {
-        console.error('❌ Error guardando materias AGO-DIC:', error);
+        console.error(`❌ Error guardando carrera ${carreraKey}:`, error);
         return false;
     }
 }
 
-// Cargar materias desde PocketBase (VERSIÓN CORREGIDA)
+// Guardar TODAS las materias ENE-JUN
+async function guardarMateriasENEJUN() {
+    console.log('📤 Guardando todas las carreras ENE-JUN...');
+    let todasExitosas = true;
+    
+    for (const carreraKey of Object.keys(carrerasDataENEJUNTrabajo)) {
+        const exito = await guardarCarreraENEJUN(carreraKey);
+        if (!exito) todasExitosas = false;
+    }
+    
+    return todasExitosas;
+}
+
+// Guardar TODAS las materias AGO-DIC
+async function guardarMateriasAGODIC() {
+    console.log('📤 Guardando todas las carreras AGO-DIC...');
+    let todasExitosas = true;
+    
+    for (const carreraKey of Object.keys(carrerasDataAGODICTrabajo)) {
+        const exito = await guardarCarreraAGODIC(carreraKey);
+        if (!exito) todasExitosas = false;
+    }
+    
+    return todasExitosas;
+}
+
+// Cargar todas las materias desde PocketBase
 async function cargarMateriasGlobales() {
-    let cargoAlguna = false;
-    let errorAlCargar = false;
+    console.log('📚 Cargando materias desde PocketBase...');
     
     try {
         // Cargar ENE-JUN
-        const recordsENEJUN = await pb.collection('materias_enejun').getList(1, 1);
-        if (recordsENEJUN.items.length > 0) {
-            const data = recordsENEJUN.items[0].data;
-            // Verificar que data no esté vacío
-            if (data && Object.keys(data).length > 0) {
-                // Limpiar el objeto original antes de reasignar
-                Object.keys(carrerasDataENEJUN).forEach(key => delete carrerasDataENEJUN[key]);
-                // Copiar los nuevos datos
-                Object.assign(carrerasDataENEJUN, data);
-                console.log('📚 Materias ENE-JUN cargadas de PocketBase');
-                cargoAlguna = true;
-            } else {
-                console.log('⚠️ Datos de ENE-JUN vacíos en PocketBase, usando locales');
-            }
+        const recordsENEJUN = await pb.collection('materias_enejun').getFullList();
+        console.log(`📦 ${recordsENEJUN.length} carreras ENE-JUN encontradas`);
+        
+        if (recordsENEJUN.length > 0) {
+            // Limpiar datos actuales
+            Object.keys(carrerasDataENEJUNTrabajo).forEach(key => delete carrerasDataENEJUNTrabajo[key]);
+            
+            // Reconstruir desde los registros
+            recordsENEJUN.forEach(record => {
+                carrerasDataENEJUNTrabajo[record.carrera] = {
+                    nombre: record.nombreCarrera,
+                    materias: record.materias
+                };
+            });
+            console.log('✅ Materias ENE-JUN cargadas de PocketBase');
         } else {
-            console.log('⚠️ No hay materias ENE-JUN en PocketBase, usando locales');
-            // Asegurar que los datos locales están completos
-            if (Object.keys(carrerasDataENEJUN).length === 0) {
-                console.log('🔄 Restaurando datos ENE-JUN por defecto');
-                // Si por algún motivo se borraron, restaurar desde el objeto original
-                Object.assign(carrerasDataENEJUN, carrerasDataENEJUNOriginal);
-            }
+            console.log('⚠️ No hay materias ENE-JUN, usando locales');
+            Object.assign(carrerasDataENEJUNTrabajo, carrerasDataENEJUNOriginal);
+            await guardarMateriasENEJUN();
         }
     } catch (error) {
-        console.error('❌ Error cargando materias ENE-JUN:', error);
-        errorAlCargar = true;
+        console.error('❌ Error cargando ENE-JUN:', error);
+        Object.assign(carrerasDataENEJUNTrabajo, carrerasDataENEJUNOriginal);
     }
     
     try {
         // Cargar AGO-DIC
-        const recordsAGODIC = await pb.collection('materias_agodic').getList(1, 1);
-        if (recordsAGODIC.items.length > 0) {
-            const data = recordsAGODIC.items[0].data;
-            if (data && Object.keys(data).length > 0) {
-                // Limpiar el objeto original antes de reasignar
-                Object.keys(carrerasDataAGODIC).forEach(key => delete carrerasDataAGODIC[key]);
-                // Copiar los nuevos datos
-                Object.assign(carrerasDataAGODIC, data);
-                console.log('📚 Materias AGO-DIC cargadas de PocketBase');
-                cargoAlguna = true;
-            } else {
-                console.log('⚠️ Datos de AGO-DIC vacíos en PocketBase, usando locales');
-            }
+        const recordsAGODIC = await pb.collection('materias_agodic').getFullList();
+        console.log(`📦 ${recordsAGODIC.length} carreras AGO-DIC encontradas`);
+        
+        if (recordsAGODIC.length > 0) {
+            Object.keys(carrerasDataAGODICTrabajo).forEach(key => delete carrerasDataAGODICTrabajo[key]);
+            
+            recordsAGODIC.forEach(record => {
+                carrerasDataAGODICTrabajo[record.carrera] = {
+                    nombre: record.nombreCarrera,
+                    materias: record.materias
+                };
+            });
+            console.log('✅ Materias AGO-DIC cargadas de PocketBase');
         } else {
-            console.log('⚠️ No hay materias AGO-DIC en PocketBase, usando locales');
-            // Asegurar que los datos locales están completos
-            if (Object.keys(carrerasDataAGODIC).length === 0) {
-                console.log('🔄 Restaurando datos AGO-DIC por defecto');
-                // Si por algún motivo se borraron, restaurar desde el objeto original
-                Object.assign(carrerasDataAGODIC, carrerasDataAGODICOriginal);
-            }
-        }
-    } catch (error) {
-        console.error('❌ Error cargando materias AGO-DIC:', error);
-        errorAlCargar = true;
-    }
-    
-    // Si hubo error o no se cargó nada, asegurar que los datos por defecto estén presentes
-    if (errorAlCargar || !cargoAlguna) {
-        console.log('📚 Usando/restaurando materias locales');
-        
-        // Restaurar ENE-JUN si está vacío
-        if (Object.keys(carrerasDataENEJUN).length === 0) {
-            console.log('🔄 Restaurando ENE-JUN por defecto');
-            Object.assign(carrerasDataENEJUN, carrerasDataENEJUNOriginal);
-        }
-        
-        // Restaurar AGO-DIC si está vacío
-        if (Object.keys(carrerasDataAGODIC).length === 0) {
-            console.log('🔄 Restaurando AGO-DIC por defecto');
-            Object.assign(carrerasDataAGODIC, carrerasDataAGODICOriginal);
-        }
-        
-        // Guardar los datos locales en PocketBase para futuras cargas
-        if (adminActivo) {
-            await guardarMateriasENEJUN();
+            console.log('⚠️ No hay materias AGO-DIC, usando locales');
+            Object.assign(carrerasDataAGODICTrabajo, carrerasDataAGODICOriginal);
             await guardarMateriasAGODIC();
         }
+    } catch (error) {
+        console.error('❌ Error cargando AGO-DIC:', error);
+        Object.assign(carrerasDataAGODICTrabajo, carrerasDataAGODICOriginal);
     }
     
-    return cargoAlguna;
+    return true;
 }
 
 // ===== FUNCIONES PARA PROFESORES GLOBALES (EN POCKETBASE) =====
 
-// Guardar profesores en PocketBase
+// Guardar profesores en PocketBase (VERSIÓN CORREGIDA)
 async function guardarProfesoresGlobales() {
     if (!adminActivo) {
         mostrarNotificacion('No tienes permisos de administrador', 'warning');
         return false;
     }
     
+    console.log('📤 Guardando profesores en PocketBase...');
+    console.log('Total a guardar:', profesoresDB.length);
+    
     try {
-        // Primero, eliminar todos los registros existentes
+        // Primero, obtener los existentes
         const existentes = await pb.collection('profesores').getFullList();
+        console.log('Existentes en PocketBase:', existentes.length);
+        
+        // Eliminar existentes
         for (let prof of existentes) {
             await pb.collection('profesores').delete(prof.id);
+            console.log(`🗑️ Eliminado: ${prof.nombre}`);
         }
         
-        // Luego crear los nuevos
+        // Crear los nuevos
+        let contador = 0;
         for (let nombre of profesoresDB) {
-            await pb.collection('profesores').create({
-                nombre: nombre
-            });
+            try {
+                await pb.collection('profesores').create({
+                    nombre: nombre
+                });
+                contador++;
+                console.log(`✅ Creado (${contador}/${profesoresDB.length}): ${nombre}`);
+            } catch (error) {
+                console.error(`❌ Error creando: ${nombre}`, error);
+            }
         }
         
-        console.log('✅ Profesores guardados en PocketBase');
-        return true;
+        console.log(`✅ ${contador} profesores guardados en PocketBase`);
+        
+        // Verificar que se guardaron todos
+        const verificacion = await pb.collection('profesores').getFullList();
+        console.log('Verificación final:', verificacion.length, 'profesores en PocketBase');
+        
+        return contador === profesoresDB.length;
+        
     } catch (error) {
         console.error('❌ Error guardando profesores:', error);
         return false;
     }
 }
 
-// Cargar profesores desde PocketBase
-async function cargarProfesoresGlobales() {
-    try {
-        const records = await pb.collection('profesores').getFullList({
-            sort: 'nombre'
-        });
+// ===== FORZAR RECARGA DE PROFESORES =====
+async function recargarProfesores() {
+    console.log('🔄 Recargando todos los profesores desde el código...');
+    
+    // Mostrar cuántos hay en el código
+    console.log('Profesores en código:', profesoresDB.length);
+    console.log('Primeros 5:', profesoresDB.slice(0, 5));
+    console.log('Últimos 5:', profesoresDB.slice(-5));
+    
+    // Guardar en PocketBase
+    const resultado = await guardarProfesoresGlobales();
+    
+    if (resultado) {
+        console.log('✅ Profesores recargados correctamente');
         
-        if (records.length > 0) {
-            profesoresDB.length = 0;
-            records.forEach(r => profesoresDB.push(r.nombre));
-            console.log(`👥 ${profesoresDB.length} profesores cargados de PocketBase`);
-            return true;
-        } else {
-            console.log('⚠️ No hay profesores en PocketBase, usando locales');
-            return false;
-        }
-    } catch (error) {
-        console.error('❌ Error cargando profesores:', error);
-        return false;
+        // Verificar en PocketBase
+        const enPB = await pb.collection('profesores').getFullList();
+        console.log('Ahora en PocketBase:', enPB.length, 'profesores');
+        
+        // Recargar la página para ver los cambios
+        setTimeout(() => {
+            location.reload();
+        }, 2000);
+    } else {
+        console.error('❌ Error al recargar profesores');
     }
+}
+
+// ===== FORZAR ACTUALIZACIÓN DE LA VISTA PRINCIPAL =====
+function actualizarVistaMaterias() {
+    console.log('🔄 Forzando actualización de vista de materias...');
+    
+    // Regenerar lista global
+    todasLasMaterias = generarListaGlobalMaterias();
+    
+    // Si el buscador está abierto, actualizarlo
+    if (document.getElementById('resultadosBusqueda').style.display === 'block') {
+        mostrarTodasLasMateriasDelFiltro();
+    }
+    
+    // Actualizar las materias seleccionadas (si las hay)
+    if (materiasSeleccionadas.length > 0) {
+        renderizarMaterias();
+    }
+    
+    console.log('✅ Vista actualizada');
 }
 
 // ===== SISTEMA DE ACCESO ADMIN POR URL =====
@@ -1627,9 +1728,9 @@ async function cambiarPeriodo(nuevoPeriodo) {
     if (exito) {
         // Cambiar las materias según el período
         if (nuevoPeriodo === 'ene-jun') {
-            carrerasData = carrerasDataENEJUN;
+            carrerasData = carrerasDataENEJUNTrabajo;
         } else {
-            carrerasData = carrerasDataAGODIC;
+            carrerasData = carrerasDataAGODICTrabajo;
         }
         
         todasLasMaterias = generarListaGlobalMaterias();
@@ -2024,7 +2125,7 @@ function cambiarTabMateria(periodo, event) {
 }
 
 function cargarMateriasParaGestion(periodo) {
-    const data = periodo === 'ene-jun' ? carrerasDataENEJUN : carrerasDataAGODIC;
+    const data = periodo === 'ene-jun' ? carrerasDataENEJUNTrabajo : carrerasDataAGODICTrabajo;
     const container = document.getElementById('gestionCarrerasContainer');
     
     if (!container) return;
@@ -2106,13 +2207,21 @@ function agregarMateria(carreraKey, periodo) {
 
 function eliminarMateria(carreraKey, index, periodo) {
     if (confirm('¿Estás seguro de eliminar esta materia?')) {
-        const data = periodo === 'ene-jun' ? carrerasDataENEJUN : carrerasDataAGODIC;
+        const data = periodo === 'ene-jun' ? carrerasDataENEJUNTrabajo : carrerasDataAGODICTrabajo;
         data[carreraKey].materias.splice(index, 1);
         cargarMateriasParaGestion(periodo);
     }
 }
 
 async function guardarCambiosMaterias() {
+    console.log('💾 INICIANDO GUARDADO DE MATERIAS');
+    console.log('👑 Es admin?', adminActivo);
+    
+    if (!adminActivo) {
+        mostrarNotificacion('No tienes permisos de administrador', 'warning');
+        return;
+    }
+    
     try {
         const materiasModificadas = [];
         
@@ -2144,18 +2253,20 @@ async function guardarCambiosMaterias() {
             }
         });
         
-        // Aplicar cambios a los objetos en memoria
+        console.log('📝 Materias modificadas:', materiasModificadas);
+        
+        // Aplicar cambios a los objetos de trabajo
         materiasModificadas.forEach(item => {
-            const data = item.periodo === 'ene-jun' ? carrerasDataENEJUN : carrerasDataAGODIC;
+            const dataTrabajo = item.periodo === 'ene-jun' ? carrerasDataENEJUNTrabajo : carrerasDataAGODICTrabajo;
             
             if (item.tipo === 'existente') {
-                if (data[item.carrera] && data[item.carrera].materias[item.index]) {
-                    data[item.carrera].materias[item.index].nombre = item.nombre;
-                    data[item.carrera].materias[item.index].semestre = item.semestre;
+                if (dataTrabajo[item.carrera] && dataTrabajo[item.carrera].materias[item.index]) {
+                    dataTrabajo[item.carrera].materias[item.index].nombre = item.nombre;
+                    dataTrabajo[item.carrera].materias[item.index].semestre = item.semestre;
                 }
             } else {
-                if (data[item.carrera]) {
-                    data[item.carrera].materias.push({
+                if (dataTrabajo[item.carrera]) {
+                    dataTrabajo[item.carrera].materias.push({
                         nombre: item.nombre,
                         semestre: item.semestre
                     });
@@ -2164,35 +2275,36 @@ async function guardarCambiosMaterias() {
         });
         
         // GUARDAR EN POCKETBASE
+        console.log('📤 Guardando ENE-JUN en PocketBase...');
         const guardadoENEJUN = await guardarMateriasENEJUN();
+        
+        console.log('📤 Guardando AGO-DIC en PocketBase...');
         const guardadoAGODIC = await guardarMateriasAGODIC();
         
         if (guardadoENEJUN && guardadoAGODIC) {
+            console.log('✅ AMBOS PERÍODOS GUARDADOS CORRECTAMENTE');
+            
             // Actualizar localStorage como backup
-            localStorage.setItem('carrerasDataENEJUN', JSON.stringify(carrerasDataENEJUN));
-            localStorage.setItem('carrerasDataAGODIC', JSON.stringify(carrerasDataAGODIC));
+            localStorage.setItem('carrerasDataENEJUN', JSON.stringify(carrerasDataENEJUNTrabajo));
+            localStorage.setItem('carrerasDataAGODIC', JSON.stringify(carrerasDataAGODICTrabajo));
             
-            // Regenerar lista global de materias (para la búsqueda)
-            todasLasMaterias = generarListaGlobalMaterias();
+            // Forzar actualización de la vista
+            actualizarVistaMaterias();
             
-            // Si el período actual es el que se modificó, actualizar la vista
-            if (periodoGestionActual === periodoActivo) {
-                if (document.getElementById('resultadosBusqueda').style.display === 'block') {
-                    mostrarTodasLasMateriasDelFiltro();
-                }
-            }
+            mostrarNotificacion('✅ Materias guardadas correctamente', 'success');
             
-            mostrarNotificacion('✅ Materias guardadas correctamente (global)', 'success');
+            // Cerrar modal después de 1 segundo
+            setTimeout(() => {
+                cerrarGestionMaterias();
+            }, 1000);
+            
         } else {
-            mostrarNotificacion('⚠️ Error al guardar en PocketBase, pero se guardó localmente', 'warning');
+            console.error('❌ Error guardando uno o ambos períodos');
+            mostrarNotificacion('⚠️ Error al guardar en PocketBase', 'warning');
         }
         
-        setTimeout(() => {
-            cerrarGestionMaterias();
-        }, 1500);
-        
     } catch (error) {
-        console.error('Error al guardar:', error);
+        console.error('❌ Error al guardar materias:', error);
         mostrarNotificacion('❌ Error al guardar los cambios', 'error');
     }
 }
@@ -2612,17 +2724,16 @@ async function inicializarAplicacion() {
         console.warn('⚠️ Usando datos locales:', error);
     }
     
-    // Cargar las materias correspondientes
+    // Establecer qué conjunto de datos usar según el período
     if (periodoActivo === 'ene-jun') {
-        carrerasData = carrerasDataENEJUN;
+        carrerasData = carrerasDataENEJUNTrabajo;
     } else {
-        carrerasData = carrerasDataAGODIC;
+        carrerasData = carrerasDataAGODICTrabajo;
     }
     
     todasLasMaterias = generarListaGlobalMaterias();
     
-    console.log(`📚 Total de materias únicas ENE-JUN: ${Object.values(carrerasDataENEJUN).reduce((acc, c) => acc + c.materias.length, 0)}`);
-    console.log(`📚 Total de materias únicas AGO-DIC: ${Object.values(carrerasDataAGODIC).reduce((acc, c) => acc + c.materias.length, 0)}`);
+    console.log(`📚 Total de materias únicas: ${todasLasMaterias.length}`);
     console.log(`👤 Total de profesores en base: ${profesoresDB.length}`);
     console.log(`👑 Acceso admin: ?admin=admin2026 en la URL`);
     console.log(`📅 Período activo: ${periodoActivo}`);
