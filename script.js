@@ -311,6 +311,7 @@ let filtroGestionMaterias = '';
 let filtroGestionCarrera = '';
 let materiasGestionOriginal = [];
 let filtroGestionProfesores = '';
+let filtroSemestreActual = '';
 
 // ===== CONEXIÓN A POCKETBASE =====
 const POCKETBASE_URL = 'https://encuestas-profesores-pb.fly.dev';
@@ -501,6 +502,9 @@ function actualizarInterfazPeriodo() {
         periodoDisplay.textContent = textoPeriodo;
         console.log('✅ Display actualizado:', textoPeriodo);
     }
+    
+    // Actualizar opciones de semestre cuando cambia el período
+    actualizarOpcionesSemestre();
 }
 
 // ===== FUNCIONES PARA MATERIAS GLOBALES - VERSIÓN OPTIMIZADA =====
@@ -934,7 +938,17 @@ function inicializarTipoPlaza() {
         });
         
         if (inputHoras) {
-            inputHoras.addEventListener('input', actualizarDatosProfesor);
+            inputHoras.addEventListener('input', function() {
+                // Limitar a 3 dígitos
+                if (this.value.length > 3) {
+                    this.value = this.value.slice(0, 3);
+                }
+                // No permitir valores mayores a 40
+                if (parseInt(this.value) > 40) {
+                    this.value = '40';
+                }
+                actualizarDatosProfesor();
+            });
         }
     }
 }
@@ -972,21 +986,47 @@ function inicializarBuscadorProfesores() {
 }
 
 function mostrarTodosLosProfesores() {
+    console.log('👥 Mostrando todos los profesores. Total:', profesoresDB.length);
+    
     const resultadosContainer = document.getElementById('resultadosProfesores');
     const resultadosLista = document.getElementById('listaProfesores');
     const contador = document.getElementById('contadorProfesores');
     
-    if (!resultadosContainer || !resultadosLista) return;
+    if (!resultadosContainer) {
+        console.error('❌ No se encontró resultadosProfesores');
+        return;
+    }
+    if (!resultadosLista) {
+        console.error('❌ No se encontró listaProfesores');
+        return;
+    }
     
+    // FORZAR VISIBILIDAD
     resultadosContainer.style.display = 'block';
-    contador.textContent = `${profesoresDB.length} profesores`;
+    resultadosContainer.style.visibility = 'visible';
+    resultadosContainer.style.opacity = '1';
     
+    // Actualizar contador
+    if (contador) {
+        contador.textContent = `${profesoresDB.length} profesores`;
+    }
+    
+    // Limpiar y llenar lista
     resultadosLista.innerHTML = '';
     
-    profesoresDB.forEach(nombre => {
+    if (profesoresDB.length === 0) {
+        resultadosLista.innerHTML = '<div class="resultado-sin-resultados">No hay profesores registrados</div>';
+        return;
+    }
+    
+    // Crear items uno por uno
+    profesoresDB.forEach((nombre, index) => {
+        console.log(`Agregando profesor ${index + 1}:`, nombre);
         const item = crearItemProfesor(nombre);
         resultadosLista.appendChild(item);
     });
+    
+    console.log('✅ Lista de profesores renderizada. Items:', resultadosLista.children.length);
 }
 
 function buscarProfesores(termino) {
@@ -1026,18 +1066,17 @@ function buscarProfesores(termino) {
 }
 
 function crearItemProfesor(nombre) {
+    console.log('Creando item para:', nombre);
+    
     const item = document.createElement('div');
     item.className = 'profesor-item';
     item.onclick = () => seleccionarProfesor(nombre);
     
-    const iniciales = nombre.split(' ').map(p => p[0]).join('').substring(0, 2).toUpperCase();
-    
     item.innerHTML = `
-        <div style="display: flex; flex-direction: column;">
-            <h4><i class="fas fa-user-circle"></i> ${nombre}</h4>
-            <p><span class="profesor-clave"><i class="fas fa-tag"></i> ${iniciales}</span></p>
+        <div style="display: flex; flex-direction: column; width: 100%;">
+            <h4 style="margin: 0;"><i class="fas fa-user-circle"></i> ${nombre}</h4>
         </div>
-        <i class="fas fa-check-circle" style="color: #3498db; font-size: 1.3rem;"></i>
+        <i class="fas fa-check-circle" style="color: #0077BE; font-size: 1.3rem;"></i>
     `;
     
     return item;
@@ -1097,7 +1136,13 @@ function inicializarSistemaMaterias() {
     
     const selectCarrera = document.getElementById('selectCarrera');
     if (selectCarrera) {
-        selectCarrera.addEventListener('change', manejarCambioFiltroCarrera);
+        selectCarrera.addEventListener('change', manejarCambioFiltros);
+    }
+    
+    // NUEVO: Listener para filtro de semestre
+    const selectSemestre = document.getElementById('selectSemestre');
+    if (selectSemestre) {
+        selectSemestre.addEventListener('change', manejarCambioFiltros);
     }
     
     const buscador = document.getElementById('buscadorMaterias');
@@ -1139,6 +1184,48 @@ function inicializarSistemaMaterias() {
     }, 100);
 }
 
+// ===== NUEVA FUNCIÓN PARA MANEJAR AMBOS FILTROS =====
+function manejarCambioFiltros() {
+    const selectCarrera = document.getElementById('selectCarrera');
+    const selectSemestre = document.getElementById('selectSemestre');
+    
+    filtroCarreraActual = selectCarrera ? selectCarrera.value : '';
+    filtroSemestreActual = selectSemestre ? selectSemestre.value : '';
+    
+    // Actualizar etiqueta visual
+    const semestreActivo = document.getElementById('semestreActivo');
+    if (semestreActivo) {
+        if (filtroSemestreActual) {
+            semestreActivo.textContent = `Semestre ${filtroSemestreActual}`;
+            semestreActivo.style.background = '#FFD700';
+        } else {
+            semestreActivo.textContent = 'Todos';
+            semestreActivo.style.background = '#FFD700';
+        }
+    }
+    
+    const buscador = document.getElementById('buscadorMaterias');
+    buscador.value = '';
+    
+    mostrarTodasLasMateriasDelFiltro();
+    
+    // Mostrar notificación con los filtros activos
+    let mensaje = '';
+    if (filtroCarreraActual && filtroSemestreActual) {
+        const carreraNombre = carrerasData[filtroCarreraActual]?.nombre || filtroCarreraActual;
+        mensaje = `Mostrando ${carreraNombre} - Semestre ${filtroSemestreActual}`;
+    } else if (filtroCarreraActual) {
+        const carreraNombre = carrerasData[filtroCarreraActual]?.nombre || filtroCarreraActual;
+        mensaje = `Mostrando ${carreraNombre} - Todos los semestres`;
+    } else if (filtroSemestreActual) {
+        mensaje = `Mostrando todas las carreras - Semestre ${filtroSemestreActual}`;
+    } else {
+        mensaje = 'Mostrando todas las carreras y semestres';
+    }
+    
+    mostrarNotificacion(mensaje, 'info', 2000);
+}
+
 function mostrarTodasLasMateriasDelFiltro() {
     const resultadosContainer = document.getElementById('resultadosBusqueda');
     const resultadosLista = document.getElementById('resultadosLista');
@@ -1148,15 +1235,52 @@ function mostrarTodasLasMateriasDelFiltro() {
     
     let materiasAMostrar = [];
     
-    if (!filtroCarreraActual) {
+    if (!filtroCarreraActual && !filtroSemestreActual) {
+        // Sin filtros: todas las materias
         materiasAMostrar = [...todasLasMaterias];
     } else {
-        const carreraSeleccionada = carrerasData[filtroCarreraActual];
-        const materiasDeCarrera = carreraSeleccionada.materias.map(m => m.nombre);
-        
-        materiasAMostrar = todasLasMaterias.filter(materia => 
-            materiasDeCarrera.includes(materia.nombre)
-        );
+        // Aplicar filtros combinados
+        materiasAMostrar = todasLasMaterias.filter(materia => {
+            // Verificar cada carrera donde aparece esta materia
+            const infoFiltrada = materia.info.filter(info => {
+                // Filtro por carrera
+                if (filtroCarreraActual) {
+                    const carreraKey = Object.keys(carrerasData).find(
+                        key => carrerasData[key].nombre === info.carrera
+                    );
+                    if (carreraKey !== filtroCarreraActual) return false;
+                }
+                
+                // Filtro por semestre
+                if (filtroSemestreActual) {
+                    if (info.semestre !== parseInt(filtroSemestreActual)) return false;
+                }
+                
+                return true;
+            });
+            
+            // La materia se muestra si tiene al menos una carrera que cumple los filtros
+            return infoFiltrada.length > 0;
+        }).map(materia => {
+            // Crear una versión de la materia solo con las carreras que cumplen los filtros
+            const infoFiltrada = materia.info.filter(info => {
+                if (filtroCarreraActual) {
+                    const carreraKey = Object.keys(carrerasData).find(
+                        key => carrerasData[key].nombre === info.carrera
+                    );
+                    if (carreraKey !== filtroCarreraActual) return false;
+                }
+                if (filtroSemestreActual) {
+                    if (info.semestre !== parseInt(filtroSemestreActual)) return false;
+                }
+                return true;
+            });
+            
+            return {
+                nombre: materia.nombre,
+                info: infoFiltrada
+            };
+        });
     }
     
     contador.textContent = `${materiasAMostrar.length} materias`;
@@ -1165,7 +1289,8 @@ function mostrarTodasLasMateriasDelFiltro() {
         resultadosLista.innerHTML = `
             <div class="resultado-sin-resultados">
                 <i class="fas fa-search"></i>
-                <p>No hay materias disponibles</p>
+                <p>No hay materias disponibles con los filtros seleccionados</p>
+                <small>Prueba con otros filtros</small>
             </div>
         `;
         return;
@@ -1226,6 +1351,51 @@ function manejarCambioFiltroCarrera(event) {
 
 function quitarAcentos(texto) {
     return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+// ===== NUEVA FUNCIÓN: Actualizar opciones de semestre según período =====
+function actualizarOpcionesSemestre() {
+    const selectSemestre = document.getElementById('selectSemestre');
+    if (!selectSemestre) return;
+    
+    // Guardar valor actual
+    const valorActual = selectSemestre.value;
+    
+    // Determinar qué semestres mostrar según el período
+    let semestres = [];
+    if (periodoActivo === 'ene-jun') {
+        // ENE-JUN: semestres pares (2,4,6,8)
+        semestres = [2, 4, 6, 8];
+    } else {
+        // AGO-DIC: semestres impares (1,3,5,7,9)
+        semestres = [1, 3, 5, 7, 9];
+    }
+    
+    // Generar nuevas opciones
+    let opcionesHTML = '<option value="">-- Todos los semestres --</option>';
+    semestres.forEach(sem => {
+        opcionesHTML += `<option value="${sem}">Semestre ${sem}</option>`;
+    });
+    
+    selectSemestre.innerHTML = opcionesHTML;
+    
+    // Restaurar valor si era válido
+    if (valorActual && semestres.includes(parseInt(valorActual))) {
+        selectSemestre.value = valorActual;
+    } else {
+        selectSemestre.value = '';
+        filtroSemestreActual = '';
+    }
+    
+    // Actualizar etiqueta visual
+    const semestreActivo = document.getElementById('semestreActivo');
+    if (semestreActivo) {
+        if (selectSemestre.value) {
+            semestreActivo.textContent = `Semestre ${selectSemestre.value}`;
+        } else {
+            semestreActivo.textContent = 'Todos';
+        }
+    }
 }
 
 function manejarBusquedaEnTiempoReal(event) {
@@ -1326,7 +1496,7 @@ function crearResultadoItem(materia) {
                 ${estaSeleccionada ? '<span class="resultado-seleccionada"><i class="fas fa-check-circle"></i> Ya agregada</span>' : ''}
             </p>
         </div>
-        ${!estaSeleccionada ? '<i class="fas fa-plus-circle" style="color: #3498db; font-size: 1.5rem;"></i>' : '<i class="fas fa-check-circle" style="color: #2ecc71; font-size: 1.5rem;"></i>'}
+        ${!estaSeleccionada ? '<i class="fas fa-plus-circle" style="color: #0077BE; font-size: 1.5rem;"></i>' : '<i class="fas fa-check-circle" style="color: #2ecc71; font-size: 1.5rem;"></i>'}
     `;
     
     if (estaSeleccionada) {
@@ -1336,6 +1506,63 @@ function crearResultadoItem(materia) {
     }
     
     return resultadoItem;
+}
+
+// ===== NUEVA FUNCIÓN: SELECCIONAR TODO EL TURNO ACTUAL =====
+function seleccionarTodoTurno() {
+    const turno = turnoActivo; // 'matutino' o 'vespertino'
+    
+    // Determinar las horas según el turno
+    let horaInicio, horaFin;
+    if (turno === 'matutino') {
+        horaInicio = 7;
+        horaFin = 14;
+    } else {
+        horaInicio = 14;
+        horaFin = 22;
+    }
+    
+    const dias = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
+    const nuevosHorarios = [];
+    
+    // Generar todos los IDs posibles para el turno actual
+    dias.forEach(dia => {
+        for (let hora = horaInicio; hora < horaFin; hora++) {
+            const id = `${dia}_${hora}`;
+            const periodo = hora >= 12 ? 'PM' : 'AM';
+            const horaInicioStr = hora.toString();
+            const horaFinStr = (hora + 1).toString();
+            const bloqueHora = `${horaInicioStr}-${horaFinStr}`;
+            const texto = `${bloqueHora} ${periodo}`;
+            
+            nuevosHorarios.push({
+                id: id,
+                dia: dia,
+                hora: hora,
+                texto: texto
+            });
+        }
+    });
+    
+    // Reemplazar los horarios seleccionados con los nuevos (solo para el turno actual)
+    // Mantener horarios de otros turnos
+    const horariosOtrosTurnos = horariosSeleccionados.filter(h => {
+        const hora = parseInt(h.hora);
+        if (turno === 'matutino') {
+            return hora >= 14; // Horas vespertinas
+        } else {
+            return hora < 14; // Horas matutinas
+        }
+    });
+    
+    horariosSeleccionados = [...horariosOtrosTurnos, ...nuevosHorarios];
+    
+    // Actualizar la UI
+    restaurarHorariosSeleccionados();
+    actualizarResumenHorarios();
+    
+    // Mostrar notificación
+    mostrarNotificacion(`✅ Todos los horarios de ${turno === 'matutino' ? 'mañana' : 'tarde'} seleccionados`, 'success');
 }
 
 function seleccionarMateria(materia) {
@@ -1592,6 +1819,9 @@ function generarCuadriculaPorTurno(turno) {
         
         cuerpo.appendChild(fila);
     }
+    
+    // Al regenerar la cuadrícula, restaurar los horarios seleccionados
+    restaurarHorariosSeleccionados();
 }
 
 function crearCeldaHorarioLimpia(dia, horaInicio, horaFin) {
@@ -1660,13 +1890,47 @@ function configurarAccionesRapidas() {
     const btnLimpiar = document.getElementById('btnLimpiarTodo');
     if (btnLimpiar) {
         btnLimpiar.addEventListener('click', () => {
-            horariosSeleccionados = [];
-            document.querySelectorAll('.celda-horario-limpia.selected').forEach(celda => {
-                celda.classList.remove('selected');
+            const turno = turnoActivo; // 'matutino' o 'vespertino'
+            
+            // Determinar las horas según el turno
+            let horaInicio, horaFin;
+            if (turno === 'matutino') {
+                horaInicio = 7;
+                horaFin = 14;
+            } else {
+                horaInicio = 14;
+                horaFin = 22;
+            }
+            
+            // Filtrar horarios: mantener los que NO son del turno actual
+            horariosSeleccionados = horariosSeleccionados.filter(h => {
+                const hora = parseInt(h.hora);
+                if (turno === 'matutino') {
+                    return hora >= 14; // Mantener vespertinos
+                } else {
+                    return hora < 14; // Mantener matutinos
+                }
             });
+            
+            // Actualizar la UI: remover clase selected solo de las celdas del turno actual
+            document.querySelectorAll(`.celda-horario-limpia`).forEach(celda => {
+                const hora = parseInt(celda.getAttribute('data-hora'));
+                if (turno === 'matutino' && hora < 14) {
+                    celda.classList.remove('selected');
+                } else if (turno === 'vespertino' && hora >= 14) {
+                    celda.classList.remove('selected');
+                }
+            });
+            
             actualizarResumenHorarios();
-            mostrarNotificacion('🧹 Horarios limpiados', 'info');
+            mostrarNotificacion(`🧹 Horarios de ${turno === 'matutino' ? 'mañana' : 'tarde'} limpiados`, 'info');
         });
+    }
+    
+    // Botón seleccionar todo
+    const btnSeleccionarTodo = document.getElementById('btnSeleccionarTodo');
+    if (btnSeleccionarTodo) {
+        btnSeleccionarTodo.addEventListener('click', seleccionarTodoTurno);
     }
 }
 
@@ -1755,8 +2019,12 @@ async function cambiarPeriodo(nuevoPeriodo) {
         // Actualizar badges
         actualizarInterfazPeriodo();
         
+        // ACTUALIZAR OPCIONES DE SEMESTRE
+        actualizarOpcionesSemestre();
+        
         // Limpiar filtros
         filtroCarreraActual = '';
+        filtroSemestreActual = '';
         const selectCarrera = document.getElementById('selectCarrera');
         if (selectCarrera) selectCarrera.value = '';
         
@@ -2076,6 +2344,7 @@ function cerrarModalEncuestas() {
     if (modal) modal.remove();
 }
 
+// ===== FUNCIONES DE EXPORTACIÓN =====
 function exportarAExcel() {
     mostrarNotificacion('Función: Exportar a Excel (próximamente)', 'info');
 }
@@ -2833,89 +3102,11 @@ function actualizarDatosProfesor() {
     
     const inputHoras = document.getElementById('horasPlaza');
     datosProfesor.horasPlaza = inputHoras ? inputHoras.value : '';
-    
-    actualizarResumenProfesor();
 }
 
-// ===== RESUMEN =====
-function actualizarResumenProfesor() {
-    const elemento = document.getElementById('summaryProfesor');
-    
-    if (datosProfesor.nombre && datosProfesor.correo && datosProfesor.codigo) {
-        let html = `
-            <li><strong>Nombre:</strong> ${datosProfesor.nombre}</li>
-            <li><strong>Correo:</strong> ${datosProfesor.correo}</li>
-            <li><strong>Clave SIE:</strong> ${datosProfesor.codigo}</li>
-        `;
-        
-        if (datosProfesor.telefono) {
-            html += `<li><strong>Teléfono:</strong> ${datosProfesor.telefono}</li>`;
-        }
-        
-        if (datosProfesor.tipoPlaza) {
-            let textoPlaza = '';
-            switch(datosProfesor.tipoPlaza) {
-                case 'tiempo_completo': textoPlaza = 'Tiempo completo'; break;
-                case 'tres_cuartos': textoPlaza = '3/4 de tiempo'; break;
-                case 'medio_tiempo': textoPlaza = 'Medio tiempo'; break;
-                case 'por_horas': textoPlaza = 'Por horas-base'; break;
-                case 'honorarios': textoPlaza = 'Honorarios'; break;
-            }
-            html += `<li><strong>Tipo de plaza:</strong> ${textoPlaza}</li>`;
-        }
-        
-        elemento.innerHTML = html;
-    } else {
-        elemento.innerHTML = '<li>No has ingresado datos completos aún</li>';
-    }
-}
-
-function actualizarResumenMaterias() {
-    const elemento = document.getElementById('summaryMaterias');
-    
-    if (materiasSeleccionadas.length > 0) {
-        let html = '';
-        materiasSeleccionadas.forEach(materia => {
-            const infoOrdenada = [...materia.carreras].sort((a, b) => a.semestre - b.semestre);
-            const infoTexto = infoOrdenada.map(c => 
-                `${c.carrera} - Semestre ${c.semestre}`
-            ).join(', ');
-            html += `<li>${materia.nombre} (${infoTexto}) - ${materia.nivel}</li>`;
-        });
-        elemento.innerHTML = html;
-    } else {
-        elemento.innerHTML = '<li>No has seleccionado materias aún</li>';
-    }
-}
-
-function actualizarResumenHorarios() {
-    const elemento = document.getElementById('summaryHorarios');
-    
-    if (horariosSeleccionados.length > 0) {
-        let html = '';
-        const diasOrdenados = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
-        
-        diasOrdenados.forEach(dia => {
-            const horariosDia = horariosSeleccionados
-                .filter(h => h.dia === dia)
-                .sort((a, b) => parseInt(a.hora) - parseInt(b.hora));
-            
-            if (horariosDia.length > 0) {
-                html += `<li style="margin-top: 8px;"><strong>${dia}:</strong> ${horariosDia.length} horario(s)</li>`;
-                horariosDia.forEach(horario => {
-                    html += `<li style="margin-left: 20px; font-size: 0.9rem;">• ${horario.texto}</li>`;
-                });
-            }
-        });
-        
-        elemento.innerHTML = html;
-    } else {
-        elemento.innerHTML = '<li>No has seleccionado horarios aún</li>';
-    }
-}
-
-// ===== ENVÍO DE ENCUESTA CON POCKETBASE (SIN BORRADOR) =====
-async function enviarEncuesta() {
+// ===== FUNCIONES PARA EL MODAL DE CONFIRMACIÓN =====
+function mostrarModalConfirmacion() {
+    // Validar que todos los datos estén completos
     if (!datosProfesor.nombre || !datosProfesor.correo || !datosProfesor.codigo) {
         mostrarNotificacion('Ingresa tu nombre, correo electrónico y clave docente', 'warning');
         if (!datosProfesor.nombre) document.getElementById('buscadorProfesores').focus();
@@ -2946,7 +3137,102 @@ async function enviarEncuesta() {
         return;
     }
     
+    // Actualizar el contenido del modal
+    actualizarModalResumen();
+    
+    // Mostrar el modal
+    document.getElementById('confirmacionModal').style.display = 'flex';
+}
+
+function cerrarModalConfirmacion() {
+    document.getElementById('confirmacionModal').style.display = 'none';
+}
+
+function actualizarModalResumen() {
+    // Resumen del profesor
+    const resumenProfesor = document.getElementById('modalResumenProfesor');
+    let htmlProfesor = '<ul>';
+    
+    htmlProfesor += `<li><i class="fas fa-user"></i> <strong>Nombre:</strong> ${datosProfesor.nombre || 'No especificado'}</li>`;
+    htmlProfesor += `<li><i class="fas fa-envelope"></i> <strong>Correo:</strong> ${datosProfesor.correo || 'No especificado'}</li>`;
+    htmlProfesor += `<li><i class="fas fa-id-card"></i> <strong>Clave SIE:</strong> ${datosProfesor.codigo || 'No especificada'}</li>`;
+    
+    if (datosProfesor.telefono) {
+        htmlProfesor += `<li><i class="fas fa-phone"></i> <strong>Teléfono:</strong> ${datosProfesor.telefono}</li>`;
+    }
+    
+    if (datosProfesor.tipoPlaza) {
+        let textoPlaza = '';
+        switch(datosProfesor.tipoPlaza) {
+            case 'tiempo_completo': textoPlaza = 'Tiempo completo'; break;
+            case 'tres_cuartos': textoPlaza = '3/4 de tiempo'; break;
+            case 'medio_tiempo': textoPlaza = 'Medio tiempo'; break;
+            case 'por_horas': textoPlaza = 'Por horas-base'; break;
+            case 'honorarios': textoPlaza = 'Honorarios'; break;
+            case 'nuevo_ingreso': textoPlaza = 'Nuevo ingreso'; break;
+        }
+        htmlProfesor += `<li><i class="fas fa-briefcase"></i> <strong>Tipo de plaza:</strong> ${textoPlaza}`;
+        
+        if (datosProfesor.tipoPlaza === 'por_horas' && datosProfesor.horasPlaza) {
+            htmlProfesor += ` (${datosProfesor.horasPlaza} horas/sem)`;
+        }
+        htmlProfesor += '</li>';
+    }
+    
+    htmlProfesor += '</ul>';
+    resumenProfesor.innerHTML = htmlProfesor;
+    
+    // Resumen de materias
+    const resumenMaterias = document.getElementById('modalResumenMaterias');
+    if (materiasSeleccionadas.length > 0) {
+        let htmlMaterias = '<ul>';
+        materiasSeleccionadas.forEach(materia => {
+            const nivelTexto = materia.nivel === 'alta' ? 'Alta' : (materia.nivel === 'media' ? 'Media' : 'Baja');
+            const nivelColor = materia.nivel === 'alta' ? '#e74c3c' : (materia.nivel === 'media' ? '#f39c12' : '#7f8c8d');
+            
+            const carrerasTexto = materia.carreras.map(c => `${c.carrera} (Sem ${c.semestre})`).join(', ');
+            htmlMaterias += `<li>
+                <i class="fas fa-book" style="color: ${nivelColor};"></i>
+                <strong>${materia.nombre}</strong> - <span style="color: ${nivelColor};">${nivelTexto}</span>
+                <br><small style="margin-left: 26px; color: #7f8c8d;">${carrerasTexto}</small>
+            </li>`;
+        });
+        htmlMaterias += '</ul>';
+        resumenMaterias.innerHTML = htmlMaterias;
+    } else {
+        resumenMaterias.innerHTML = '<p>No has seleccionado materias</p>';
+    }
+    
+    // Resumen de horarios
+    const resumenHorarios = document.getElementById('modalResumenHorarios');
+    if (horariosSeleccionados.length > 0) {
+        let htmlHorarios = '<ul>';
+        const diasOrdenados = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
+        
+        diasOrdenados.forEach(dia => {
+            const horariosDia = horariosSeleccionados
+                .filter(h => h.dia === dia)
+                .sort((a, b) => parseInt(a.hora) - parseInt(b.hora));
+            
+            if (horariosDia.length > 0) {
+                htmlHorarios += `<li style="margin-top: 5px;"><i class="fas fa-calendar-day"></i> <strong>${dia}:</strong></li>`;
+                horariosDia.forEach(horario => {
+                    htmlHorarios += `<li style="margin-left: 25px;"><i class="far fa-clock"></i> ${horario.texto}</li>`;
+                });
+            }
+        });
+        htmlHorarios += '</ul>';
+        resumenHorarios.innerHTML = htmlHorarios;
+    } else {
+        resumenHorarios.innerHTML = '<p>No has seleccionado horarios</p>';
+    }
+}
+
+// ===== ENVÍO DE ENCUESTA (ahora se llama desde el modal) =====
+async function confirmarEnvioEncuesta() {
     try {
+        mostrarNotificacion('Enviando encuesta...', 'info');
+        
         const encuesta = await pb.collection('encuestas').create({
             profesor: datosProfesor,
             materias: materiasSeleccionadas,
@@ -2960,6 +3246,9 @@ async function enviarEncuesta() {
         
         mostrarNotificacion('✅ ¡Encuesta enviada exitosamente!', 'success', 6000);
         
+        // Cerrar el modal
+        cerrarModalConfirmacion();
+        
         // Reset del formulario
         datosProfesor = {
             nombre: '',
@@ -2972,7 +3261,6 @@ async function enviarEncuesta() {
         
         document.getElementById('nombreProfesor').value = '';
         document.getElementById('buscadorProfesores').value = '';
-        document.getElementById('buscadorProfesores').placeholder = 'Escribe para buscar...';
         document.getElementById('correoProfesor').value = '';
         document.getElementById('telefonoProfesor').value = '';
         document.getElementById('codigoProfesor').value = '';
@@ -3012,10 +3300,6 @@ async function enviarEncuesta() {
         const selectorNivel = document.getElementById('selectorNivelContainer');
         if (selectorNivel) selectorNivel.style.display = 'none';
         
-        actualizarResumenProfesor();
-        actualizarResumenMaterias();
-        actualizarResumenHorarios();
-        
         window.scrollTo({ top: 0, behavior: 'smooth' });
         
         setTimeout(() => {
@@ -3028,13 +3312,57 @@ async function enviarEncuesta() {
     }
 }
 
-// ===== CONFIGURACIÓN DE BOTONES =====
-function configurarBotones() {
-    // Eliminado el botón de borrador, solo queda enviar
+// ===== CONFIGURAR BOTONES DEL MODAL =====
+function configurarModal() {
     const btnEnviar = document.getElementById('submitBtn');
     if (btnEnviar) {
-        btnEnviar.addEventListener('click', () => enviarEncuesta());
+        btnEnviar.addEventListener('click', mostrarModalConfirmacion);
     }
+    
+    const btnCerrar = document.getElementById('cerrarModalBtn');
+    if (btnCerrar) {
+        btnCerrar.addEventListener('click', cerrarModalConfirmacion);
+    }
+    
+    const btnCancelar = document.getElementById('cancelarEnvioBtn');
+    if (btnCancelar) {
+        btnCancelar.addEventListener('click', cerrarModalConfirmacion);
+    }
+    
+    const btnConfirmar = document.getElementById('confirmarEnvioBtn');
+    if (btnConfirmar) {
+        btnConfirmar.addEventListener('click', confirmarEnvioEncuesta);
+    }
+    
+    // Cerrar modal si se hace clic fuera del contenido
+    const modalOverlay = document.getElementById('confirmacionModal');
+    if (modalOverlay) {
+        modalOverlay.addEventListener('click', function(e) {
+            if (e.target === modalOverlay) {
+                cerrarModalConfirmacion();
+            }
+        });
+    }
+}
+
+// ===== CONFIGURACIÓN DE BOTONES =====
+function configurarBotones() {
+    // Eliminado el botón de borrador, solo queda enviar que ahora abre el modal
+    // La configuración del botón ahora está en configurarModal()
+}
+
+// ===== RESUMEN (funciones legacy que ya no se usan pero mantenemos por si acaso) =====
+function actualizarResumenProfesor() {
+    // Esta función ya no se usa porque eliminamos el panel de resumen
+    // Pero la mantenemos por si acaso
+}
+
+function actualizarResumenMaterias() {
+    // Esta función ya no se usa
+}
+
+function actualizarResumenHorarios() {
+    // Esta función ya no se usa
 }
 
 // ===== INICIALIZACIÓN =====
@@ -3075,6 +3403,10 @@ async function inicializarAplicacion() {
         inicializarHorarios();
         inicializarModoAdmin();
         configurarBotones();
+        configurarModal();
+        
+        // Cargar opciones de semestre según el período actual
+        actualizarOpcionesSemestre();
         
         setTimeout(() => {
             actualizarInterfazPeriodo();
