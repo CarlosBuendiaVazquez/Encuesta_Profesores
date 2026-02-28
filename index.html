@@ -9,10 +9,16 @@
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1><i class="fas fa-chalkboard-teacher"></i> Encuesta de Disponibilidad Docente</h1>
-            <p class="subtitle">A través de esta herramienta se busca consolidar la información de perfiles docentes y disponibilidad horaria del profesorado del instituto y/o externo para el semestre en preparación.</p>
-        </header>
+<!-- ===== HEADER CON LOGOS GRANDES ===== -->
+<header style="display: flex; align-items: center; justify-content: space-between; padding: 20px 30px;">
+    <div class="header-content">
+        <h1>Encuesta de Disponibilidad Docente</h1>
+        <p class="subtitle">A través de esta herramienta se busca consolidar la información de perfiles docentes y disponibilidad horaria del profesorado del instituto y/o externo para el semestre en preparación.</p>
+    </div>
+    <div class="logo-container">
+        <img src="img/logo-tecnm.png" alt="TecNM" class="logo-img">
+    </div>
+</header>
 
         <!-- ===== ACCESO ADMINISTRADOR ===== -->
         <div class="admin-access" id="adminAccess" style="display: none;">
@@ -42,12 +48,6 @@
                         <button class="admin-btn" id="verEncuestasBtn">
                             <i class="fas fa-eye"></i> Ver todas las encuestas
                         </button>
-                        <button class="admin-btn" id="exportarExcelBtn">
-                            <i class="fas fa-file-excel"></i> Exportar a Excel
-                        </button>
-                        <button class="admin-btn" id="exportarPDFBtn">
-                            <i class="fas fa-file-pdf"></i> Exportar a PDF
-                        </button>
                     </div>
                     
                     <div class="admin-section">
@@ -73,7 +73,7 @@
 
         <!-- ===== PANEL 1: DATOS DEL PROFESOR ===== -->
         <div class="panel">
-            <h2 class="panel-title"><i class="fas fa-user-graduate"></i> Datos del Profesor</h2>
+            <h2 class="panel-title">Datos del Profesor</h2>
             <p>Selecciona tu nombre del buscador o elige "Otro" para ingresarlo manualmente.</p>
             
             <!-- BUSCADOR DE PROFESORES -->
@@ -159,7 +159,7 @@
             <div class="form-row">
                 <div class="form-group">
                     <label for="telefonoProfesor">Teléfono de contacto</label>
-                    <input type="tel" id="telefonoProfesor" class="form-input" onkeypress="return soloNumeros(event)" maxlength="12">
+                    <input type="tel" id="telefonoProfesor" class="form-input" onkeypress="return soloNumeros(event)" maxlength="10">
                 </div>
                 
                 <div class="form-group">
@@ -181,8 +181,8 @@
                 <div class="form-group horas-compactas">
                     <label for="horasPlaza">Horas semanales <span class="required">*</span></label>
                     <div class="horas-input-group">
-                        <input type="text" id="horasPlaza" class="form-input horas-input" placeholder="20" min="1" max="40" step="1" value="20" onkeypress="return soloNumeros(event)" maxlength="3" inputmode="numeric">
-                        <span class="horas-label">horas/sem</span>
+                        <input type="text" id="horasPlaza" class="form-input horas-input" onkeypress="return soloNumeros(event)" maxlength="3" inputmode="numeric">
+                        <span class="horas-label">horas/sem</span>    
                     </div>
                 </div>
             </div>
@@ -190,36 +190,35 @@
 
         <!-- ===== PANEL 2: MATERIAS ===== -->
         <div class="panel">
-            <h2 class="panel-title"><i class="fas fa-book-open"></i> Materias que puedo / me gustaría impartir</h2>
-            <p>Selecciona las materias que deseas impartir. Puedes filtrar por carrera y buscar directamente.</p>
+            <h2 class="panel-title">Materias que puedo / me gustaría impartir</h2>
+            <p>Selecciona las materias que deseas impartir. Puedes filtrar por carrera y semestre.</p>
             
-            <!-- FILTRO POR CARRERA CON INDICADOR DE PERÍODO -->
-            <div class="filtro-carrera">
-                <div class="carrera-header">
-                    <label for="selectCarrera"><i class="fas fa-filter"></i> Filtrar por carrera (opcional):</label>
-                    <span class="periodo-badge" id="periodoBadge">ENE - JUN</span>
+            <!-- FILTROS COMBINADOS -->
+            <div class="filtros-combinados">
+                <div class="filtro-carrera">
+                    <div class="carrera-header">
+                        <label for="selectCarrera"><i class="fas fa-filter"></i> Filtrar por carrera:</label>
+                        <span class="periodo-badge" id="periodoBadge">ENE - JUN</span>
+                    </div>
+                    <select id="selectCarrera" class="select-carrera">
+                        <option value="">-- Todas las carreras --</option>
+                        <option value="arquitectura">Arquitectura</option>
+                        <option value="civil">Ing. Civil</option>
+                        <option value="electromecanica">Ing. Electromecánica</option>
+                        <option value="ferroviaria">Ing. Ferroviaria</option>
+                        <option value="mecatronica">Ing. Mecatrónica</option>
+                    </select>
                 </div>
-                <select id="selectCarrera" class="select-carrera">
-                    <option value="">-- Todas las carreras --</option>
-                    <option value="arquitectura">Arquitectura</option>
-                    <option value="civil">Ing. Civil</option>
-                    <option value="electromecanica">Ing. Electromecánica</option>
-                    <option value="ferroviaria">Ing. Ferroviaria</option>
-                    <option value="mecatronica">Ing. Mecatrónica</option>
-                </select>
+                
+                <div class="filtro-semestre">
+                    <div class="semestre-header">
+                        <label for="selectSemestre"><i class="fas fa-layer-group"></i> Filtrar por semestre:</label>
+                    </div>
+                    <select id="selectSemestre" class="select-semestre">
+                        <option value="">-- Todos los semestres --</option>
+                    </select>
+                </div>
             </div>
-
-            <!-- FILTRO POR SEMESTRE (ahora con ID para el select) -->
-<div class="filtro-semestre" style="background: linear-gradient(135deg, #004B87, #0077BE); padding: 20px 25px; border-radius: 12px; margin-bottom: 20px; color: white; box-shadow: 0 10px 25px rgba(0, 75, 135, 0.3);">
-    <div class="semestre-header">
-        <label for="selectSemestre"><i class="fas fa-layer-group"></i> Filtrar por semestre:</label>
-        <span class="filtro-activo" id="semestreActivo" style="background: #FFD700; color: #003B6F; padding: 5px 12px; border-radius: 30px; font-size: 0.8rem; font-weight: 600;">Todos</span>
-    </div>
-    <select id="selectSemestre" class="select-semestre" style="width: 100%; padding: 12px 20px; border: none; border-radius: 8px; font-size: 1rem; background: white; color: #003B6F; cursor: pointer;">
-        <option value="">-- Todos los semestres --</option>
-        <!-- Las opciones se llenarán dinámicamente con JavaScript -->
-    </select>
-</div>
             
             <!-- BUSCADOR DE MATERIAS -->
             <div class="buscador-unico">
@@ -248,7 +247,7 @@
                     </div>
                 </div>
                 
-                <!-- SELECTOR DE NIVEL CON TOOLTIP MEJORADO -->
+                <!-- SELECTOR DE NIVEL CON TOOLTIP -->
                 <div class="selector-nivel-container" id="selectorNivelContainer" style="display: none;">
                     <div class="materia-seleccionada-preview" id="materiaSeleccionadaPreview"></div>
                     <div class="nivel-selector">
@@ -310,32 +309,30 @@ El nivel de preferencia indica tu grado de interés en impartir cada materia:
                 Selecciona los horarios en los que estarías disponible.
             </p>
             
-            <!-- BARRA SUPERIOR: PESTAÑAS + BOTONES DE ACCIÓN -->
-<div class="barra-superior-horarios">
-    <div class="pestanas-turnos">
-        <button class="pestana-btn active" id="pestanaMatutino" data-turno="matutino">
-            <i class="fas fa-sun"></i> Matutino (7-14h)
-        </button>
-        <button class="pestana-btn" id="pestanaVespertino" data-turno="vespertino">
-            <i class="fas fa-moon"></i> Vespertino (14-22h)
-        </button>
-    </div>
-    
-    <!-- NUEVO: CONTENEDOR DE BOTONES DE ACCIÓN -->
-    <div class="botones-accion-horarios">
-        <button class="btn-seleccionar-turno" id="btnSeleccionarTodo" title="Seleccionar todo el turno actual">
-            <i class="fas fa-check-double"></i> Seleccionar todo
-        </button>
-        <button class="btn-limpiar-integrado" id="btnLimpiarTodo" title="Limpiar todos los horarios">
-            <i class="fas fa-eraser"></i> Limpiar todo
-        </button>
-    </div>
-</div>
+            <!-- BARRA SUPERIOR -->
+            <div class="barra-superior-horarios">
+                <div class="pestanas-turnos">
+                    <button class="pestana-btn active" id="pestanaMatutino" data-turno="matutino">
+    Matutino (7-14h)
+</button>
+<button class="pestana-btn" id="pestanaVespertino" data-turno="vespertino">
+    Vespertino (14-22h)
+</button>
+                </div>
+                
+                <div class="botones-accion-horarios">
+                    <button class="btn-seleccionar-turno" id="btnSeleccionarTodo" title="Seleccionar todo el turno actual">
+                        <i class="fas fa-check-double"></i> Seleccionar todo
+                    </button>
+                    <button class="btn-limpiar-integrado" id="btnLimpiarTodo" title="Limpiar todos los horarios">
+                        <i class="fas fa-eraser"></i> Limpiar todo
+                    </button>
+                </div>
+            </div>
             
-            <!-- CONTENEDOR CON SCROLL -->
+            <!-- CUADRÍCULA -->
             <div class="cuadricula-scroll-container">
                 <div class="horarios-cuadricula-limpia" id="cuadriculaHorarios">
-                    <!-- ENCABEZADO DE DÍAS -->
                     <div class="encabezado-dias-limpio">
                         <div class="dia-header-limpio" data-dia="Lunes" title="Lunes">Lun</div>
                         <div class="dia-header-limpio" data-dia="Martes" title="Martes">Mar</div>
@@ -343,15 +340,11 @@ El nivel de preferencia indica tu grado de interés en impartir cada materia:
                         <div class="dia-header-limpio" data-dia="Jueves" title="Jueves">Jue</div>
                         <div class="dia-header-limpio" data-dia="Viernes" title="Viernes">Vie</div>
                     </div>
-                    
-                    <!-- CUERPO DE LA CUADRÍCULA -->
-                    <div class="cuadricula-cuerpo-limpio" id="cuerpoCuadriculaLimpia">
-                        <!-- Las filas se generan según el turno activo -->
-                    </div>
+                    <div class="cuadricula-cuerpo-limpio" id="cuerpoCuadriculaLimpia"></div>
                 </div>
             </div>
             
-            <!-- LEYENDA DE COLORES -->
+            <!-- LEYENDA -->
             <div class="leyenda-horarios">
                 <div class="leyenda-item">
                     <span class="leyenda-color disponible-color"></span>
@@ -364,14 +357,14 @@ El nivel de preferencia indica tu grado de interés en impartir cada materia:
             </div>
         </div>
 
-        <!-- ===== BOTÓN DE ENVÍO ===== -->
+        <!-- BOTÓN DE ENVÍO -->
         <div class="actions" style="margin-top: 20px; margin-bottom: 40px; display: flex; justify-content: center;">
             <button class="btn btn-success btn-lg" id="submitBtn" type="button" style="min-width: 250px;">
                 <i class="fas fa-paper-plane"></i> Enviar Encuesta
             </button>
         </div>
 
-        <!-- ===== MODAL DE CONFIRMACIÓN DE ENCUESTA ===== -->
+        <!-- MODAL DE CONFIRMACIÓN -->
         <div class="modal-overlay" id="confirmacionModal" style="display: none;">
             <div class="modal-contenido">
                 <div class="modal-header">
@@ -383,7 +376,6 @@ El nivel de preferencia indica tu grado de interés en impartir cada materia:
                 <div class="modal-body">
                     <p class="modal-intro">Revisa los datos antes de enviar tu encuesta:</p>
                     
-                    <!-- RESUMEN DEL PROFESOR -->
                     <div class="modal-seccion">
                         <h4><i class="fas fa-user"></i> Información del profesor</h4>
                         <div class="modal-resumen" id="modalResumenProfesor">
@@ -391,7 +383,6 @@ El nivel de preferencia indica tu grado de interés en impartir cada materia:
                         </div>
                     </div>
                     
-                    <!-- RESUMEN DE MATERIAS -->
                     <div class="modal-seccion">
                         <h4><i class="fas fa-book"></i> Materias seleccionadas</h4>
                         <div class="modal-resumen" id="modalResumenMaterias">
@@ -399,7 +390,6 @@ El nivel de preferencia indica tu grado de interés en impartir cada materia:
                         </div>
                     </div>
                     
-                    <!-- RESUMEN DE HORARIOS -->
                     <div class="modal-seccion">
                         <h4><i class="fas fa-clock"></i> Horarios seleccionados</h4>
                         <div class="modal-resumen" id="modalResumenHorarios">
@@ -418,26 +408,26 @@ El nivel de preferencia indica tu grado de interés en impartir cada materia:
             </div>
         </div>
 
-        <!-- ===== FOOTER INSTITUCIONAL ===== -->
+        <!-- FOOTER -->
         <footer class="footer">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3><i class="fas fa-university"></i> Universidad</h3>
+                    <h3>Universidad</h3>
                     <p>Tecnológico Nacional De México Instituto Tecnológico De Cancún</p>
                 </div>
                 
                 <div class="footer-section">
-                    <h3><i class="fas fa-building"></i> Departamento</h3>
+                    <h3>Departamento</h3>
                     <p>Departamento De Ingenierías</p>
                 </div>
                 
                 <div class="footer-section">
-                    <h3><i class="fas fa-user-tie"></i> Jefe del Departamento</h3>
+                    <h3>Jefe del Departamento</h3>
                     <p>Esquivel Briceño Carlos Roberto</p>
                 </div>
                 
                 <div class="footer-section">
-                    <h3><i class="fas fa-map-marker-alt"></i> Dirección</h3>
+                    <h3>Dirección</h3>
                     <p>Av. Rodrigo Gómez Km. 3, Centro, 77515 Cancún, Q.R.</p>
                     <p><i class="fas fa-phone"></i> 01 (998) 8-80-74-32</p>
                 </div>
@@ -445,7 +435,6 @@ El nivel de preferencia indica tu grado de interés en impartir cada materia:
             
             <div class="footer-bottom">
                 <p>&copy; 2026 - Encuesta de Disponibilidad Docente. Todos los derechos reservados.</p>
-                <p class="footer-version">Versión 3.0.0</p>
             </div>
         </footer>
     </div>
@@ -471,12 +460,10 @@ El nivel de preferencia indica tu grado de interés en impartir cada materia:
         }
     </script>
 
-    <!-- Librerías para exportación -->
+    <!-- Librerías -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
-    
-    <!-- PocketBase SDK -->
     <script src="https://unpkg.com/pocketbase@0.25.2/dist/pocketbase.umd.js"></script>
     <script src="script.js"></script>
 </body>
