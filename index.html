@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Encuesta de Disponibilidad Docente - IT Cancún</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
@@ -151,7 +152,7 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="codigoProfesor">Clave de Empleado en el SIE <span class="required">*</span> <small>(En caso de contar con una)</small></label>
+                    <label for="codigoProfesor">Clave de Empleado en el SIE <small>(En caso de contar con una)</small></label>
                     <input type="text" id="codigoProfesor" class="form-input" onkeypress="return soloNumeros(event)" maxlength="8">
                 </div>
             </div>
@@ -466,5 +467,26 @@ El nivel de preferencia indica tu grado de interés en impartir cada materia:
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
     <script src="https://unpkg.com/pocketbase@0.25.2/dist/pocketbase.umd.js"></script>
     <script src="script.js"></script>
+
+    <!-- Agrega esto al final del body para probar -->
+<div style="position: fixed; bottom: 10px; right: 10px; background: red; color: white; padding: 5px; border-radius: 5px; z-index: 9999; display: none;" id="test-mobile">
+    Vista móvil activa
+</div>
+
+<script>
+    // Detectar móvil
+    if (window.innerWidth <= 768) {
+        document.getElementById('test-mobile').style.display = 'block';
+    }
+    
+    window.addEventListener('resize', function() {
+        if (window.innerWidth <= 768) {
+            document.getElementById('test-mobile').style.display = 'block';
+        } else {
+            document.getElementById('test-mobile').style.display = 'none';
+        }
+    });
+</script>
+
 </body>
 </html>

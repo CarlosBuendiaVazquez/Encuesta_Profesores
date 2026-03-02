@@ -22,7 +22,10 @@ const carrerasDataENEJUN = {
             { nombre: 'Urbanismo I', semestre: 6 },
             { nombre: 'Administración de Empresas Constructoras I', semestre: 8 },
             { nombre: 'Gestión Urbanística', semestre: 8 },
-            { nombre: 'Taller de Diseño VI', semestre: 8 }
+            { nombre: 'Taller de Diseño VI', semestre: 8 },
+            { nombre: 'Plan de Desarrollo Bioclimático y Sustentable', semestre: 8 },
+            { nombre: 'Arquitectura Urbana Sustentable para Zonas Turísticas', semestre: 8 },
+            { nombre: 'Sistemas de Automatizacion en Interiores', semestre: 8 }
         ]
     },
     'civil': {
@@ -49,13 +52,14 @@ const carrerasDataENEJUN = {
             { nombre: 'Alcantarillado', semestre: 8 },
             { nombre: 'Diseño Estructural de Cimentaciones', semestre: 8 },
             { nombre: 'Diseño de Elementos de Acero', semestre: 8 },
-            { nombre: 'Formulación y Evaluación de Proyectos', semestre: 8 }
+            { nombre: 'Formulación y Evaluación de Proyectos', semestre: 8 },
+            { nombre: 'Supervision y Control De Calidad en las Obras', semestre: 8 },
+            { nombre: 'Instalaciones Espaciales en Edificios', semestre: 8 }
         ]
     },
     'electromecanica': {
         nombre: 'Ing. Electromecánica',
         materias: [
-            { nombre: 'Cálculo Integral', semestre: 2 },
             { nombre: 'Dibujo Electromecánico', semestre: 2 },
             { nombre: 'Estática', semestre: 2 },
             { nombre: 'Metrología y Normalización', semestre: 2 },
@@ -76,7 +80,8 @@ const carrerasDataENEJUN = {
             { nombre: 'Formulación y Evaluación de Proyectos', semestre: 8 },
             { nombre: 'Refrigeración y Aire Acondicionado', semestre: 8 },
             { nombre: 'Sistemas Hidráulicos y Neumáticos de Potencia', semestre: 8 },
-            { nombre: 'Subestaciones Eléctricas', semestre: 8 }
+            { nombre: 'Subestaciones Eléctricas', semestre: 8 },
+            { nombre: 'Sistemas Solares Fotovoltaicos y Térmicos', semestre: 8 }
         ]
     },
     'ferroviaria': {
@@ -126,10 +131,13 @@ const carrerasDataENEJUN = {
             { nombre: 'Vibraciones Mecánicas', semestre: 6 },
             { nombre: 'Control', semestre: 8 },
             { nombre: 'Controladores Lógicos Programables', semestre: 8 },
-            { nombre: 'Formulación y Evaluación de Proyectos', semestre: 8 }
+            { nombre: 'Formulación y Evaluación de Proyectos', semestre: 8 },
+            { nombre: 'Procesamiento Digital de Señales 1', semestre: 8 },
+            { nombre: 'IOT e Industria 4.0', semestre: 8 },
+            { nombre: 'Analisis de Costos Mecatrónicos', semestre: 8 }
         ]
     }
-};
+};  
 
 // ===== CONFIGURACIÓN DE CARRERAS Y MATERIAS CON SEMESTRES - PERÍODO AGO-DIC =====
 const carrerasDataAGODIC = {
@@ -188,7 +196,7 @@ const carrerasDataAGODIC = {
             { nombre: 'Diseño de Elementos de Concreto Reforzado', semestre: 7 },
             { nombre: 'Taller de Investigación II', semestre: 7 },
             { nombre: 'Planificacion Urbana', semestre: 9 },
-            { nombre: 'Dis.Plant.Trat Aguas', semestre: 9 },
+            { nombre: 'Diseños de Plantas de Tratamiento de Aguas Residuales', semestre: 9 },
             { nombre: 'Diseño Estructural', semestre: 9 }
         ]
     },
@@ -215,7 +223,10 @@ const carrerasDataAGODIC = {
             { nombre: 'Ingeniería de Control Clásico', semestre: 7 },
             { nombre: 'Máquinas y Equipos Térmicos II', semestre: 7 },
             { nombre: 'Sistemas Eléctricos de Potencia', semestre: 7 },
-            { nombre: 'Taller de Investigación II', semestre: 7 }
+            { nombre: 'Taller de Investigación II', semestre: 7 },
+            { nombre: 'Fuentes Alternas de Energía', semestre: 7 },
+            { nombre: 'Energia Eolica', semestre: 9 },
+            { nombre: 'Biocombustibles', semestre: 9 }
         ]
     },
     'ferroviaria': {
@@ -251,7 +262,7 @@ const carrerasDataAGODIC = {
             { nombre: 'Cálculo Diferencial', semestre: 1 },
             { nombre: 'Dibujo Asistido por Computadora', semestre: 1 },
             { nombre: 'Fundamentos de investigación', semestre: 1 },
-            { nombre: 'Metrología y Normalización', semestre: 1 },
+            { nombre: 'Metrológia y Normalización', semestre: 1 },
             { nombre: 'Química', semestre: 1 },
             { nombre: 'Taller de Ética', semestre: 1 },
             { nombre: 'Cálculo Vectorial', semestre: 3 },
@@ -271,7 +282,9 @@ const carrerasDataAGODIC = {
             { nombre: 'Manufactura Avanzada', semestre: 7 },
             { nombre: 'Microcontroladores', semestre: 7 },
             { nombre: 'Programación Avanzada', semestre: 7 },
-            { nombre: 'Robótica', semestre: 9 }
+            { nombre: 'Robótica', semestre: 9 },
+            { nombre: 'Procesamiento Digital de Señales 2', semestre: 9 },
+            { nombre: 'Control Neurodifuso Aplicado', semestre: 9 }
         ]
     }
 };
@@ -1433,8 +1446,8 @@ function manejarAgregarMateria(event) {
     event.preventDefault();
     event.stopPropagation();
     
-    if (!datosProfesor.nombre || !datosProfesor.correo || !datosProfesor.codigo) {
-        mostrarNotificacion('Completa los datos del profesor', 'warning');
+    if (!datosProfesor.nombre || !datosProfesor.correo) {
+    mostrarNotificacion('Ingresa tu nombre y correo electrónico', 'warning');
         return;
     }
     
@@ -2896,29 +2909,33 @@ function actualizarDatosProfesor() {
     datosProfesor.horasPlaza = inputHoras ? inputHoras.value : '';
 }
 
-// ===== FUNCIÓN PARA VALIDAR Y SCROLL A CAMPOS FALTANTES =====
+// ===== FUNCIÓN PARA VALIDAR Y SCROLL A CAMPOS FALTANTES (VERSIÓN COMPLETA) =====
 function validarYScrollear() {
     // Verificar nombre del profesor
     if (!datosProfesor.nombre) {
         mostrarNotificacion('Por favor, selecciona o ingresa tu nombre', 'warning');
         document.getElementById('buscadorProfesores').focus();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        const panelProfesor = document.querySelector('.panel'); // Primer panel
+        if (panelProfesor) {
+            panelProfesor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
         return false;
     }
-    
+    // Verificar que todas las materias tengan nivel asignado
+const materiasSinNivel = materiasSeleccionadas.filter(m => !m.nivel);
+if (materiasSinNivel.length > 0) {
+    mostrarNotificacion('Hay materias sin nivel de preferencia asignado', 'warning');
+    return false;
+}
+
     // Verificar correo
     if (!datosProfesor.correo) {
         mostrarNotificacion('Por favor, ingresa tu correo electrónico', 'warning');
         document.getElementById('correoProfesor').focus();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        return false;
-    }
-    
-    // Verificar clave SIE
-    if (!datosProfesor.codigo) {
-        mostrarNotificacion('Por favor, ingresa tu clave de empleado SIE', 'warning');
-        document.getElementById('codigoProfesor').focus();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        const panelProfesor = document.querySelector('.panel');
+        if (panelProfesor) {
+            panelProfesor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
         return false;
     }
     
@@ -2926,7 +2943,10 @@ function validarYScrollear() {
     if (!datosProfesor.tipoPlaza) {
         mostrarNotificacion('Por favor, selecciona tu tipo de plaza', 'warning');
         document.getElementById('tipoPlaza').focus();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        const panelProfesor = document.querySelector('.panel');
+        if (panelProfesor) {
+            panelProfesor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
         return false;
     }
     
@@ -2934,30 +2954,43 @@ function validarYScrollear() {
     if (datosProfesor.tipoPlaza === 'por_horas' && !datosProfesor.horasPlaza) {
         mostrarNotificacion('Por favor, ingresa el número de horas semanales', 'warning');
         document.getElementById('horasPlaza').focus();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        const panelProfesor = document.querySelector('.panel');
+        if (panelProfesor) {
+            panelProfesor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
         return false;
     }
     
     // Verificar materias
     if (materiasSeleccionadas.length === 0) {
         mostrarNotificacion('Por favor, selecciona al menos una materia', 'warning');
-        document.getElementById('buscadorMaterias').focus();
-        window.scrollTo({ top: document.getElementById('buscadorMaterias').offsetTop - 100, behavior: 'smooth' });
+        const panelMaterias = document.querySelectorAll('.panel')[1]; // Segundo panel
+        if (panelMaterias) {
+            panelMaterias.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => {
+                document.getElementById('buscadorMaterias').focus();
+            }, 500);
+        }
         return false;
     }
     
     // Verificar horarios
     if (horariosSeleccionados.length === 0) {
         mostrarNotificacion('Por favor, selecciona al menos un horario disponible', 'warning');
-        document.getElementById('pestanaMatutino').focus();
-        window.scrollTo({ top: document.getElementById('pestanaMatutino').offsetTop - 100, behavior: 'smooth' });
+        const panelHorarios = document.querySelectorAll('.panel')[2]; // Tercer panel
+        if (panelHorarios) {
+            panelHorarios.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => {
+                document.getElementById('pestanaMatutino').focus();
+            }, 500);
+        }
         return false;
     }
     
     return true;
 }
 
-// ===== MOSTRAR MODAL DE CONFIRMACIÓN (VERSIÓN COMPLETA) =====
+// ===== MOSTRAR MODAL DE CONFIRMACIÓN =====
 function mostrarModalConfirmacion() {
     // Validar y hacer scroll si es necesario
     if (!validarYScrollear()) {
@@ -2976,15 +3009,93 @@ function cerrarModalConfirmacion() {
     document.getElementById('confirmacionModal').style.display = 'none';
 }
 
-// ===== ACTUALIZAR RESUMEN DEL MODAL =====
+// ===== FUNCIÓN PARA VALIDAR Y SCROLL A CAMPOS FALTANTES =====
+function validarYScrollear() {
+    // Verificar nombre del profesor
+    if (!datosProfesor.nombre) {
+        mostrarNotificacion('Por favor, selecciona o ingresa tu nombre', 'warning');
+        document.getElementById('buscadorProfesores').focus();
+        const panelProfesor = document.querySelector('.panel'); // Primer panel
+        if (panelProfesor) {
+            panelProfesor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        return false;
+    }
+    
+    // Verificar correo
+    if (!datosProfesor.correo) {
+        mostrarNotificacion('Por favor, ingresa tu correo electrónico', 'warning');
+        document.getElementById('correoProfesor').focus();
+        const panelProfesor = document.querySelector('.panel');
+        if (panelProfesor) {
+            panelProfesor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        return false;
+    }
+    
+    // Verificar tipo de plaza
+    if (!datosProfesor.tipoPlaza) {
+        mostrarNotificacion('Por favor, selecciona tu tipo de plaza', 'warning');
+        document.getElementById('tipoPlaza').focus();
+        const panelProfesor = document.querySelector('.panel');
+        if (panelProfesor) {
+            panelProfesor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        return false;
+    }
+    
+    // Verificar horas si es por horas-base
+    if (datosProfesor.tipoPlaza === 'por_horas' && !datosProfesor.horasPlaza) {
+        mostrarNotificacion('Por favor, ingresa el número de horas semanales', 'warning');
+        document.getElementById('horasPlaza').focus();
+        const panelProfesor = document.querySelector('.panel');
+        if (panelProfesor) {
+            panelProfesor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        return false;
+    }
+    
+    // Verificar materias
+    if (materiasSeleccionadas.length === 0) {
+        mostrarNotificacion('Por favor, selecciona al menos una materia', 'warning');
+        const panelMaterias = document.querySelectorAll('.panel')[1]; // Segundo panel
+        if (panelMaterias) {
+            panelMaterias.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => {
+                document.getElementById('buscadorMaterias').focus();
+            }, 500);
+        }
+        return false;
+    }
+    
+    // Verificar horarios
+    if (horariosSeleccionados.length === 0) {
+        mostrarNotificacion('Por favor, selecciona al menos un horario disponible', 'warning');
+        const panelHorarios = document.querySelectorAll('.panel')[2]; // Tercer panel
+        if (panelHorarios) {
+            panelHorarios.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => {
+                document.getElementById('pestanaMatutino').focus();
+            }, 500);
+        }
+        return false;
+    }
+    
+    return true;
+}
+
+// ===== ACTUALIZAR RESUMEN DEL MODAL - NUEVO MINI HORARIO =====
 function actualizarModalResumen() {
-    // Resumen del profesor
+    // Resumen del profesor (igual que antes)
     const resumenProfesor = document.getElementById('modalResumenProfesor');
     let htmlProfesor = '<ul>';
     
     htmlProfesor += `<li><i class="fas fa-user"></i> <strong>Nombre:</strong> ${datosProfesor.nombre || 'No especificado'}</li>`;
     htmlProfesor += `<li><i class="fas fa-envelope"></i> <strong>Correo:</strong> ${datosProfesor.correo || 'No especificado'}</li>`;
-    htmlProfesor += `<li><i class="fas fa-id-card"></i> <strong>Clave SIE:</strong> ${datosProfesor.codigo || 'No especificada'}</li>`;
+    
+    if (datosProfesor.codigo) {
+        htmlProfesor += `<li><i class="fas fa-id-card"></i> <strong>Clave SIE:</strong> ${datosProfesor.codigo}</li>`;
+    }
     
     if (datosProfesor.telefono) {
         htmlProfesor += `<li><i class="fas fa-phone"></i> <strong>Teléfono:</strong> ${datosProfesor.telefono}</li>`;
@@ -3011,7 +3122,7 @@ function actualizarModalResumen() {
     htmlProfesor += '</ul>';
     resumenProfesor.innerHTML = htmlProfesor;
     
-    // Resumen de materias
+    // Resumen de materias (igual que antes)
     const resumenMaterias = document.getElementById('modalResumenMaterias');
     if (materiasSeleccionadas.length > 0) {
         let htmlMaterias = '<ul>';
@@ -3032,28 +3143,75 @@ function actualizarModalResumen() {
         resumenMaterias.innerHTML = '<p>No has seleccionado materias</p>';
     }
     
-    // Resumen de horarios
+    // ===== NUEVO MINI HORARIO REDISEÑADO =====
     const resumenHorarios = document.getElementById('modalResumenHorarios');
+    
     if (horariosSeleccionados.length > 0) {
-        let htmlHorarios = '<ul>';
-        const diasOrdenados = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
+        // Agrupar horarios por día
+        const horariosPorDia = {
+            'Lunes': [],
+            'Martes': [],
+            'Miercoles': [],
+            'Jueves': [],
+            'Viernes': []
+        };
         
-        diasOrdenados.forEach(dia => {
-            const horariosDia = horariosSeleccionados
-                .filter(h => h.dia === dia)
-                .sort((a, b) => parseInt(a.hora) - parseInt(b.hora));
-            
-            if (horariosDia.length > 0) {
-                htmlHorarios += `<li style="margin-top: 5px;"><i class="fas fa-calendar-day"></i> <strong>${dia}:</strong></li>`;
-                horariosDia.forEach(horario => {
-                    htmlHorarios += `<li style="margin-left: 25px;"><i class="far fa-clock"></i> ${horario.texto}</li>`;
-                });
+        horariosSeleccionados.forEach(h => {
+            if (horariosPorDia[h.dia]) {
+                horariosPorDia[h.dia].push(parseInt(h.hora));
             }
         });
-        htmlHorarios += '</ul>';
-        resumenHorarios.innerHTML = htmlHorarios;
+        
+        // Ordenar horas
+        Object.keys(horariosPorDia).forEach(dia => {
+            horariosPorDia[dia].sort((a, b) => a - b);
+        });
+        
+        let htmlHorario = `
+            <div class="tabla-horarios-compacta">
+                <table class="mini-tabla-horarios">
+                    <thead>
+                        <tr>
+                            <th>Hora</th>
+                            <th>Lun</th>
+                            <th>Mar</th>
+                            <th>Mié</th>
+                            <th>Jue</th>
+                            <th>Vie</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        
+        // Generar filas de 7am a 10pm
+        for (let hora = 7; hora <= 22; hora++) {
+            const horaStr = `${hora}:00 - ${hora+1}:00`;
+            htmlHorario += `<tr>`;
+            htmlHorario += `<td class="hora-columna">${horaStr}</td>`;
+            
+            // Días de la semana
+            htmlHorario += `<td class="${horariosPorDia['Lunes'].includes(hora) ? 'celda-ocupada' : 'celda-vacia'}">${horariosPorDia['Lunes'].includes(hora) ? '✓' : ''}</td>`;
+            htmlHorario += `<td class="${horariosPorDia['Martes'].includes(hora) ? 'celda-ocupada' : 'celda-vacia'}">${horariosPorDia['Martes'].includes(hora) ? '✓' : ''}</td>`;
+            htmlHorario += `<td class="${horariosPorDia['Miercoles'].includes(hora) ? 'celda-ocupada' : 'celda-vacia'}">${horariosPorDia['Miercoles'].includes(hora) ? '✓' : ''}</td>`;
+            htmlHorario += `<td class="${horariosPorDia['Jueves'].includes(hora) ? 'celda-ocupada' : 'celda-vacia'}">${horariosPorDia['Jueves'].includes(hora) ? '✓' : ''}</td>`;
+            htmlHorario += `<td class="${horariosPorDia['Viernes'].includes(hora) ? 'celda-ocupada' : 'celda-vacia'}">${horariosPorDia['Viernes'].includes(hora) ? '✓' : ''}</td>`;
+            
+            htmlHorario += `</tr>`;
+        }
+        
+        htmlHorario += `
+                    </tbody>
+                </table>
+                <div class="leyenda-horarios-compacta">
+                    <span class="leyenda-item"><span class="cuadrado muestra-ocupado"></span> Horario seleccionado</span>
+                    <span class="leyenda-item"><span class="cuadrado muestra-vacio"></span> Horario disponible</span>
+                </div>
+            </div>
+        `;
+        
+        resumenHorarios.innerHTML = htmlHorario;
     } else {
-        resumenHorarios.innerHTML = '<p>No has seleccionado horarios</p>';
+        resumenHorarios.innerHTML = '<p class="texto-centrado">No has seleccionado horarios</p>';
     }
 }
 
@@ -3683,19 +3841,20 @@ if (enc.horarios && enc.horarios.length > 0) {
         agregarEncabezadoPagina(i + 1, encuestas.length);
         yPos = 25;
         
-        doc.setFillColor(colores.gris[0], colores.gris[1], colores.gris[2]);
-        doc.roundedRect(15, yPos, 180, 5, 3, 3, 'F');
-        doc.setFontSize(12);
-        doc.setTextColor(colores.azulOscuro[0], colores.azulOscuro[1], colores.azulOscuro[2]);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Horarios Seleccionados', 20, yPos + 4);
-        
-        doc.setFontSize(7);
-        doc.setTextColor(colores.grisOscuro[0], colores.grisOscuro[1], colores.grisOscuro[2]);
-        doc.setFont('helvetica', 'normal');
-        doc.text('Matutino (7-14h) · Vespertino (14-22h)', 190, yPos + 4, { align: 'right' });
-        
-        yPos += 10;
+doc.setFillColor(colores.gris[0], colores.gris[1], colores.gris[2]);
+doc.roundedRect(15, yPos, 180, 5, 3, 3, 'F');
+
+doc.setFontSize(12);
+doc.setTextColor(colores.azulOscuro[0], colores.azulOscuro[1], colores.azulOscuro[2]);
+doc.setFont('helvetica', 'bold');
+doc.text('Horarios Seleccionados', 20, yPos + 4); // SOLO UNA VEZ
+
+doc.setFontSize(7);
+doc.setTextColor(colores.grisOscuro[0], colores.grisOscuro[1], colores.grisOscuro[2]);
+doc.setFont('helvetica', 'normal');
+doc.text('Matutino (7-14h) · Vespertino (14-22h)', 190, yPos + 4, { align: 'right' });
+
+yPos += 10;
     } else {
         console.log('✅ Hay suficiente espacio en la misma página');
     }

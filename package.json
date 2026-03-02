@@ -1,0 +1,24 @@
+{
+  "name": "encuesta_profesores",
+  "version": "1.0.0",
+  "description": "Sistema web para que los profesores universitarios registren su disponibilidad de materias y horarios.",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CarlosBuendiaVazquez/Encuesta_Profesores.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/CarlosBuendiaVazquez/Encuesta_Profesores/issues"
+  },
+  "homepage": "https://github.com/CarlosBuendiaVazquez/Encuesta_Profesores#readme",
+  "dependencies": {
+    "pocketbase": "^0.26.8"
+  }
+}
