@@ -137,7 +137,7 @@ const carrerasDataENEJUN = {
             { nombre: 'Analisis de Costos Mecatrónicos', semestre: 8 }
         ]
     }
-};  
+};
 
 // ===== CONFIGURACIÓN DE CARRERAS Y MATERIAS CON SEMESTRES - PERÍODO AGO-DIC =====
 const carrerasDataAGODIC = {
@@ -745,18 +745,46 @@ function actualizarVistaMaterias() {
 }
 
 // ===== SISTEMA DE ACCESO ADMIN POR URL =====
-const ADMIN_SECRET = 'admin2026';
-
 function verificarAccesoAdmin() {
     const urlParams = new URLSearchParams(window.location.search);
     const adminKey = urlParams.get('admin');
     
-    if (adminKey === ADMIN_SECRET) {
-        console.log('👑 Acceso administrador concedido por URL');
-        return true;
+    // Si no hay clave en la URL, no es admin
+    if (!adminKey) {
+        adminActivo = false;
+        return false;
     }
     
-    return false;
+    // Llamar a la función serverless para verificar (seguro)
+    return verificarAdminConServidor(adminKey);
+}
+
+// Función auxiliar que usa la función serverless
+async function verificarAdminConServidor(clave) {
+    try {
+        const response = await fetch('/.netlify/functions/admin/verificar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: clave })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            console.log('👑 Acceso administrador concedido por URL');
+            adminActivo = true;
+            sessionStorage.setItem('adminAutenticado', 'true');
+            return true;
+        }
+        
+        adminActivo = false;
+        return false;
+        
+    } catch (error) {
+        console.error('Error verificando admin:', error);
+        adminActivo = false;
+        return false;
+    }
 }
 
 // ===== GENERAR LISTA GLOBAL DE MATERIAS =====
@@ -850,12 +878,11 @@ let profesoresDB = [
     'Xochitl Nubia Molina Lozano'
 ].sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
 
-// ===== SISTEMA DE NOTIFICACIONES - SIN EMOJIS Y CON FILTRO =====
+// ===== SISTEMA DE NOTIFICACIONES =====
 function mostrarNotificacion(mensaje, tipo = 'success', duracion = 4000) {
     const container = document.getElementById('notificationArea');
     if (!container) return;
     
-    // LISTA DE NOTIFICACIONES A ELIMINAR
     const notificacionesEliminar = [
         'Período actual:',
         'Mostrando Arquitectura',
@@ -873,17 +900,15 @@ function mostrarNotificacion(mensaje, tipo = 'success', duracion = 4000) {
         'Horarios de tarde limpiados'
     ];
     
-    // Verificar si esta notificación debe ser eliminada
     for (let eliminar of notificacionesEliminar) {
         if (mensaje.includes(eliminar)) {
-            return; // No mostrar esta notificación
+            return;
         }
     }
     
     const notificacion = document.createElement('div');
     notificacion.className = `notification notification-${tipo}`;
     
-    // Iconos sin emoji (solo iconos de Font Awesome)
     let icono = 'fa-circle-check';
     if (tipo === 'error') icono = 'fa-circle-exclamation';
     if (tipo === 'info') icono = 'fa-circle-info';
@@ -1142,7 +1167,6 @@ function actualizarOpcionesSemestre() {
         selectSemestre.value = '';
         filtroSemestreActual = '';
     }
-    
 }
 
 // ===== SISTEMA DE BÚSQUEDA DE MATERIAS =====
@@ -1388,7 +1412,7 @@ function crearResultadoItem(materia) {
         <div class="resultado-info">
             <h4>${materia.nombre}</h4>
             <p>
-                <span class="resultado-carrera"><i class="fas fa-graduation-cap"></i> ${infoTexto}</span>
+                <span class="resultado-carrera">${infoTexto}</span>
                 ${estaSeleccionada ? '<span class="resultado-seleccionada"><i class="fas fa-check-circle"></i> Ya agregada</span>' : ''}
             </p>
         </div>
@@ -1447,7 +1471,7 @@ function manejarAgregarMateria(event) {
     event.stopPropagation();
     
     if (!datosProfesor.nombre || !datosProfesor.correo) {
-    mostrarNotificacion('Ingresa tu nombre y correo electrónico', 'warning');
+        mostrarNotificacion('Completa los datos del profesor', 'warning');
         return;
     }
     
@@ -1812,9 +1836,9 @@ function configurarAccionesRapidas() {
 function inicializarModoAdmin() {
     console.log('👑 Verificando acceso administrador...');
     
-    adminActivo = verificarAccesoAdmin();
+    const tieneAcceso = verificarAccesoAdmin();
     
-    if (!adminActivo) {
+    if (!tieneAcceso) {
         console.log('🔒 Modo administrador desactivado - URL sin clave');
         return;
     }
@@ -1839,11 +1863,13 @@ function inicializarModoAdmin() {
         });
     }
     
-    adminPanel.addEventListener('click', (e) => {
-        if (e.target === adminPanel) {
-            adminPanel.style.display = 'none';
-        }
-    });
+    if (adminPanel) {
+        adminPanel.addEventListener('click', (e) => {
+            if (e.target === adminPanel) {
+                adminPanel.style.display = 'none';
+            }
+        });
+    }
     
     const btnENEJUN = document.getElementById('periodoENEJUN');
     const btnAGODIC = document.getElementById('periodoAGODIC');
@@ -1943,7 +1969,7 @@ function mostrarModalEncuestasAvanzado() {
             <div class="gestion-contenido" style="max-width: 1000px;">
                 <div class="gestion-header">
                     <h3><i class="fas fa-clipboard-list"></i> Todas las Encuestas</h3>
-                    <button class="gestion-cerrar" id="cerrarModalEncuestasBtn">
+                    <button class="gestion-cerrar" onclick="cerrarModalEncuestas()">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -1970,7 +1996,7 @@ function mostrarModalEncuestasAvanzado() {
                     
                 </div>
                 <div class="gestion-footer">
-                    <button class="btn btn-secondary" id="cerrarModalFooterBtn">Cerrar</button>
+                    <button class="btn btn-secondary" onclick="cerrarModalEncuestas()">Cerrar</button>
                     <button class="btn btn-success" id="abrirExportacionBtn">
                         <i class="fas fa-download"></i> Exportar Datos
                     </button>
@@ -1986,41 +2012,19 @@ function mostrarModalEncuestasAvanzado() {
     modalContainer.innerHTML = modalHTML;
     document.body.appendChild(modalContainer.firstElementChild);
     
-    const btnCerrar1 = document.getElementById('cerrarModalEncuestasBtn');
-    if (btnCerrar1) {
-        btnCerrar1.addEventListener('click', cerrarModalEncuestas);
-    }
-    
-    const btnCerrar2 = document.getElementById('cerrarModalFooterBtn');
-    if (btnCerrar2) {
-        btnCerrar2.addEventListener('click', cerrarModalEncuestas);
-    }
-    
-    const btnExportar = document.getElementById('abrirExportacionBtn');
-    if (btnExportar) {
-        btnExportar.addEventListener('click', mostrarModalExportacion);
-    }
-    
-    const modalOverlay = document.getElementById('modalVerEncuestas');
-    if (modalOverlay) {
-        modalOverlay.addEventListener('click', function(e) {
-            if (e.target === modalOverlay) {
-                cerrarModalEncuestas();
-            }
-        });
-    }
-    
     renderizarListaEncuestas();
     
-    const filtroNombre = document.getElementById('filtroNombre');
-    if (filtroNombre) {
-        filtroNombre.addEventListener('input', aplicarFiltros);
-    }
-    
-    const filtroPeriodo = document.getElementById('filtroPeriodo');
-    if (filtroPeriodo) {
-        filtroPeriodo.addEventListener('change', aplicarFiltros);
-    }
+    document.getElementById('filtroNombre').addEventListener('input', aplicarFiltros);
+    document.getElementById('filtroPeriodo').addEventListener('change', aplicarFiltros);
+    document.getElementById('abrirExportacionBtn').addEventListener('click', function() {
+        cerrarModalEncuestas();
+        mostrarModalExportacion();
+    });
+}
+
+function cerrarModalEncuestas() {
+    const modal = document.getElementById('modalVerEncuestas');
+    if (modal) modal.remove();
 }
 
 // ===== APLICAR FILTROS =====
@@ -2218,11 +2222,6 @@ function toggleEncuestaDetalle(id) {
             elemento.style.display = 'block';
         }
     }
-}
-
-function cerrarModalEncuestas() {
-    const modal = document.getElementById('modalVerEncuestas');
-    if (modal) modal.remove();
 }
 
 // ===== GESTIÓN DE MATERIAS =====
@@ -2909,184 +2908,67 @@ function actualizarDatosProfesor() {
     datosProfesor.horasPlaza = inputHoras ? inputHoras.value : '';
 }
 
-// ===== FUNCIÓN PARA VALIDAR Y SCROLL A CAMPOS FALTANTES (VERSIÓN COMPLETA) =====
+// ===== FUNCIONES PARA EL MODAL DE CONFIRMACIÓN =====
 function validarYScrollear() {
-    // Verificar nombre del profesor
     if (!datosProfesor.nombre) {
         mostrarNotificacion('Por favor, selecciona o ingresa tu nombre', 'warning');
         document.getElementById('buscadorProfesores').focus();
-        const panelProfesor = document.querySelector('.panel'); // Primer panel
-        if (panelProfesor) {
-            panelProfesor.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        document.querySelector('.panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
         return false;
     }
-    // Verificar que todas las materias tengan nivel asignado
-const materiasSinNivel = materiasSeleccionadas.filter(m => !m.nivel);
-if (materiasSinNivel.length > 0) {
-    mostrarNotificacion('Hay materias sin nivel de preferencia asignado', 'warning');
-    return false;
-}
-
-    // Verificar correo
+    
     if (!datosProfesor.correo) {
         mostrarNotificacion('Por favor, ingresa tu correo electrónico', 'warning');
         document.getElementById('correoProfesor').focus();
-        const panelProfesor = document.querySelector('.panel');
-        if (panelProfesor) {
-            panelProfesor.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        document.querySelector('.panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
         return false;
     }
     
-    // Verificar tipo de plaza
     if (!datosProfesor.tipoPlaza) {
         mostrarNotificacion('Por favor, selecciona tu tipo de plaza', 'warning');
         document.getElementById('tipoPlaza').focus();
-        const panelProfesor = document.querySelector('.panel');
-        if (panelProfesor) {
-            panelProfesor.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        document.querySelector('.panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
         return false;
     }
     
-    // Verificar horas si es por horas-base
     if (datosProfesor.tipoPlaza === 'por_horas' && !datosProfesor.horasPlaza) {
         mostrarNotificacion('Por favor, ingresa el número de horas semanales', 'warning');
         document.getElementById('horasPlaza').focus();
-        const panelProfesor = document.querySelector('.panel');
-        if (panelProfesor) {
-            panelProfesor.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        document.querySelector('.panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
         return false;
     }
     
-    // Verificar materias
     if (materiasSeleccionadas.length === 0) {
         mostrarNotificacion('Por favor, selecciona al menos una materia', 'warning');
-        const panelMaterias = document.querySelectorAll('.panel')[1]; // Segundo panel
-        if (panelMaterias) {
-            panelMaterias.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            setTimeout(() => {
-                document.getElementById('buscadorMaterias').focus();
-            }, 500);
-        }
+        document.querySelectorAll('.panel')[1].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => document.getElementById('buscadorMaterias').focus(), 500);
         return false;
     }
     
-    // Verificar horarios
     if (horariosSeleccionados.length === 0) {
         mostrarNotificacion('Por favor, selecciona al menos un horario disponible', 'warning');
-        const panelHorarios = document.querySelectorAll('.panel')[2]; // Tercer panel
-        if (panelHorarios) {
-            panelHorarios.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            setTimeout(() => {
-                document.getElementById('pestanaMatutino').focus();
-            }, 500);
-        }
+        document.querySelectorAll('.panel')[2].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => document.getElementById('pestanaMatutino').focus(), 500);
         return false;
     }
     
     return true;
 }
 
-// ===== MOSTRAR MODAL DE CONFIRMACIÓN =====
 function mostrarModalConfirmacion() {
-    // Validar y hacer scroll si es necesario
     if (!validarYScrollear()) {
-        return; // No mostrar el modal si faltan datos
+        return;
     }
     
-    // Actualizar el contenido del modal
     actualizarModalResumen();
-    
-    // Mostrar el modal
     document.getElementById('confirmacionModal').style.display = 'flex';
 }
 
-// ===== CERRAR MODAL DE CONFIRMACIÓN =====
 function cerrarModalConfirmacion() {
     document.getElementById('confirmacionModal').style.display = 'none';
 }
 
-// ===== FUNCIÓN PARA VALIDAR Y SCROLL A CAMPOS FALTANTES =====
-function validarYScrollear() {
-    // Verificar nombre del profesor
-    if (!datosProfesor.nombre) {
-        mostrarNotificacion('Por favor, selecciona o ingresa tu nombre', 'warning');
-        document.getElementById('buscadorProfesores').focus();
-        const panelProfesor = document.querySelector('.panel'); // Primer panel
-        if (panelProfesor) {
-            panelProfesor.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-        return false;
-    }
-    
-    // Verificar correo
-    if (!datosProfesor.correo) {
-        mostrarNotificacion('Por favor, ingresa tu correo electrónico', 'warning');
-        document.getElementById('correoProfesor').focus();
-        const panelProfesor = document.querySelector('.panel');
-        if (panelProfesor) {
-            panelProfesor.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-        return false;
-    }
-    
-    // Verificar tipo de plaza
-    if (!datosProfesor.tipoPlaza) {
-        mostrarNotificacion('Por favor, selecciona tu tipo de plaza', 'warning');
-        document.getElementById('tipoPlaza').focus();
-        const panelProfesor = document.querySelector('.panel');
-        if (panelProfesor) {
-            panelProfesor.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-        return false;
-    }
-    
-    // Verificar horas si es por horas-base
-    if (datosProfesor.tipoPlaza === 'por_horas' && !datosProfesor.horasPlaza) {
-        mostrarNotificacion('Por favor, ingresa el número de horas semanales', 'warning');
-        document.getElementById('horasPlaza').focus();
-        const panelProfesor = document.querySelector('.panel');
-        if (panelProfesor) {
-            panelProfesor.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-        return false;
-    }
-    
-    // Verificar materias
-    if (materiasSeleccionadas.length === 0) {
-        mostrarNotificacion('Por favor, selecciona al menos una materia', 'warning');
-        const panelMaterias = document.querySelectorAll('.panel')[1]; // Segundo panel
-        if (panelMaterias) {
-            panelMaterias.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            setTimeout(() => {
-                document.getElementById('buscadorMaterias').focus();
-            }, 500);
-        }
-        return false;
-    }
-    
-    // Verificar horarios
-    if (horariosSeleccionados.length === 0) {
-        mostrarNotificacion('Por favor, selecciona al menos un horario disponible', 'warning');
-        const panelHorarios = document.querySelectorAll('.panel')[2]; // Tercer panel
-        if (panelHorarios) {
-            panelHorarios.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            setTimeout(() => {
-                document.getElementById('pestanaMatutino').focus();
-            }, 500);
-        }
-        return false;
-    }
-    
-    return true;
-}
-
-// ===== ACTUALIZAR RESUMEN DEL MODAL - NUEVO MINI HORARIO =====
 function actualizarModalResumen() {
-    // Resumen del profesor (igual que antes)
     const resumenProfesor = document.getElementById('modalResumenProfesor');
     let htmlProfesor = '<ul>';
     
@@ -3122,7 +3004,6 @@ function actualizarModalResumen() {
     htmlProfesor += '</ul>';
     resumenProfesor.innerHTML = htmlProfesor;
     
-    // Resumen de materias (igual que antes)
     const resumenMaterias = document.getElementById('modalResumenMaterias');
     if (materiasSeleccionadas.length > 0) {
         let htmlMaterias = '<ul>';
@@ -3143,26 +3024,17 @@ function actualizarModalResumen() {
         resumenMaterias.innerHTML = '<p>No has seleccionado materias</p>';
     }
     
-    // ===== NUEVO MINI HORARIO REDISEÑADO =====
     const resumenHorarios = document.getElementById('modalResumenHorarios');
-    
     if (horariosSeleccionados.length > 0) {
-        // Agrupar horarios por día
-        const horariosPorDia = {
-            'Lunes': [],
-            'Martes': [],
-            'Miercoles': [],
-            'Jueves': [],
-            'Viernes': []
-        };
+        const horariosPorDia = {};
+        const dias = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
+        const diasAbrev = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'];
         
         horariosSeleccionados.forEach(h => {
-            if (horariosPorDia[h.dia]) {
-                horariosPorDia[h.dia].push(parseInt(h.hora));
-            }
+            if (!horariosPorDia[h.dia]) horariosPorDia[h.dia] = [];
+            horariosPorDia[h.dia].push(parseInt(h.hora));
         });
         
-        // Ordenar horas
         Object.keys(horariosPorDia).forEach(dia => {
             horariosPorDia[dia].sort((a, b) => a - b);
         });
@@ -3173,28 +3045,21 @@ function actualizarModalResumen() {
                     <thead>
                         <tr>
                             <th>Hora</th>
-                            <th>Lun</th>
-                            <th>Mar</th>
-                            <th>Mié</th>
-                            <th>Jue</th>
-                            <th>Vie</th>
+                            ${diasAbrev.map(dia => `<th>${dia}</th>`).join('')}
                         </tr>
                     </thead>
                     <tbody>
         `;
         
-        // Generar filas de 7am a 10pm
         for (let hora = 7; hora <= 22; hora++) {
             const horaStr = `${hora}:00 - ${hora+1}:00`;
             htmlHorario += `<tr>`;
             htmlHorario += `<td class="hora-columna">${horaStr}</td>`;
             
-            // Días de la semana
-            htmlHorario += `<td class="${horariosPorDia['Lunes'].includes(hora) ? 'celda-ocupada' : 'celda-vacia'}">${horariosPorDia['Lunes'].includes(hora) ? '✓' : ''}</td>`;
-            htmlHorario += `<td class="${horariosPorDia['Martes'].includes(hora) ? 'celda-ocupada' : 'celda-vacia'}">${horariosPorDia['Martes'].includes(hora) ? '✓' : ''}</td>`;
-            htmlHorario += `<td class="${horariosPorDia['Miercoles'].includes(hora) ? 'celda-ocupada' : 'celda-vacia'}">${horariosPorDia['Miercoles'].includes(hora) ? '✓' : ''}</td>`;
-            htmlHorario += `<td class="${horariosPorDia['Jueves'].includes(hora) ? 'celda-ocupada' : 'celda-vacia'}">${horariosPorDia['Jueves'].includes(hora) ? '✓' : ''}</td>`;
-            htmlHorario += `<td class="${horariosPorDia['Viernes'].includes(hora) ? 'celda-ocupada' : 'celda-vacia'}">${horariosPorDia['Viernes'].includes(hora) ? '✓' : ''}</td>`;
+            dias.forEach(dia => {
+                const seleccionado = horariosPorDia[dia]?.includes(hora) || false;
+                htmlHorario += `<td class="${seleccionado ? 'celda-ocupada' : 'celda-vacia'}">${seleccionado ? '✓' : ''}</td>`;
+            });
             
             htmlHorario += `</tr>`;
         }
@@ -3215,7 +3080,6 @@ function actualizarModalResumen() {
     }
 }
 
-// ===== CONFIRMAR ENVÍO DE ENCUESTA =====
 async function confirmarEnvioEncuesta() {
     try {
         mostrarNotificacion('Enviando encuesta...', 'info');
@@ -3234,7 +3098,6 @@ async function confirmarEnvioEncuesta() {
         
         cerrarModalConfirmacion();
         
-        // Reset del formulario
         datosProfesor = {
             nombre: '',
             correo: '',
@@ -3555,7 +3418,6 @@ function mostrarModalExportacion() {
     }
 }
 
-// ===== RENDERIZAR LISTA DE EXPORTACIÓN COMPACTA =====
 function renderizarListaExportacionCompacta(encuestas, seleccionadas) {
     const container = document.getElementById('exportacionListaEncuestas');
     if (!container) return;
@@ -3627,34 +3489,29 @@ function actualizarContadorExportacionCompacto(seleccionadas) {
     }
 }
 
-// ===== EXPORTAR A PDF PERSONALIZADO - VERSIÓN COMPLETA CON CÁLCULO DE ESPACIO =====
 async function exportarAPDFPersonalizado(encuestas) {
     try {
         mostrarNotificacion(`Exportando ${encuestas.length} encuestas a PDF...`, 'info');
         
-        // Ordenar alfabéticamente por nombre de profesor
         encuestas.sort((a, b) => {
             const nombreA = (a.profesor?.nombre || '').toLowerCase();
             const nombreB = (b.profesor?.nombre || '').toLowerCase();
             return nombreA.localeCompare(nombreB);
         });
         
-        // Crear PDF en vertical
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('portrait', 'mm', 'a4');
         
-        // Colores institucionales IT Cancún
         const colores = {
-            azulOscuro: [0, 59, 111],    // #003B6F
-            azulMedio: [0, 75, 135],      // #004B87
-            azulClaro: [0, 119, 190],      // #0077BE
-            gris: [245, 245, 245],         // #F5F5F5
+            azulOscuro: [0, 59, 111],
+            azulMedio: [0, 75, 135],
+            azulClaro: [0, 119, 190],
+            gris: [245, 245, 245],
             grisOscuro: [100, 100, 100],
             texto: [51, 51, 51],
             borde: [200, 200, 200]
         };
         
-        // ===== FUNCIÓN PARA FORMATO DE FECHA Y HORA =====
         function formatearFechaHora(fechaISO) {
             if (!fechaISO) return 'N/A';
             const fecha = new Date(fechaISO);
@@ -3662,7 +3519,6 @@ async function exportarAPDFPersonalizado(encuestas) {
                    fecha.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
         }
         
-        // ===== FUNCIÓN PARA FORMATO DE TIPO DE PLAZA =====
         function formatearPlaza(tipo, horas) {
             let texto = '';
             switch(tipo) {
@@ -3680,7 +3536,6 @@ async function exportarAPDFPersonalizado(encuestas) {
             return texto;
         }
         
-        // ===== FUNCIÓN PARA AGREGAR ENCABEZADO DE PÁGINA =====
         function agregarEncabezadoPagina(numPag, totalPag) {
             doc.setFillColor(colores.azulOscuro[0], colores.azulOscuro[1], colores.azulOscuro[2]);
             doc.rect(0, 0, 210, 15, 'F');
@@ -3691,7 +3546,6 @@ async function exportarAPDFPersonalizado(encuestas) {
             doc.text(`Encuesta ${numPag} de ${totalPag}`, 105, 11, { align: 'center' });
         }
         
-        // ===== FUNCIÓN PARA AGREGAR PIE DE PÁGINA =====
         function agregarPiePagina() {
             doc.setFontSize(7);
             doc.setTextColor(150, 150, 150);
@@ -3699,12 +3553,10 @@ async function exportarAPDFPersonalizado(encuestas) {
             doc.text('Instituto Tecnológico de Cancún', 105, 290, { align: 'center' });
         }
         
-        // ===== FUNCIÓN PARA VERIFICAR ESPACIO EN PÁGINA =====
         function necesitaNuevaPagina(yPos, espacioNecesario) {
             return yPos + espacioNecesario > 270;
         }
         
-        // ===== GENERAR UNA PÁGINA POR CADA ENCUESTA =====
         for (let i = 0; i < encuestas.length; i++) {
             if (i > 0) doc.addPage();
             
@@ -3715,7 +3567,6 @@ async function exportarAPDFPersonalizado(encuestas) {
             
             let yPos = 25;
             
-            // ===== TARJETA DE INFORMACIÓN DEL PROFESOR =====
             doc.setFillColor(colores.gris[0], colores.gris[1], colores.gris[2]);
             doc.roundedRect(15, yPos, 180, 55, 3, 3, 'F');
             doc.setDrawColor(colores.azulClaro[0], colores.azulClaro[1], colores.azulClaro[2]);
@@ -3755,10 +3606,8 @@ async function exportarAPDFPersonalizado(encuestas) {
             
             yPos += 70;
             
-            // ===== MATERIAS SELECCIONADAS =====
             doc.setFillColor(colores.gris[0], colores.gris[1], colores.gris[2]);
             doc.roundedRect(15, yPos, 180, 5, 3, 3, 'F');
-            
             doc.setFontSize(12);
             doc.setTextColor(colores.azulOscuro[0], colores.azulOscuro[1], colores.azulOscuro[2]);
             doc.setFont('helvetica', 'bold');
@@ -3778,20 +3627,8 @@ async function exportarAPDFPersonalizado(encuestas) {
                     head: [['Materia', 'Nivel', 'Carreras / Semestres']],
                     body: materiasBody,
                     theme: 'grid',
-                    headStyles: { 
-                        fillColor: colores.azulMedio,
-                        textColor: [255, 255, 255],
-                        fontStyle: 'bold',
-                        fontSize: 9,
-                        halign: 'center'
-                    },
-                    styles: { 
-                        fontSize: 8,
-                        cellPadding: 3,
-                        overflow: 'linebreak',
-                        lineColor: colores.borde,
-                        lineWidth: 0.1
-                    },
+                    headStyles: { fillColor: colores.azulMedio },
+                    styles: { fontSize: 8, cellPadding: 3, lineColor: colores.borde },
                     columnStyles: {
                         0: { cellWidth: 70 },
                         1: { cellWidth: 25, halign: 'center' },
@@ -3809,174 +3646,157 @@ async function exportarAPDFPersonalizado(encuestas) {
                 yPos += 15;
             }
             
-            // ===== HORARIOS SELECCIONADOS CON CÁLCULO DE ESPACIO =====
-doc.setFillColor(colores.gris[0], colores.gris[1], colores.gris[2]);
-doc.roundedRect(15, yPos, 180, 5, 3, 3, 'F');
-
-doc.setFontSize(12);
-doc.setTextColor(colores.azulOscuro[0], colores.azulOscuro[1], colores.azulOscuro[2]);
-doc.setFont('helvetica', 'bold');
-doc.text('Horarios Seleccionados', 20, yPos + 4);
-
-doc.setFontSize(7);
-doc.setTextColor(colores.grisOscuro[0], colores.grisOscuro[1], colores.grisOscuro[2]);
-doc.setFont('helvetica', 'normal');
-doc.text('Matutino (7-14h) · Vespertino (14-22h)', 190, yPos + 4, { align: 'right' });
-
-yPos += 10;
-
-if (enc.horarios && enc.horarios.length > 0) {
-    // CALCULAR ESPACIO DISPONIBLE CON MÁS PRECISIÓN
-    const espacioRestante = 270 - yPos;
-    const altoTitulo = 5;
-    const altoCuadricula = 175;
-    const altoLeyenda = 15;
-    const espacioNecesario = altoTitulo + altoCuadricula + altoLeyenda + 15;
-    
-    console.log(`📏 Espacio restante: ${espacioRestante}mm, Necesario: ${espacioNecesario}mm`);
-    
-    if (espacioRestante < espacioNecesario) {
-        console.log('📄 Creando nueva página para horarios');
-        doc.addPage();
-        agregarEncabezadoPagina(i + 1, encuestas.length);
-        yPos = 25;
-        
-doc.setFillColor(colores.gris[0], colores.gris[1], colores.gris[2]);
-doc.roundedRect(15, yPos, 180, 5, 3, 3, 'F');
-
-doc.setFontSize(12);
-doc.setTextColor(colores.azulOscuro[0], colores.azulOscuro[1], colores.azulOscuro[2]);
-doc.setFont('helvetica', 'bold');
-doc.text('Horarios Seleccionados', 20, yPos + 4); // SOLO UNA VEZ
-
-doc.setFontSize(7);
-doc.setTextColor(colores.grisOscuro[0], colores.grisOscuro[1], colores.grisOscuro[2]);
-doc.setFont('helvetica', 'normal');
-doc.text('Matutino (7-14h) · Vespertino (14-22h)', 190, yPos + 4, { align: 'right' });
-
-yPos += 10;
-    } else {
-        console.log('✅ Hay suficiente espacio en la misma página');
-    }
-    
-    // Agrupar horarios por día
-    const horariosPorDia = {};
-    const diasOrdenados = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
-    
-    enc.horarios.forEach(h => {
-        if (!horariosPorDia[h.dia]) horariosPorDia[h.dia] = [];
-        horariosPorDia[h.dia].push(h);
-    });
-    
-    Object.keys(horariosPorDia).forEach(dia => {
-        horariosPorDia[dia].sort((a, b) => parseInt(a.hora) - parseInt(b.hora));
-    });
-    
-    // Crear cuadrícula
-    const anchoDia = 32;
-    const altoBloque = 12;
-    
-    diasOrdenados.forEach((dia, diaIndex) => {
-        const xPos = 20 + (diaIndex * anchoDia);
-        
-        doc.setFontSize(8);
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(colores.azulOscuro[0], colores.azulOscuro[1], colores.azulOscuro[2]);
-        doc.text(dia, xPos + 5, yPos - 2);
-    });
-    
-    // ===== BUCLE PRINCIPAL DE HORARIOS CON TAMAÑO DE FUENTE 7 =====
-    for (let hora = 7; hora <= 21; hora++) {
-        const bloqueY = yPos + ((hora - 7) * (altoBloque + 1));
-        
-        diasOrdenados.forEach((dia, diaIndex) => {
-            const horarios = horariosPorDia[dia] || [];
-            const xPos = 20 + (diaIndex * anchoDia);
+            doc.setFillColor(colores.gris[0], colores.gris[1], colores.gris[2]);
+            doc.roundedRect(15, yPos, 180, 5, 3, 3, 'F');
+            doc.setFontSize(12);
+            doc.setTextColor(colores.azulOscuro[0], colores.azulOscuro[1], colores.azulOscuro[2]);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Horarios Seleccionados', 20, yPos + 4);
             
-            const horaInicio = hora;
-            const horaFin = hora + 1;
-            const horaStr = `${horaInicio}-${horaFin}`;
+            doc.setFontSize(7);
+            doc.setTextColor(colores.grisOscuro[0], colores.grisOscuro[1], colores.grisOscuro[2]);
+            doc.setFont('helvetica', 'normal');
+            doc.text('Matutino (7-14h) · Vespertino (14-22h)', 190, yPos + 4, { align: 'right' });
             
-            const seleccionado = horarios.some(h => parseInt(h.hora) === hora);
+            yPos += 10;
             
-            doc.setDrawColor(colores.borde[0], colores.borde[1], colores.borde[2]);
-            doc.setLineWidth(0.2);
-            
-            if (seleccionado) {
-                doc.setFillColor(colores.azulClaro[0], colores.azulClaro[1], colores.azulClaro[2]);
-                doc.roundedRect(xPos, bloqueY, anchoDia - 2, altoBloque - 1, 2, 2, 'F');
-                doc.roundedRect(xPos, bloqueY, anchoDia - 2, altoBloque - 1, 2, 2, 'S');
+            if (enc.horarios && enc.horarios.length > 0) {
+                const espacioRestante = 270 - yPos;
+                const altoCuadricula = 175;
+                const altoLeyenda = 15;
+                const espacioNecesario = altoCuadricula + altoLeyenda + 10;
                 
-                doc.setFontSize(7); // TAMAÑO AUMENTADO DE 5 A 7
-                doc.setTextColor(255, 255, 255);
-                doc.setFont('helvetica', 'bold');
-                doc.text(horaStr, xPos + (anchoDia - 2) / 2, bloqueY + 5, { align: 'center' });
-            } else {
-                doc.setFillColor(255, 255, 255);
-                doc.roundedRect(xPos, bloqueY, anchoDia - 2, altoBloque - 1, 2, 2, 'F');
-                doc.roundedRect(xPos, bloqueY, anchoDia - 2, altoBloque - 1, 2, 2, 'S');
+                if (espacioRestante < espacioNecesario) {
+                    doc.addPage();
+                    agregarEncabezadoPagina(i + 1, encuestas.length);
+                    yPos = 25;
+                    
+                    doc.setFillColor(colores.gris[0], colores.gris[1], colores.gris[2]);
+                    doc.roundedRect(15, yPos, 180, 5, 3, 3, 'F');
+                    doc.setFontSize(12);
+                    doc.setTextColor(colores.azulOscuro[0], colores.azulOscuro[1], colores.azulOscuro[2]);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('Horarios Seleccionados', 20, yPos + 4);
+                    
+                    doc.setFontSize(7);
+                    doc.setTextColor(colores.grisOscuro[0], colores.grisOscuro[1], colores.grisOscuro[2]);
+                    doc.setFont('helvetica', 'normal');
+                    doc.text('Matutino (7-14h) · Vespertino (14-22h)', 190, yPos + 4, { align: 'right' });
+                    
+                    yPos += 10;
+                }
                 
-                doc.setFontSize(7); // TAMAÑO AUMENTADO DE 5 A 7
-                doc.setTextColor(colores.grisOscuro[0], colores.grisOscuro[1], colores.grisOscuro[2]);
+                const horariosPorDia = {};
+                const diasOrdenados = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
+                
+                enc.horarios.forEach(h => {
+                    if (!horariosPorDia[h.dia]) horariosPorDia[h.dia] = [];
+                    horariosPorDia[h.dia].push(parseInt(h.hora));
+                });
+                
+                Object.keys(horariosPorDia).forEach(dia => {
+                    horariosPorDia[dia].sort((a, b) => a - b);
+                });
+                
+                const anchoDia = 32;
+                const altoBloque = 12;
+                
+                diasOrdenados.forEach((dia, diaIndex) => {
+                    const xPos = 20 + (diaIndex * anchoDia);
+                    
+                    doc.setFontSize(8);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(colores.azulOscuro[0], colores.azulOscuro[1], colores.azulOscuro[2]);
+                    doc.text(dia, xPos + 5, yPos - 2);
+                });
+                
+                for (let hora = 7; hora <= 21; hora++) {
+                    const bloqueY = yPos + ((hora - 7) * (altoBloque + 1));
+                    
+                    diasOrdenados.forEach((dia, diaIndex) => {
+                        const horarios = horariosPorDia[dia] || [];
+                        const xPos = 20 + (diaIndex * anchoDia);
+                        
+                        const horaInicio = hora;
+                        const horaFin = hora + 1;
+                        const horaStr = `${horaInicio}-${horaFin}`;
+                        
+                        const seleccionado = horarios.includes(hora);
+                        
+                        doc.setDrawColor(colores.borde[0], colores.borde[1], colores.borde[2]);
+                        doc.setLineWidth(0.2);
+                        
+                        if (seleccionado) {
+                            doc.setFillColor(colores.azulClaro[0], colores.azulClaro[1], colores.azulClaro[2]);
+                            doc.roundedRect(xPos, bloqueY, anchoDia - 2, altoBloque - 1, 2, 2, 'F');
+                            doc.roundedRect(xPos, bloqueY, anchoDia - 2, altoBloque - 1, 2, 2, 'S');
+                            
+                            doc.setFontSize(7);
+                            doc.setTextColor(255, 255, 255);
+                            doc.setFont('helvetica', 'bold');
+                            doc.text(horaStr, xPos + (anchoDia - 2) / 2, bloqueY + 5, { align: 'center' });
+                        } else {
+                            doc.setFillColor(255, 255, 255);
+                            doc.roundedRect(xPos, bloqueY, anchoDia - 2, altoBloque - 1, 2, 2, 'F');
+                            doc.roundedRect(xPos, bloqueY, anchoDia - 2, altoBloque - 1, 2, 2, 'S');
+                            
+                            doc.setFontSize(7);
+                            doc.setTextColor(colores.grisOscuro[0], colores.grisOscuro[1], colores.grisOscuro[2]);
+                            doc.setFont('helvetica', 'normal');
+                            doc.text(horaStr, xPos + (anchoDia - 2) / 2, bloqueY + 5, { align: 'center' });
+                        }
+                    });
+                }
+                
+                for (let h = 0; h <= 15; h++) {
+                    const lineY = yPos + (h * (altoBloque + 1)) - 1;
+                    doc.setDrawColor(colores.borde[0], colores.borde[1], colores.borde[2]);
+                    doc.setLineWidth(0.1);
+                    doc.line(20, lineY, 20 + (anchoDia * 5) - 5, lineY);
+                }
+                
+                for (let d = 1; d < 5; d++) {
+                    const xLine = 20 + (d * anchoDia) - 2;
+                    doc.setDrawColor(colores.borde[0], colores.borde[1], colores.borde[2]);
+                    doc.setLineWidth(0.2);
+                    doc.line(xLine, yPos - 3, xLine, yPos + (15 * (altoBloque + 1)));
+                }
+                
+                yPos += 195;
+                
+                const espacioRestanteLeyenda = 270 - yPos;
+                
+                if (espacioRestanteLeyenda < 15) {
+                    doc.addPage();
+                    agregarEncabezadoPagina(i + 1, encuestas.length);
+                    yPos = 25;
+                }
+                
+                doc.setFontSize(7);
+                doc.setTextColor(colores.texto[0], colores.texto[1], colores.texto[2]);
                 doc.setFont('helvetica', 'normal');
-                doc.text(horaStr, xPos + (anchoDia - 2) / 2, bloqueY + 5, { align: 'center' });
+                
+                doc.setFillColor(colores.azulClaro[0], colores.azulClaro[1], colores.azulClaro[2]);
+                doc.rect(20, yPos, 8, 8, 'F');
+                doc.setDrawColor(colores.azulOscuro[0], colores.azulOscuro[1], colores.azulOscuro[2]);
+                doc.setLineWidth(0.2);
+                doc.rect(20, yPos, 8, 8, 'S');
+                doc.text('Horario seleccionado', 32, yPos + 5);
+                
+                doc.setFillColor(255, 255, 255);
+                doc.rect(90, yPos, 8, 8, 'F');
+                doc.setDrawColor(colores.borde[0], colores.borde[1], colores.borde[2]);
+                doc.rect(90, yPos, 8, 8, 'S');
+                doc.text('Horario disponible', 102, yPos + 5);
+                
+                doc.text('Formato: 7-8 = 7:00 a 8:00', 150, yPos + 5);
+                
+            } else {
+                doc.setFontSize(10);
+                doc.setTextColor(colores.grisOscuro[0], colores.grisOscuro[1], colores.grisOscuro[2]);
+                doc.setFont('helvetica', 'italic');
+                doc.text('No seleccionó horarios', 20, yPos + 5);
             }
-        });
-    }
-    
-    // Líneas horizontales
-    for (let h = 0; h <= 15; h++) {
-        const lineY = yPos + (h * (altoBloque + 1)) - 1;
-        doc.setDrawColor(colores.borde[0], colores.borde[1], colores.borde[2]);
-        doc.setLineWidth(0.1);
-        doc.line(20, lineY, 20 + (anchoDia * 5) - 5, lineY);
-    }
-    
-    // Líneas verticales
-    for (let d = 1; d < 5; d++) {
-        const xLine = 20 + (d * anchoDia) - 2;
-        doc.setDrawColor(colores.borde[0], colores.borde[1], colores.borde[2]);
-        doc.setLineWidth(0.2);
-        doc.line(xLine, yPos - 3, xLine, yPos + (15 * (altoBloque + 1)));
-    }
-    
-    yPos += 195;
-    
-    // Verificar espacio para leyenda
-    const espacioRestanteLeyenda = 270 - yPos;
-    
-    if (espacioRestanteLeyenda < 15) {
-        doc.addPage();
-        agregarEncabezadoPagina(i + 1, encuestas.length);
-        yPos = 25;
-    }
-    
-    // Leyenda
-    doc.setFontSize(7);
-    doc.setTextColor(colores.texto[0], colores.texto[1], colores.texto[2]);
-    doc.setFont('helvetica', 'normal');
-    
-    doc.setFillColor(colores.azulClaro[0], colores.azulClaro[1], colores.azulClaro[2]);
-    doc.rect(20, yPos, 8, 8, 'F');
-    doc.setDrawColor(colores.azulOscuro[0], colores.azulOscuro[1], colores.azulOscuro[2]);
-    doc.setLineWidth(0.2);
-    doc.rect(20, yPos, 8, 8, 'S');
-    doc.text('Horario seleccionado', 32, yPos + 5);
-    
-    doc.setFillColor(255, 255, 255);
-    doc.rect(90, yPos, 8, 8, 'F');
-    doc.setDrawColor(colores.borde[0], colores.borde[1], colores.borde[2]);
-    doc.rect(90, yPos, 8, 8, 'S');
-    doc.text('Horario disponible', 102, yPos + 5);
-    
-    doc.text('Formato: 7-8 = 7:00 a 8:00', 150, yPos + 5);
-    
-} else {
-    doc.setFontSize(10);
-    doc.setTextColor(colores.grisOscuro[0], colores.grisOscuro[1], colores.grisOscuro[2]);
-    doc.setFont('helvetica', 'italic');
-    doc.text('No seleccionó horarios', 20, yPos + 5);
-}
             
             agregarPiePagina();
         }
@@ -3988,11 +3808,10 @@ yPos += 10;
         
     } catch (error) {
         console.error('❌ Error al exportar a PDF:', error);
-        mostrarNotificacion('Error al generar PDF: ' + (error.message || 'Error desconocido'), 'error');
+        mostrarNotificacion('Error al generar PDF', 'error');
     }
 }
 
-// ===== EXPORTAR A EXCEL PERSONALIZADO =====
 async function exportarAExcelPersonalizado(encuestas) {
     try {
         mostrarNotificacion(`Exportando ${encuestas.length} encuestas a Excel...`, 'info');
@@ -4163,37 +3982,12 @@ async function exportarAExcelPersonalizado(encuestas) {
     }
 }
 
-// ===== EXPORTAR ENCUESTA INDIVIDUAL A PDF =====
-async function exportarEncuestaIndividualPDF(encuestaId) {
-    try {
-        mostrarNotificacion('Generando PDF individual...', 'info');
-        
-        let encuesta;
-        if (!isNaN(encuestaId)) {
-            encuesta = todasLasEncuestas.find(e => e.id === encuestaId);
-        }
-        
-        if (!encuesta) {
-            mostrarNotificacion('No se encontró la encuesta', 'error');
-            return;
-        }
-        
-        await exportarAPDFPersonalizado([encuesta]);
-        
-    } catch (error) {
-        console.error('❌ Error al exportar PDF individual:', error);
-        mostrarNotificacion('Error al generar PDF', 'error');
-    }
-}
-
 // ===== CONFIGURACIÓN DE BOTONES =====
-function configurarBotones() {
-    // El botón de enviar ahora se maneja en configurarModal()
-}
+function configurarBotones() {}
 
 // ===== INICIALIZACIÓN =====
 async function inicializarAplicacion() {
-    console.log('🚀 Iniciando Sistema de Encuesta para Maestros...');
+    console.log('🚀 Iniciando Sistema de Encuesta...');
     
     periodoActivo = await obtenerPeriodoGlobal();
     
@@ -4215,9 +4009,7 @@ async function inicializarAplicacion() {
     
     console.log(`📚 Total de materias únicas: ${todasLasMaterias.length}`);
     console.log(`👤 Total de profesores en base: ${profesoresDB.length}`);
-    console.log(`👑 Acceso admin: ?admin=admin2026 en la URL`);
     console.log(`📅 Período activo: ${periodoActivo}`);
-    console.log(`🗄️ Base de datos: PocketBase en ${POCKETBASE_URL}`);
     
     try {
         inicializarDatosProfesor();
@@ -4232,7 +4024,6 @@ async function inicializarAplicacion() {
         
         setTimeout(() => {
             actualizarInterfazPeriodo();
-            mostrarNotificacion(`Período actual: ${periodoActivo === 'ene-jun' ? 'ENE - JUN' : 'AGO - DIC'}`, 'info', 4000);
         }, 500);
         
         console.log('✅ Sistema listo');
@@ -4242,5 +4033,4 @@ async function inicializarAplicacion() {
     }
 }
 
-// ===== EJECUCIÓN =====
 document.addEventListener('DOMContentLoaded', inicializarAplicacion);
