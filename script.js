@@ -1957,7 +1957,7 @@ function mostrarModalEncuestasAvanzado() {
                     </button>
                 </div>
                 <div class="gestion-body" style="max-height: 80vh; overflow-y: auto;">
-                    
+                
                     <div class="encuestas-stats" style="justify-content: center;">
                         <div class="stat-item">
                             <div class="stat-valor">${totalEncuestas}</div>
