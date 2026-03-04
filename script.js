@@ -744,28 +744,24 @@ function actualizarVistaMaterias() {
     console.log('✅ Vista actualizada');
 }
 
-// ===== SISTEMA DE ACCESO ADMIN POR URL =====
-function verificarAccesoAdmin() {
+// ===== SISTEMA DE ACCESO ADMIN POR URL (VERSIÓN SEGURA) =====
+async function verificarAccesoAdmin() {
     const urlParams = new URLSearchParams(window.location.search);
     const adminKey = urlParams.get('admin');
     
     // Si no hay clave en la URL, no es admin
     if (!adminKey) {
         adminActivo = false;
+        sessionStorage.removeItem('adminAutenticado');
         return false;
     }
     
-    // Llamar a la función serverless para verificar (seguro)
-    return verificarAdminConServidor(adminKey);
-}
-
-// Función auxiliar que usa la función serverless
-async function verificarAdminConServidor(clave) {
     try {
+        // Llamar a la función serverless para verificar
         const response = await fetch('/.netlify/functions/admin/verificar', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token: clave })
+            body: JSON.stringify({ token: adminKey })
         });
         
         const data = await response.json();
@@ -778,11 +774,13 @@ async function verificarAdminConServidor(clave) {
         }
         
         adminActivo = false;
+        sessionStorage.removeItem('adminAutenticado');
         return false;
         
     } catch (error) {
         console.error('Error verificando admin:', error);
         adminActivo = false;
+        sessionStorage.removeItem('adminAutenticado');
         return false;
     }
 }
