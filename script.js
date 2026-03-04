@@ -744,48 +744,22 @@ function actualizarVistaMaterias() {
     console.log('✅ Vista actualizada');
 }
 
-// ===== SISTEMA DE ACCESO ADMIN POR URL (VERSIÓN CORREGIDA) =====
+// ===== SOLUCIÓN RÁPIDA - ACCESO ADMIN SIMPLE =====
 async function verificarAccesoAdmin() {
     const urlParams = new URLSearchParams(window.location.search);
     const adminKey = urlParams.get('admin');
     
-    // Si NO hay clave en la URL, NO es admin
-    if (!adminKey) {
-        console.log('🔒 No hay clave en URL - Modo usuario normal');
-        adminActivo = false;
-        sessionStorage.removeItem('adminAutenticado');
-        return false;
+    // SOLUCIÓN RÁPIDA: Comparación directa
+    if (adminKey === 'admin2026') {
+        console.log('👑 Acceso administrador CONCEDIDO');
+        adminActivo = true;
+        sessionStorage.setItem('adminAutenticado', 'true');
+        return true;
     }
     
-    try {
-        console.log('🔑 Verificando clave con servidor...');
-        
-        const response = await fetch('/.netlify/functions/admin/verificar', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token: adminKey })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok && data.success) {
-            console.log('✅ Acceso administrador CONCEDIDO');
-            adminActivo = true;
-            sessionStorage.setItem('adminAutenticado', 'true');
-            return true;
-        }
-        
-        console.log('❌ Acceso DENEGADO - Clave inválida');
-        adminActivo = false;
-        sessionStorage.removeItem('adminAutenticado');
-        return false;
-        
-    } catch (error) {
-        console.error('❌ Error verificando admin:', error);
-        adminActivo = false;
-        sessionStorage.removeItem('adminAutenticado');
-        return false;
-    }
+    adminActivo = false;
+    sessionStorage.removeItem('adminAutenticado');
+    return false;
 }
 
 // ===== GENERAR LISTA GLOBAL DE MATERIAS =====
@@ -1837,23 +1811,18 @@ function configurarAccionesRapidas() {
 async function inicializarModoAdmin() {
     console.log('👑 Verificando acceso administrador...');
     
-    // ¡IMPORTANTE! await porque es asíncrona
-    const tieneAcceso = await verificarAccesoAdmin();
+    const tieneAcceso = await verificarAccesoAdmin(); // ← AWAIT
     
     if (!tieneAcceso) {
         console.log('🔒 Modo administrador desactivado');
-        
-        // OCULTAR el trigger si no es admin
+        // Ocultar el trigger si no es admin
         const adminTrigger = document.getElementById('adminTrigger');
-        if (adminTrigger) {
-            adminTrigger.style.display = 'none';
-        }
+        if (adminTrigger) adminTrigger.style.display = 'none';
         return;
     }
     
     console.log('✅ Modo administrador activado');
     
-    // SOLO si es admin, mostrar el trigger
     const adminTrigger = document.getElementById('adminTrigger');
     const adminPanel = document.getElementById('adminAccess');
     const closeBtn = document.getElementById('closeAdminBtn');
@@ -1942,50 +1911,35 @@ let encuestasFiltradas = [];
 let paginaActual = 1;
 let itemsPorPagina = 10;
 
-// ===== VERSIÓN PARA PRODUCCIÓN (CON SERVERLESS) =====
+// ===== VERSIÓN HÍBRIDA - USA POCKETBASE DIRECTO =====
 async function verTodasLasEncuestas() {
     try {
         mostrarNotificacion('Cargando encuestas...', 'info');
         
-        // Verificar que hay sesión de admin
         const tokenAdmin = sessionStorage.getItem('adminAutenticado');
         if (!tokenAdmin) {
             mostrarNotificacion('No tienes permisos de administrador', 'warning');
             return;
         }
 
-        // Llamar a la función serverless de Netlify
-        const response = await fetch('/.netlify/functions/encuestas/listar', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${tokenAdmin}`
-            }
+        // ⚠️ SOLUCIÓN RÁPIDA: Usar PocketBase directamente
+        todasLasEncuestas = await pb.collection('encuestas').getFullList({
+            sort: '-created'
         });
-
-        const resultado = await response.json();
-
-        if (!response.ok) {
-            throw new Error(resultado.error || 'Error al cargar encuestas');
-        }
-
-        console.log('📋 Encuestas recibidas:', resultado);
         
-        if (!resultado.data || resultado.data.length === 0) {
+        if (!todasLasEncuestas || todasLasEncuestas.length === 0) {
             mostrarNotificacion('No hay encuestas guardadas', 'info');
             return;
         }
 
-        // Guardar en variables globales
-        todasLasEncuestas = resultado.data;
         encuestasFiltradas = [...todasLasEncuestas];
         paginaActual = 1;
         
-        // Mostrar el modal
         mostrarModalEncuestasAvanzado();
         
     } catch (error) {
-        console.error('❌ Error al obtener encuestas:', error);
-        mostrarNotificacion('Error al obtener encuestas: ' + error.message, 'error');
+        console.error('❌ Error:', error);
+        mostrarNotificacion('Error al obtener encuestas', 'error');
     }
 }
 
