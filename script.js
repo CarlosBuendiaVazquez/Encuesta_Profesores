@@ -286,11 +286,49 @@ const carrerasDataAGODIC = {
             { nombre: 'Procesamiento Digital de Señales 2', semestre: 9 },
             { nombre: 'Control Neurodifuso Aplicado', semestre: 9 }
         ]
+    },
+    // ===== NUEVAS CARRERAS DE POSGRADO =====
+    'maestria_ambiental': {
+        nombre: 'Maestría en Ciencias Ambientales',
+        materias: [
+            { nombre: 'Seminario de Investigación 1', semestre: 1, horas: 4 },
+            { nombre: 'Desarrollo Sustentable (Maestría)', semestre: 1, horas: 6 },
+            { nombre: 'Diseño y análisis de Experimentos', semestre: 1, horas: 6 },
+            { nombre: 'Fundamentos de Ingeniería Ambiental', semestre: 1, horas: 6 },
+            { nombre: 'Experimentación Analítica Ambiental', semestre: 1, horas: 6 },
+            { nombre: 'Seminario de investigación 3', semestre: 3, horas: 4 },
+            { nombre: 'Temas selectos', semestre: 3, horas: 6 }
+        ]
+    },
+    'maestria_negocios': {
+        nombre: 'Maestría en Administración de Negocios',
+        materias: [
+            { nombre: 'Seminario 1', semestre: 1, horas: 4 },
+            { nombre: 'Fundamentos de Administración', semestre: 1, horas: 6 },
+            { nombre: 'Administración Financiera', semestre: 1, horas: 6 },
+            { nombre: 'Análisis y Estrategias para la Competitividad Empresarial', semestre: 1, horas: 6 },
+            { nombre: 'Seminario 3', semestre: 3, horas: 4 },
+            { nombre: 'Entorno Económico de las Organizaciones', semestre: 3, horas: 6 },
+            { nombre: 'Gestión de la Innovación y la Tecnología', semestre: 3, horas: 6 }
+        ]
+    },
+    'doctorado_ambiental': {
+        nombre: 'Doctorado en Ciencias Ambientales',
+        materias: [
+            { nombre: 'Seminario de Investigación', semestre: 1, horas: 16 },
+            { nombre: 'Seminario predoctoral', semestre: 1, horas: 8 },
+            { nombre: 'Proyectos de Investigación 2', semestre: 3, horas: 16 }
+        ]
     }
 };
 
 // ===== VARIABLES PARA CONTROLAR CARGA =====
 let datosInicialesCargados = false;
+
+// ===== VARIABLES PARA SELECCIÓN POR ARRASTRE =====
+let seleccionando = false;
+let seleccionInicial = null;
+let modoSeleccion = 'agregar'; // 'agregar' o 'quitar'
 
 // ===== RESPALDO DE DATOS ORIGINALES (NO MODIFICAR) =====
 const carrerasDataENEJUNOriginal = JSON.parse(JSON.stringify(carrerasDataENEJUN));
@@ -601,6 +639,7 @@ async function cargarMateriasGlobales() {
     console.log('📚 Cargando materias desde PocketBase...');
     
     try {
+        // Cargar ENE-JUN
         const recordsENEJUN = await pb.collection('materias_enejun').getFullList();
         console.log(`📦 ${recordsENEJUN.length} carreras ENE-JUN encontradas`);
         
@@ -608,9 +647,16 @@ async function cargarMateriasGlobales() {
             Object.keys(carrerasDataENEJUNTrabajo).forEach(key => delete carrerasDataENEJUNTrabajo[key]);
             
             recordsENEJUN.forEach(record => {
+                // IMPORTANTE: Preservar el campo horas si existe
+                const materiasConHoras = record.materias.map(m => ({
+                    nombre: m.nombre,
+                    semestre: m.semestre,
+                    horas: m.horas || undefined  // ← CONSERVAR HORAS
+                }));
+                
                 carrerasDataENEJUNTrabajo[record.carrera] = {
                     nombre: record.nombreCarrera,
-                    materias: record.materias
+                    materias: materiasConHoras
                 };
             });
             console.log('✅ Materias ENE-JUN cargadas de PocketBase');
@@ -625,6 +671,7 @@ async function cargarMateriasGlobales() {
     }
     
     try {
+        // Cargar AGO-DIC
         const recordsAGODIC = await pb.collection('materias_agodic').getFullList();
         console.log(`📦 ${recordsAGODIC.length} carreras AGO-DIC encontradas`);
         
@@ -632,9 +679,16 @@ async function cargarMateriasGlobales() {
             Object.keys(carrerasDataAGODICTrabajo).forEach(key => delete carrerasDataAGODICTrabajo[key]);
             
             recordsAGODIC.forEach(record => {
+                // IMPORTANTE: Preservar el campo horas si existe
+                const materiasConHoras = record.materias.map(m => ({
+                    nombre: m.nombre,
+                    semestre: m.semestre,
+                    horas: m.horas || undefined  // ← CONSERVAR HORAS
+                }));
+                
                 carrerasDataAGODICTrabajo[record.carrera] = {
                     nombre: record.nombreCarrera,
-                    materias: record.materias
+                    materias: materiasConHoras
                 };
             });
             console.log('✅ Materias AGO-DIC cargadas de PocketBase');
@@ -762,7 +816,7 @@ async function verificarAccesoAdmin() {
     return false;
 }
 
-// ===== GENERAR LISTA GLOBAL DE MATERIAS =====
+// ===== GENERAR LISTA GLOBAL DE MATERIAS (CON HORAS) =====
 function generarListaGlobalMaterias() {
     const materiasMap = new Map();
     
@@ -772,9 +826,11 @@ function generarListaGlobalMaterias() {
             if (!materiasMap.has(key)) {
                 materiasMap.set(key, []);
             }
+            // IMPORTANTE: Incluir TODOS los campos, incluyendo horas
             materiasMap.get(key).push({
                 carrera: carrera.nombre,
-                semestre: materia.semestre
+                semestre: materia.semestre,
+                horas: materia.horas  // ← AGREGAR ESTA LÍNEA
             });
         });
     });
@@ -1372,27 +1428,50 @@ function manejarBusquedaEnTiempoReal(event) {
     });
 }
 
+// ===== CREAR ITEM DE RESULTADO (VERSIÓN CORREGIDA) =====
 function crearResultadoItem(materia) {
+
+    // ===== DIAGNÓSTICO =====
+    console.log('🔍 MATERIA COMPLETA:', JSON.stringify(materia, null, 2));
+    console.log('🔍 INFO:', materia.info);
+    if (materia.info && materia.info.length > 0) {
+        console.log('🔍 PRIMER INFO:', materia.info[0]);
+        console.log('🔍 ¿TIENE HORAS?', materia.info[0].horas);
+    }
+
     const resultadoItem = document.createElement('div');
     resultadoItem.className = 'resultado-item';
-    resultadoItem.onclick = () => seleccionarMateria(materia);
+    
+    // Usar función nombrada para mejor debugging
+    resultadoItem.onclick = function() {
+        seleccionarMateria(materia);
+    };
     
     const estaSeleccionada = materiasSeleccionadas.some(m => m.nombre === materia.nombre);
     
-    const infoTexto = materia.info.map(i => 
-        `${i.carrera} - Semestre ${i.semestre}`
-    ).join(' • ');
+    // Construir infoTexto
+    let infoTexto = '';
+    if (materia.info && materia.info.length > 0) {
+        for (let i = 0; i < materia.info.length; i++) {
+            const info = materia.info[i];
+            if (i > 0) infoTexto += ' • ';
+            infoTexto += info.carrera + ' - Semestre ' + info.semestre;
+            if (info.horas) {
+                infoTexto += ' (' + info.horas + 'h)';
+            }
+        }
+    }
     
-    resultadoItem.innerHTML = `
-        <div class="resultado-info">
-            <h4>${materia.nombre}</h4>
-            <p>
-                <span class="resultado-carrera">${infoTexto}</span>
-                ${estaSeleccionada ? '<span class="resultado-seleccionada"><i class="fas fa-check-circle"></i> Ya agregada</span>' : ''}
-            </p>
-        </div>
-        ${!estaSeleccionada ? '<i class="fas fa-plus-circle" style="color: #0077BE; font-size: 1.5rem;"></i>' : '<i class="fas fa-check-circle" style="color: #2ecc71; font-size: 1.5rem;"></i>'}
-    `;
+    // Construir HTML de forma segura
+    resultadoItem.innerHTML = 
+        '<div class="resultado-info">' +
+            '<h4>' + materia.nombre + '</h4>' +
+            '<p>' +
+                '<span class="resultado-carrera">' + infoTexto + '</span>' +
+                (estaSeleccionada ? '<span class="resultado-seleccionada"><i class="fas fa-check-circle"></i> Ya agregada</span>' : '') +
+            '</p>' +
+        '</div>' +
+        (!estaSeleccionada ? '<i class="fas fa-plus-circle" style="color: #0077BE; font-size: 1.5rem;"></i>' : '<i class="fas fa-check-circle" style="color: #2ecc71; font-size: 1.5rem;"></i>');
     
     if (estaSeleccionada) {
         resultadoItem.style.opacity = '0.7';
@@ -1403,6 +1482,7 @@ function crearResultadoItem(materia) {
     return resultadoItem;
 }
 
+// ===== SELECCIONAR MATERIA (VERSIÓN CORREGIDA) =====
 function seleccionarMateria(materia) {
     const yaExiste = materiasSeleccionadas.some(m => m.nombre === materia.nombre);
     if (yaExiste) {
@@ -1417,9 +1497,26 @@ function seleccionarMateria(materia) {
     const buscador = document.getElementById('buscadorMaterias');
     const resultados = document.getElementById('resultadosBusqueda');
     
-    const infoTexto = materia.info.map(i => 
-        `${i.carrera} - Semestre ${i.semestre}`
-    ).join(' • ');
+    // Verificar que los elementos existen
+    if (!selectorNivel || !preview || !buscador || !resultados) {
+        console.error('❌ No se encontraron elementos del DOM');
+        return;
+    }
+    
+    // Construir texto de información de forma segura
+    let infoTexto = '';
+    if (materia.info && materia.info.length > 0) {
+        for (let i = 0; i < materia.info.length; i++) {
+            const info = materia.info[i];
+            if (i > 0) infoTexto += ' • ';
+            infoTexto += info.carrera + ' - Semestre ' + info.semestre;
+            if (info.horas) {
+                infoTexto += ' (' + info.horas + ' horas)';
+            }
+        }
+    } else {
+        infoTexto = 'Sin información de carrera';
+    }
     
     preview.innerHTML = `
         <h4><i class="fas fa-check-circle" style="color: #27ae60;"></i> ${materia.nombre}</h4>
@@ -1431,7 +1528,9 @@ function seleccionarMateria(materia) {
     selectorNivel.style.display = 'block';
     resultados.style.display = 'none';
     buscador.value = '';
-    document.getElementById('selectNivel').value = '';
+    
+    const selectNivel = document.getElementById('selectNivel');
+    if (selectNivel) selectNivel.value = '';
 }
 
 function cancelarSeleccionMateria() {
@@ -1441,27 +1540,52 @@ function cancelarSeleccionMateria() {
     mostrarTodasLasMateriasDelFiltro();
 }
 
+// ===== MANEJAR AGREGAR MATERIA =====
 function manejarAgregarMateria(event) {
     event.preventDefault();
     event.stopPropagation();
     
-    if (!datosProfesor.nombre || !datosProfesor.correo) {
-        mostrarNotificacion('Completa los datos del profesor', 'warning');
+    // VERIFICAR QUE datosProfesor EXISTA
+    if (!datosProfesor) {
+        console.error('❌ datosProfesor es null');
+        mostrarNotificacion('Error: Datos del profesor no inicializados', 'error');
         return;
     }
     
+    // Verificar nombre del profesor
+    if (!datosProfesor.nombre) {
+        mostrarNotificacion('Por favor, selecciona o ingresa tu nombre', 'warning');
+        document.getElementById('buscadorProfesores')?.focus();
+        return;
+    }
+    
+    // Verificar correo
+    if (!datosProfesor.correo) {
+        mostrarNotificacion('Por favor, ingresa tu correo electrónico', 'warning');
+        document.getElementById('correoProfesor')?.focus();
+        return;
+    }
+    
+    // Verificar que haya una materia seleccionada
     if (!materiaSeleccionadaTemp) {
         mostrarNotificacion('Selecciona una materia de la búsqueda', 'warning');
         return;
     }
     
-    const nivel = document.getElementById('selectNivel').value;
+    // Verificar nivel seleccionado
+    const selectNivel = document.getElementById('selectNivel');
+    if (!selectNivel) {
+        console.error('❌ No se encontró el selector de nivel');
+        return;
+    }
     
+    const nivel = selectNivel.value;
     if (!nivel) {
         mostrarNotificacion('Selecciona el nivel de preferencia', 'warning');
         return;
     }
     
+    // Verificar que la materia no esté ya agregada
     const yaExiste = materiasSeleccionadas.some(m => m.nombre === materiaSeleccionadaTemp.nombre);
     if (yaExiste) {
         mostrarNotificacion('Esta materia ya ha sido agregada', 'warning');
@@ -1469,14 +1593,18 @@ function manejarAgregarMateria(event) {
         return;
     }
     
+    // Crear nueva materia
     const nuevaMateria = {
         id: Date.now(),
         nombre: materiaSeleccionadaTemp.nombre,
-        carreras: [...materiaSeleccionadaTemp.info],
+        carreras: [...(materiaSeleccionadaTemp.info || [])],
         nivel: nivel
     };
     
+    // Agregar a la lista
     materiasSeleccionadas.push(nuevaMateria);
+    
+    // Actualizar UI
     renderizarMaterias();
     actualizarContadorMaterias();
     cancelarSeleccionMateria();
@@ -1545,6 +1673,7 @@ function actualizarContadorMaterias() {
     }
 }
 
+// ===== CREAR TARJETA DE MATERIA SELECCIONADA (CON HORAS OPCIONALES) =====
 function crearTarjetaMateria(materia) {
     const div = document.createElement('div');
     div.className = 'materia-card';
@@ -1567,9 +1696,13 @@ function crearTarjetaMateria(materia) {
     }
     
     const infoOrdenada = [...materia.carreras].sort((a, b) => a.semestre - b.semestre);
-    const infoTexto = infoOrdenada.map(c => 
-        `${c.carrera} - Semestre ${c.semestre}`
-    ).join(', ');
+    const infoTexto = infoOrdenada.map(c => {
+        let texto = `${c.carrera} - Semestre ${c.semestre}`;
+        if (c.horas) {
+            texto += ` (${c.horas}h)`;
+        }
+        return texto;
+    }).join(', ');
     
     div.innerHTML = `
         <div class="materia-info">
@@ -1682,20 +1815,183 @@ function crearCeldaHorarioLimpia(dia, horaInicio, horaFin) {
         <span class="periodo">${periodo}</span>
     `;
     
-    celda.addEventListener('click', () => toggleHorarioLimpio(celda));
+    // Eventos para ratón (PC)
+    celda.addEventListener('mousedown', (e) => {
+        e.preventDefault(); // Evita selección de texto
+        iniciarSeleccion(celda);
+    });
+    
+    celda.addEventListener('mouseenter', () => {
+        if (seleccionando) {
+            procesarCeldaEnArrastre(celda);
+        }
+    });
+    
+    celda.addEventListener('mouseup', () => {
+        if (seleccionando) {
+            finalizarSeleccion();
+        }
+    });
+    
+    // Eventos para móvil (touch)
+    celda.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        iniciarSeleccion(celda);
+    }, { passive: false });
+    
+    celda.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const elemento = document.elementFromPoint(touch.clientX, touch.clientY);
+        if (elemento && elemento.classList.contains('celda-horario-limpia')) {
+            procesarCeldaEnArrastre(elemento);
+        }
+    }, { passive: false });
+    
+    celda.addEventListener('touchend', () => {
+        finalizarSeleccion();
+    });
+    
+    celda.addEventListener('touchcancel', () => {
+        finalizarSeleccion();
+    });
     
     return celda;
 }
 
+// ===== NUEVAS FUNCIONES PARA ARRASTRE =====
+
+// Iniciar selección
+function iniciarSeleccion(celda) {
+    seleccionando = true;
+    seleccionInicial = celda;
+    
+    // Determinar si estamos agregando o quitando basado en el estado actual
+    const estaSeleccionada = celda.classList.contains('selected');
+    modoSeleccion = estaSeleccionada ? 'quitar' : 'agregar';
+    
+    // Aplicar cambio a la celda inicial
+    if (modoSeleccion === 'agregar') {
+        agregarHorario(celda);
+    } else {
+        quitarHorario(celda);
+    }
+}
+
+// Procesar celda durante el arrastre
+function procesarCeldaEnArrastre(celda) {
+    if (!seleccionando) return;
+    
+    if (modoSeleccion === 'agregar' && !celda.classList.contains('selected')) {
+        agregarHorario(celda);
+    } else if (modoSeleccion === 'quitar' && celda.classList.contains('selected')) {
+        quitarHorario(celda);
+    }
+}
+
+// Finalizar selección
+function finalizarSeleccion() {
+    seleccionando = false;
+    seleccionInicial = null;
+}
+
+// Agregar horario
+function agregarHorario(celda) {
+    const id = celda.getAttribute('data-horario-id');
+    const dia = celda.getAttribute('data-dia');
+    const hora = celda.getAttribute('data-hora');
+    const texto = celda.getAttribute('data-texto');
+    
+    horariosSeleccionados.push({
+        id: id,
+        dia: dia,
+        hora: hora,
+        texto: texto
+    });
+    celda.classList.add('selected');
+}
+
+// ===== FUNCIONES PARA SELECCIÓN POR ARRASTRE =====
+
+// Iniciar selección
+function iniciarSeleccion(celda) {
+    seleccionando = true;
+    seleccionInicial = celda;
+    
+    // Determinar si estamos agregando o quitando basado en el estado actual
+    const estaSeleccionada = celda.classList.contains('selected');
+    modoSeleccion = estaSeleccionada ? 'quitar' : 'agregar';
+    
+    // Aplicar cambio a la celda inicial
+    if (modoSeleccion === 'agregar') {
+        agregarHorario(celda);
+    } else {
+        quitarHorario(celda);
+    }
+}
+
+// Procesar celda durante el arrastre
+function procesarCeldaEnArrastre(celda) {
+    if (!seleccionando) return;
+    
+    if (modoSeleccion === 'agregar' && !celda.classList.contains('selected')) {
+        agregarHorario(celda);
+    } else if (modoSeleccion === 'quitar' && celda.classList.contains('selected')) {
+        quitarHorario(celda);
+    }
+}
+
+// Finalizar selección
+function finalizarSeleccion() {
+    seleccionando = false;
+    seleccionInicial = null;
+}
+
+// Agregar horario
+function agregarHorario(celda) {
+    const id = celda.getAttribute('data-horario-id');
+    const dia = celda.getAttribute('data-dia');
+    const hora = celda.getAttribute('data-hora');
+    const texto = celda.getAttribute('data-texto');
+    
+    // Verificar si ya existe (por si acaso)
+    const existe = horariosSeleccionados.some(h => h.id === id);
+    if (!existe) {
+        horariosSeleccionados.push({
+            id: id,
+            dia: dia,
+            hora: hora,
+            texto: texto
+        });
+        celda.classList.add('selected');
+    }
+}
+
+// Quitar horario
+function quitarHorario(celda) {
+    const id = celda.getAttribute('data-horario-id');
+    const index = horariosSeleccionados.findIndex(h => h.id === id);
+    if (index !== -1) {
+        horariosSeleccionados.splice(index, 1);
+        celda.classList.remove('selected');
+    }
+}
+
+// ===== TOGGLE HORARIO LIMPIO (VERSIÓN COMPLETA) =====
 function toggleHorarioLimpio(elemento) {
+    // Si estamos en modo arrastre, no hacer toggle individual
+    if (seleccionando) return;
+    
     const id = elemento.getAttribute('data-horario-id');
     const dia = elemento.getAttribute('data-dia');
     const hora = elemento.getAttribute('data-hora');
     const texto = elemento.getAttribute('data-texto');
     
+    // Buscar si ya está seleccionado
     const index = horariosSeleccionados.findIndex(h => h.id === id);
     
     if (index === -1) {
+        // No está seleccionado → agregar
         horariosSeleccionados.push({
             id: id,
             dia: dia,
@@ -1703,9 +1999,17 @@ function toggleHorarioLimpio(elemento) {
             texto: texto
         });
         elemento.classList.add('selected');
+        console.log(`✅ Horario agregado: ${dia} ${texto}`);
     } else {
+        // Ya está seleccionado → quitar
         horariosSeleccionados.splice(index, 1);
         elemento.classList.remove('selected');
+        console.log(`❌ Horario quitado: ${dia} ${texto}`);
+    }
+    
+    // Actualizar el resumen (si existe)
+    if (typeof actualizarResumenHorarios === 'function') {
+        actualizarResumenHorarios();
     }
 }
 
@@ -1798,6 +2102,9 @@ function configurarAccionesRapidas() {
                     celda.classList.remove('selected');
                 }
             });
+            
+            // Resetear estado de arrastre
+            finalizarSeleccion();
         });
     }
     
@@ -1805,6 +2112,10 @@ function configurarAccionesRapidas() {
     if (btnSeleccionarTodo) {
         btnSeleccionarTodo.addEventListener('click', seleccionarTodoTurno);
     }
+    
+    // Agregar evento global para cancelar arrastre
+    document.addEventListener('mouseup', finalizarSeleccion);
+    document.addEventListener('touchend', finalizarSeleccion);
 }
 
 // ===== SISTEMA DE ADMINISTRACIÓN =====
@@ -2987,25 +3298,33 @@ function actualizarModalResumen() {
     htmlProfesor += '</ul>';
     resumenProfesor.innerHTML = htmlProfesor;
     
-    const resumenMaterias = document.getElementById('modalResumenMaterias');
-    if (materiasSeleccionadas.length > 0) {
-        let htmlMaterias = '<ul>';
-        materiasSeleccionadas.forEach(materia => {
-            const nivelTexto = materia.nivel === 'alta' ? 'Alta' : (materia.nivel === 'media' ? 'Media' : 'Baja');
-            const nivelColor = materia.nivel === 'alta' ? '#e74c3c' : (materia.nivel === 'media' ? '#f39c12' : '#7f8c8d');
-            
-            const carrerasTexto = materia.carreras.map(c => `${c.carrera} (Sem ${c.semestre})`).join(', ');
-            htmlMaterias += `<li>
-                <i class="fas fa-book" style="color: ${nivelColor};"></i>
-                <strong>${materia.nombre}</strong> - <span style="color: ${nivelColor};">${nivelTexto}</span>
-                <br><small style="margin-left: 26px; color: #7f8c8d;">${carrerasTexto}</small>
-            </li>`;
-        });
-        htmlMaterias += '</ul>';
-        resumenMaterias.innerHTML = htmlMaterias;
-    } else {
-        resumenMaterias.innerHTML = '<p>No has seleccionado materias</p>';
-    }
+// En actualizarModalResumen, reemplaza la sección de materias:
+const resumenMaterias = document.getElementById('modalResumenMaterias');
+if (materiasSeleccionadas.length > 0) {
+    let htmlMaterias = '<ul>';
+    materiasSeleccionadas.forEach(materia => {
+        const nivelTexto = materia.nivel === 'alta' ? 'Alta' : (materia.nivel === 'media' ? 'Media' : 'Baja');
+        const nivelColor = materia.nivel === 'alta' ? '#e74c3c' : (materia.nivel === 'media' ? '#f39c12' : '#7f8c8d');
+        
+        const carrerasTexto = materia.carreras.map(c => {
+            let texto = `${c.carrera} (Sem ${c.semestre})`;
+            if (c.horas) {
+                texto += ` - ${c.horas} h/sem`;
+            }
+            return texto;
+        }).join(', ');
+        
+        htmlMaterias += `<li>
+            <i class="fas fa-book" style="color: ${nivelColor};"></i>
+            <strong>${materia.nombre}</strong> - <span style="color: ${nivelColor};">${nivelTexto}</span>
+            <br><small style="margin-left: 26px; color: #7f8c8d;">${carrerasTexto}</small>
+        </li>`;
+    });
+    htmlMaterias += '</ul>';
+    resumenMaterias.innerHTML = htmlMaterias;
+} else {
+    resumenMaterias.innerHTML = '<p>No has seleccionado materias</p>';
+}
     
     const resumenHorarios = document.getElementById('modalResumenHorarios');
     if (horariosSeleccionados.length > 0) {
@@ -4065,5 +4384,10 @@ async function inicializarAplicacion() {
         mostrarNotificacion('Error al iniciar la aplicación', 'error');
     }
 }
+
+// Agregar eventos globales para cancelar arrastre
+document.addEventListener('mouseup', finalizarSeleccion);
+document.addEventListener('touchend', finalizarSeleccion);
+document.addEventListener('touchcancel', finalizarSeleccion);
 
 document.addEventListener('DOMContentLoaded', inicializarAplicacion);

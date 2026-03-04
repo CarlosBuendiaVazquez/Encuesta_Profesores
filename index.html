@@ -10,11 +10,14 @@
 </head>
 <body>
     <div class="container">
-<!-- ===== HEADER CON DOS LOGOS ===== -->
-<header style="display: flex; align-items: center; justify-content: space-between; padding: 20px 30px;">
-    <div class="logo-container" style="display: flex; align-items: center; gap: 15px;">
-        <img src="img/logo-tecnm.png" alt="TecNM" class="logo-img">
-        <img src="img/logo-itc.png" alt="IT Cancún" class="logo-img">
+<header>
+    <div class="logos-superiores">
+        <div class="logo-left">
+            <img src="img/logo-tecnm.png" alt="TecNM" class="logo-img">
+        </div>
+        <div class="logo-right">
+            <img src="img/logo-itc.png" alt="IT Cancún" class="logo-img">
+        </div>
     </div>
     <div class="header-content">
         <h1>Encuesta de Disponibilidad Docente</h1>
@@ -199,17 +202,21 @@
             <div class="filtros-combinados">
                 <div class="filtro-carrera">
                     <div class="carrera-header">
-                        <label for="selectCarrera"><i class="fas fa-filter"></i> Filtrar por carrera:</label>
+                        <label for="selectCarrera"><i class="fas fa-filter"></i> Filtrar por carrera/posgrado:</label>
                         <span class="periodo-badge" id="periodoBadge">ENE - JUN</span>
                     </div>
                     <select id="selectCarrera" class="select-carrera">
-                        <option value="">-- Todas las carreras --</option>
-                        <option value="arquitectura">Arquitectura</option>
-                        <option value="civil">Ing. Civil</option>
-                        <option value="electromecanica">Ing. Electromecánica</option>
-                        <option value="ferroviaria">Ing. Ferroviaria</option>
-                        <option value="mecatronica">Ing. Mecatrónica</option>
-                    </select>
+    <option value="">-- Todas las carreras --</option>
+    <option value="arquitectura">Arquitectura</option>
+    <option value="civil">Ing. Civil</option>
+    <option value="electromecanica">Ing. Electromecánica</option>
+    <option value="ferroviaria">Ing. Ferroviaria</option>
+    <option value="mecatronica">Ing. Mecatrónica</option>
+    <!-- NUEVAS CARRERAS DE POSGRADO -->
+    <option value="maestria_ambiental">Maestría en Ciencias Ambientales</option>
+    <option value="maestria_negocios">Maestría en Administración de Negocios</option>
+    <option value="doctorado_ambiental">Doctorado en Ciencias Ambientales</option>
+</select>
                 </div>
                 
                 <div class="filtro-semestre">
