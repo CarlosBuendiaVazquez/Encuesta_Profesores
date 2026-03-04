@@ -744,20 +744,22 @@ function actualizarVistaMaterias() {
     console.log('✅ Vista actualizada');
 }
 
-// ===== SISTEMA DE ACCESO ADMIN POR URL (VERSIÓN SEGURA) =====
+// ===== SISTEMA DE ACCESO ADMIN POR URL (VERSIÓN CORREGIDA) =====
 async function verificarAccesoAdmin() {
     const urlParams = new URLSearchParams(window.location.search);
     const adminKey = urlParams.get('admin');
     
-    // Si no hay clave en la URL, no es admin
+    // Si NO hay clave en la URL, NO es admin
     if (!adminKey) {
+        console.log('🔒 No hay clave en URL - Modo usuario normal');
         adminActivo = false;
         sessionStorage.removeItem('adminAutenticado');
         return false;
     }
     
     try {
-        // Llamar a la función serverless para verificar
+        console.log('🔑 Verificando clave con servidor...');
+        
         const response = await fetch('/.netlify/functions/admin/verificar', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -767,18 +769,19 @@ async function verificarAccesoAdmin() {
         const data = await response.json();
         
         if (response.ok && data.success) {
-            console.log('👑 Acceso administrador concedido por URL');
+            console.log('✅ Acceso administrador CONCEDIDO');
             adminActivo = true;
             sessionStorage.setItem('adminAutenticado', 'true');
             return true;
         }
         
+        console.log('❌ Acceso DENEGADO - Clave inválida');
         adminActivo = false;
         sessionStorage.removeItem('adminAutenticado');
         return false;
         
     } catch (error) {
-        console.error('Error verificando admin:', error);
+        console.error('❌ Error verificando admin:', error);
         adminActivo = false;
         sessionStorage.removeItem('adminAutenticado');
         return false;
@@ -1831,18 +1834,26 @@ function configurarAccionesRapidas() {
 }
 
 // ===== SISTEMA DE ADMINISTRACIÓN =====
-function inicializarModoAdmin() {
+async function inicializarModoAdmin() {
     console.log('👑 Verificando acceso administrador...');
     
-    const tieneAcceso = verificarAccesoAdmin();
+    // ¡IMPORTANTE! await porque es asíncrona
+    const tieneAcceso = await verificarAccesoAdmin();
     
     if (!tieneAcceso) {
-        console.log('🔒 Modo administrador desactivado - URL sin clave');
+        console.log('🔒 Modo administrador desactivado');
+        
+        // OCULTAR el trigger si no es admin
+        const adminTrigger = document.getElementById('adminTrigger');
+        if (adminTrigger) {
+            adminTrigger.style.display = 'none';
+        }
         return;
     }
     
     console.log('✅ Modo administrador activado');
     
+    // SOLO si es admin, mostrar el trigger
     const adminTrigger = document.getElementById('adminTrigger');
     const adminPanel = document.getElementById('adminAccess');
     const closeBtn = document.getElementById('closeAdminBtn');
