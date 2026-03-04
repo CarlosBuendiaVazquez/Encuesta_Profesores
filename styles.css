@@ -1024,6 +1024,8 @@ label {
     background: linear-gradient(135deg, var(--itc-azul-medio), var(--itc-azul-oscuro));
     color: white;
     border-bottom: 2px solid var(--itc-azul-claro);
+    position: relative;  /* AÑADIR */
+    z-index: 10;         /* AÑADIR */
 }
 
 .dia-header-limpio {
@@ -1086,8 +1088,8 @@ label {
 .celda-horario-limpia:hover {
     background: #e8f4fc;
     transform: scale(1.01);
-    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
-    z-index: 3;
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
+    z-index: 1;  /* CAMBIADO DE 10 a 1 */
     border-color: #3498db;
 }
 
@@ -1166,6 +1168,16 @@ label {
     background: var(--itc-azul-claro);
     border: 2px solid var(--itc-azul-oscuro);
     box-shadow: 0 2px 4px rgba(0,119,190,0.3);
+}
+
+/* ===== CORRECCIÓN BUG VIERNES ===== */
+.cuadricula-scroll-container {
+    overflow: hidden !important; /* Evita que las sombras se salgan */
+    position: relative;
+}
+
+.fila-hora-limpia:last-child .celda-horario-limpia {
+    border-bottom: none; /* Asegura que no haya borde extra */
 }
 
 /* ===== BOTÓN DE ENVIAR AZUL ===== */
@@ -3172,5 +3184,30 @@ h1 {
     
     .subtitle {
         font-size: 0.85rem !important;
+    }
+}
+
+/* ===== AJUSTE MÍNIMO DE LOGOS EN MÓVIL ===== */
+@media (max-width: 768px) {
+    .logo-container {
+        justify-content: flex-start !important; /* Alinea a la izquierda */
+        padding-left: 5px; /* Pequeño margen izquierdo */
+        width: 100%;
+    }
+}
+
+/* Para pantallas muy pequeñas */
+@media (max-width: 480px) {
+    .logo-container {
+        padding-left: 3px;
+    }
+}
+
+/* ===== SOLO ESTO, NADA MÁS ===== */
+@media (max-width: 768px) {
+    .logo-container {
+        justify-content: center !important;
+        padding-left: 5px;
+        width: 100%;
     }
 }

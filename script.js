@@ -1933,30 +1933,50 @@ let encuestasFiltradas = [];
 let paginaActual = 1;
 let itemsPorPagina = 10;
 
-// ===== FUNCIÓN PRINCIPAL PARA VER ENCUESTAS =====
+// ===== VERSIÓN PARA PRODUCCIÓN (CON SERVERLESS) =====
 async function verTodasLasEncuestas() {
     try {
         mostrarNotificacion('Cargando encuestas...', 'info');
         
-        todasLasEncuestas = await pb.collection('encuestas').getFullList({
-            sort: '-created'
+        // Verificar que hay sesión de admin
+        const tokenAdmin = sessionStorage.getItem('adminAutenticado');
+        if (!tokenAdmin) {
+            mostrarNotificacion('No tienes permisos de administrador', 'warning');
+            return;
+        }
+
+        // Llamar a la función serverless de Netlify
+        const response = await fetch('/.netlify/functions/encuestas/listar', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${tokenAdmin}`
+            }
         });
+
+        const resultado = await response.json();
+
+        if (!response.ok) {
+            throw new Error(resultado.error || 'Error al cargar encuestas');
+        }
+
+        console.log('📋 Encuestas recibidas:', resultado);
         
-        console.log('📋 Encuestas recibidas:', todasLasEncuestas);
-        
-        if (!todasLasEncuestas || todasLasEncuestas.length === 0) {
+        if (!resultado.data || resultado.data.length === 0) {
             mostrarNotificacion('No hay encuestas guardadas', 'info');
             return;
         }
-        
+
+        // Guardar en variables globales
+        todasLasEncuestas = resultado.data;
         encuestasFiltradas = [...todasLasEncuestas];
         paginaActual = 1;
         
+        // Mostrar el modal
         mostrarModalEncuestasAvanzado();
         
     } catch (error) {
         console.error('❌ Error al obtener encuestas:', error);
-        mostrarNotificacion('Error al obtener encuestas: ' + (error.message || 'Error desconocido'), 'error');
+        mostrarNotificacion('Error al obtener encuestas: ' + error.message, 'error');
     }
 }
 
@@ -3489,6 +3509,7 @@ function actualizarContadorExportacionCompacto(seleccionadas) {
     }
 }
 
+// ===== EXPORTAR A PDF PERSONALIZADO - VERSIÓN CORREGIDA =====
 async function exportarAPDFPersonalizado(encuestas) {
     try {
         mostrarNotificacion(`Exportando ${encuestas.length} encuestas a PDF...`, 'info');
@@ -3553,10 +3574,6 @@ async function exportarAPDFPersonalizado(encuestas) {
             doc.text('Instituto Tecnológico de Cancún', 105, 290, { align: 'center' });
         }
         
-        function necesitaNuevaPagina(yPos, espacioNecesario) {
-            return yPos + espacioNecesario > 270;
-        }
-        
         for (let i = 0; i < encuestas.length; i++) {
             if (i > 0) doc.addPage();
             
@@ -3567,6 +3584,7 @@ async function exportarAPDFPersonalizado(encuestas) {
             
             let yPos = 25;
             
+            // Tarjeta del profesor
             doc.setFillColor(colores.gris[0], colores.gris[1], colores.gris[2]);
             doc.roundedRect(15, yPos, 180, 55, 3, 3, 'F');
             doc.setDrawColor(colores.azulClaro[0], colores.azulClaro[1], colores.azulClaro[2]);
@@ -3606,6 +3624,7 @@ async function exportarAPDFPersonalizado(encuestas) {
             
             yPos += 70;
             
+            // Materias
             doc.setFillColor(colores.gris[0], colores.gris[1], colores.gris[2]);
             doc.roundedRect(15, yPos, 180, 5, 3, 3, 'F');
             doc.setFontSize(12);
@@ -3646,12 +3665,14 @@ async function exportarAPDFPersonalizado(encuestas) {
                 yPos += 15;
             }
             
+            // ===== HORARIOS SELECCIONADOS - VERSIÓN CORREGIDA =====
             doc.setFillColor(colores.gris[0], colores.gris[1], colores.gris[2]);
             doc.roundedRect(15, yPos, 180, 5, 3, 3, 'F');
+            
             doc.setFontSize(12);
             doc.setTextColor(colores.azulOscuro[0], colores.azulOscuro[1], colores.azulOscuro[2]);
             doc.setFont('helvetica', 'bold');
-            doc.text('Horarios Seleccionados', 20, yPos + 4);
+            doc.text('Horarios Seleccionados', 20, yPos + 4); // SOLO UNA VEZ
             
             doc.setFontSize(7);
             doc.setTextColor(colores.grisOscuro[0], colores.grisOscuro[1], colores.grisOscuro[2]);
@@ -3661,10 +3682,12 @@ async function exportarAPDFPersonalizado(encuestas) {
             yPos += 10;
             
             if (enc.horarios && enc.horarios.length > 0) {
+                // Calcular espacio disponible
                 const espacioRestante = 270 - yPos;
+                const altoTitulo = 5;
                 const altoCuadricula = 175;
                 const altoLeyenda = 15;
-                const espacioNecesario = altoCuadricula + altoLeyenda + 10;
+                const espacioNecesario = altoTitulo + altoCuadricula + altoLeyenda + 15;
                 
                 if (espacioRestante < espacioNecesario) {
                     doc.addPage();
@@ -3686,6 +3709,7 @@ async function exportarAPDFPersonalizado(encuestas) {
                     yPos += 10;
                 }
                 
+                // Agrupar horarios por día
                 const horariosPorDia = {};
                 const diasOrdenados = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
                 
@@ -3698,72 +3722,82 @@ async function exportarAPDFPersonalizado(encuestas) {
                     horariosPorDia[dia].sort((a, b) => a - b);
                 });
                 
-                const anchoDia = 32;
-                const altoBloque = 12;
-                
-                diasOrdenados.forEach((dia, diaIndex) => {
-                    const xPos = 20 + (diaIndex * anchoDia);
-                    
-                    doc.setFontSize(8);
-                    doc.setFont('helvetica', 'bold');
-                    doc.setTextColor(colores.azulOscuro[0], colores.azulOscuro[1], colores.azulOscuro[2]);
-                    doc.text(dia, xPos + 5, yPos - 2);
-                });
-                
-                for (let hora = 7; hora <= 21; hora++) {
-                    const bloqueY = yPos + ((hora - 7) * (altoBloque + 1));
-                    
-                    diasOrdenados.forEach((dia, diaIndex) => {
-                        const horarios = horariosPorDia[dia] || [];
-                        const xPos = 20 + (diaIndex * anchoDia);
-                        
-                        const horaInicio = hora;
-                        const horaFin = hora + 1;
-                        const horaStr = `${horaInicio}-${horaFin}`;
-                        
-                        const seleccionado = horarios.includes(hora);
-                        
-                        doc.setDrawColor(colores.borde[0], colores.borde[1], colores.borde[2]);
-                        doc.setLineWidth(0.2);
-                        
-                        if (seleccionado) {
-                            doc.setFillColor(colores.azulClaro[0], colores.azulClaro[1], colores.azulClaro[2]);
-                            doc.roundedRect(xPos, bloqueY, anchoDia - 2, altoBloque - 1, 2, 2, 'F');
-                            doc.roundedRect(xPos, bloqueY, anchoDia - 2, altoBloque - 1, 2, 2, 'S');
-                            
-                            doc.setFontSize(7);
-                            doc.setTextColor(255, 255, 255);
-                            doc.setFont('helvetica', 'bold');
-                            doc.text(horaStr, xPos + (anchoDia - 2) / 2, bloqueY + 5, { align: 'center' });
-                        } else {
-                            doc.setFillColor(255, 255, 255);
-                            doc.roundedRect(xPos, bloqueY, anchoDia - 2, altoBloque - 1, 2, 2, 'F');
-                            doc.roundedRect(xPos, bloqueY, anchoDia - 2, altoBloque - 1, 2, 2, 'S');
-                            
-                            doc.setFontSize(7);
-                            doc.setTextColor(colores.grisOscuro[0], colores.grisOscuro[1], colores.grisOscuro[2]);
-                            doc.setFont('helvetica', 'normal');
-                            doc.text(horaStr, xPos + (anchoDia - 2) / 2, bloqueY + 5, { align: 'center' });
-                        }
-                    });
-                }
-                
-                for (let h = 0; h <= 15; h++) {
-                    const lineY = yPos + (h * (altoBloque + 1)) - 1;
-                    doc.setDrawColor(colores.borde[0], colores.borde[1], colores.borde[2]);
-                    doc.setLineWidth(0.1);
-                    doc.line(20, lineY, 20 + (anchoDia * 5) - 5, lineY);
-                }
-                
-                for (let d = 1; d < 5; d++) {
-                    const xLine = 20 + (d * anchoDia) - 2;
-                    doc.setDrawColor(colores.borde[0], colores.borde[1], colores.borde[2]);
-                    doc.setLineWidth(0.2);
-                    doc.line(xLine, yPos - 3, xLine, yPos + (15 * (altoBloque + 1)));
-                }
+                // ===== BLOQUE CORREGIDO - HORARIOS EN PDF =====
+// Busca esta sección y reemplázala:
+
+// Dibujar cuadrícula
+const anchoDia = 32;
+const altoBloque = 12;
+
+// Encabezados de días
+diasOrdenados.forEach((dia, diaIndex) => {
+    const xPos = 20 + (diaIndex * anchoDia);
+    
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(colores.azulOscuro[0], colores.azulOscuro[1], colores.azulOscuro[2]);
+    doc.text(dia, xPos + 5, yPos - 2);
+});
+
+// Dibujar celdas de horas
+for (let hora = 7; hora <= 21; hora++) {
+    const bloqueY = yPos + ((hora - 7) * (altoBloque + 1));
+    
+    diasOrdenados.forEach((dia, diaIndex) => {
+        const horarios = horariosPorDia[dia] || [];
+        const xPos = 20 + (diaIndex * anchoDia);
+        
+        const horaInicio = hora;
+        const horaFin = hora + 1;
+        const horaStr = `${horaInicio}-${horaFin}`;
+        
+        const seleccionado = horarios.includes(hora);
+        
+        doc.setDrawColor(colores.borde[0], colores.borde[1], colores.borde[2]);
+        doc.setLineWidth(0.2);
+        
+        // Celda
+        if (seleccionado) {
+            doc.setFillColor(colores.azulClaro[0], colores.azulClaro[1], colores.azulClaro[2]);
+            doc.roundedRect(xPos, bloqueY, anchoDia - 2, altoBloque - 1, 2, 2, 'F');
+            doc.roundedRect(xPos, bloqueY, anchoDia - 2, altoBloque - 1, 2, 2, 'S');
+            
+            doc.setFontSize(7);
+            doc.setTextColor(255, 255, 255);
+            doc.setFont('helvetica', 'bold');
+            doc.text(horaStr, xPos + (anchoDia - 2) / 2, bloqueY + 5, { align: 'center' });
+        } else {
+            doc.setFillColor(255, 255, 255);
+            doc.roundedRect(xPos, bloqueY, anchoDia - 2, altoBloque - 1, 2, 2, 'F');
+            doc.roundedRect(xPos, bloqueY, anchoDia - 2, altoBloque - 1, 2, 2, 'S');
+            
+            doc.setFontSize(7);
+            doc.setTextColor(colores.grisOscuro[0], colores.grisOscuro[1], colores.grisOscuro[2]);
+            doc.setFont('helvetica', 'normal');
+            doc.text(horaStr, xPos + (anchoDia - 2) / 2, bloqueY + 5, { align: 'center' });
+        }
+    });
+}
+
+// Líneas horizontales (entre filas)
+for (let h = 0; h <= 15; h++) {
+    const lineY = yPos + (h * (altoBloque + 1)) - 1;
+    doc.setDrawColor(colores.borde[0], colores.borde[1], colores.borde[2]);
+    doc.setLineWidth(0.1);
+    doc.line(20, lineY, 20 + (anchoDia * 5) - 5, lineY);
+}
+
+// Líneas verticales (entre días)
+for (let d = 1; d < 5; d++) {
+    const xLine = 20 + (d * anchoDia) - 2;
+    doc.setDrawColor(colores.borde[0], colores.borde[1], colores.borde[2]);
+    doc.setLineWidth(0.2);
+    doc.line(xLine, yPos - 3, xLine, yPos + (15 * (altoBloque + 1)));
+}
                 
                 yPos += 195;
                 
+                // Verificar espacio para leyenda
                 const espacioRestanteLeyenda = 270 - yPos;
                 
                 if (espacioRestanteLeyenda < 15) {
@@ -3772,6 +3806,7 @@ async function exportarAPDFPersonalizado(encuestas) {
                     yPos = 25;
                 }
                 
+                // Leyenda
                 doc.setFontSize(7);
                 doc.setTextColor(colores.texto[0], colores.texto[1], colores.texto[2]);
                 doc.setFont('helvetica', 'normal');
@@ -3812,6 +3847,7 @@ async function exportarAPDFPersonalizado(encuestas) {
     }
 }
 
+// ===== EXPORTAR A EXCEL PERSONALIZADO CON COLUMNA DE HORA =====
 async function exportarAExcelPersonalizado(encuestas) {
     try {
         mostrarNotificacion(`Exportando ${encuestas.length} encuestas a Excel...`, 'info');
@@ -3854,7 +3890,7 @@ async function exportarAExcelPersonalizado(encuestas) {
                             font: { color: { rgb: colores.texto.rgb }, sz: 10, name: "Arial" },
                             fill: { fgColor: { rgb: bgColor } },
                             alignment: { 
-                                horizontal: c === 2 ? "left" : "center", 
+                                horizontal: c === 3 ? "left" : "center", 
                                 vertical: "center" 
                             },
                             border: {
@@ -3869,12 +3905,15 @@ async function exportarAExcelPersonalizado(encuestas) {
             }
         }
         
+        // ===== HOJA DE RESUMEN CON HORA =====
         const resumenData = [];
-        resumenData.push(['Fecha', 'Período', 'Profesor', 'Correo', 'Clave SIE', 'Teléfono', 'Tipo de Plaza', 'Horas', 'Materias', 'Horarios']);
+        resumenData.push(['Fecha', 'Hora', 'Período', 'Profesor', 'Correo', 'Clave SIE', 'Teléfono', 'Tipo de Plaza', 'Horas', 'Materias', 'Horarios']);
         
         encuestas.forEach(enc => {
             const profesor = enc.profesor || {};
-            const fecha = enc.fecha ? new Date(enc.fecha).toLocaleDateString('es-MX') : 'N/A';
+            const fechaObj = enc.fecha ? new Date(enc.fecha) : null;
+            const fecha = fechaObj ? fechaObj.toLocaleDateString('es-MX') : 'N/A';
+            const hora = fechaObj ? fechaObj.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) : 'N/A';
             
             let tipoPlaza = profesor.tipoPlaza || '';
             switch(tipoPlaza) {
@@ -3884,10 +3923,12 @@ async function exportarAExcelPersonalizado(encuestas) {
                 case 'por_horas': tipoPlaza = 'Por horas-base'; break;
                 case 'honorarios': tipoPlaza = 'Honorarios'; break;
                 case 'nuevo_ingreso': tipoPlaza = 'Nuevo ingreso'; break;
+                default: tipoPlaza = profesor.tipoPlaza || '';
             }
             
             resumenData.push([
                 fecha,
+                hora,
                 enc.periodo === 'ene-jun' ? 'ENE-JUN' : 'AGO-DIC',
                 profesor.nombre || '',
                 profesor.correo || '',
@@ -3902,19 +3943,31 @@ async function exportarAExcelPersonalizado(encuestas) {
         
         const wsResumen = XLSX.utils.aoa_to_sheet(resumenData);
         wsResumen['!cols'] = [
-            { wch: 14 }, { wch: 10 }, { wch: 38 }, { wch: 35 }, { wch: 15 },
-            { wch: 15 }, { wch: 20 }, { wch: 10 }, { wch: 10 }, { wch: 10 }
+            { wch: 12 }, // Fecha
+            { wch: 8 },  // Hora
+            { wch: 10 }, // Período
+            { wch: 38 }, // Profesor
+            { wch: 35 }, // Correo
+            { wch: 15 }, // Clave
+            { wch: 15 }, // Teléfono
+            { wch: 20 }, // Tipo Plaza
+            { wch: 10 }, // Horas
+            { wch: 10 }, // Materias
+            { wch: 10 }  // Horarios
         ];
-        wsResumen['!autofilter'] = { ref: `A1:J${resumenData.length}` };
-        aplicarFormatoTabla(wsResumen, resumenData.length, 10, colores.azulOscuro.rgb);
+        wsResumen['!autofilter'] = { ref: `A1:K${resumenData.length}` };
+        aplicarFormatoTabla(wsResumen, resumenData.length, 11, colores.azulOscuro.rgb);
         XLSX.utils.book_append_sheet(wb, wsResumen, 'Resumen');
         
+        // ===== HOJA DE MATERIAS =====
         const materiasData = [];
-        materiasData.push(['Fecha', 'Profesor', 'Período', 'Materia', 'Nivel', 'Carrera', 'Semestre']);
+        materiasData.push(['Fecha', 'Hora', 'Profesor', 'Período', 'Materia', 'Nivel', 'Carrera', 'Semestre']);
         
         encuestas.forEach(enc => {
             const profesor = enc.profesor || {};
-            const fecha = enc.fecha ? new Date(enc.fecha).toLocaleDateString('es-MX') : 'N/A';
+            const fechaObj = enc.fecha ? new Date(enc.fecha) : null;
+            const fecha = fechaObj ? fechaObj.toLocaleDateString('es-MX') : 'N/A';
+            const hora = fechaObj ? fechaObj.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) : 'N/A';
             
             if (enc.materias) {
                 enc.materias.forEach(m => {
@@ -3922,6 +3975,7 @@ async function exportarAExcelPersonalizado(encuestas) {
                         m.carreras.forEach(c => {
                             materiasData.push([
                                 fecha,
+                                hora,
                                 profesor.nombre || '',
                                 enc.periodo === 'ene-jun' ? 'ENE-JUN' : 'AGO-DIC',
                                 m.nombre,
@@ -3936,40 +3990,56 @@ async function exportarAExcelPersonalizado(encuestas) {
         });
         
         const wsMaterias = XLSX.utils.aoa_to_sheet(materiasData);
-        wsMaterias['!cols'] = [{ wch: 14 }, { wch: 38 }, { wch: 10 }, { wch: 50 }, { wch: 12 }, { wch: 30 }, { wch: 10 }];
-        wsMaterias['!autofilter'] = { ref: `A1:G${materiasData.length}` };
-        aplicarFormatoTabla(wsMaterias, materiasData.length, 7, colores.azulMedio.rgb);
+        wsMaterias['!cols'] = [
+            { wch: 12 }, // Fecha
+            { wch: 8 },  // Hora
+            { wch: 38 }, // Profesor
+            { wch: 10 }, // Período
+            { wch: 50 }, // Materia
+            { wch: 12 }, // Nivel
+            { wch: 30 }, // Carrera
+            { wch: 10 }  // Semestre
+        ];
+        wsMaterias['!autofilter'] = { ref: `A1:H${materiasData.length}` };
+        aplicarFormatoTabla(wsMaterias, materiasData.length, 8, colores.azulMedio.rgb);
         XLSX.utils.book_append_sheet(wb, wsMaterias, 'Materias');
         
-        const horariosData = [];
-        horariosData.push(['Fecha', 'Profesor', 'Período', 'Día', 'Hora Inicio', 'Hora Fin', 'Bloque']);
-        
-        encuestas.forEach(enc => {
-            const profesor = enc.profesor || {};
-            const fecha = enc.fecha ? new Date(enc.fecha).toLocaleDateString('es-MX') : 'N/A';
-            
-            if (enc.horarios) {
-                enc.horarios.forEach(h => {
-                    const horaInicio = h.hora;
-                    const horaFin = parseInt(h.hora) + 1;
-                    horariosData.push([
-                        fecha,
-                        profesor.nombre || '',
-                        enc.periodo === 'ene-jun' ? 'ENE-JUN' : 'AGO-DIC',
-                        h.dia || '',
-                        `${horaInicio}:00`,
-                        `${horaFin}:00`,
-                        h.texto || ''
-                    ]);
-                });
-            }
+        // ===== HOJA DE HORARIOS - SIN HORA INICIO Y HORA FIN =====
+const horariosData = [];
+horariosData.push(['Fecha', 'Hora', 'Profesor', 'Período', 'Día', 'Bloque']); // Solo 6 columnas
+
+encuestas.forEach(enc => {
+    const profesor = enc.profesor || {};
+    const fechaObj = enc.fecha ? new Date(enc.fecha) : null;
+    const fecha = fechaObj ? fechaObj.toLocaleDateString('es-MX') : 'N/A';
+    const hora = fechaObj ? fechaObj.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) : 'N/A';
+    
+    if (enc.horarios) {
+        enc.horarios.forEach(h => {
+            horariosData.push([
+                fecha,
+                hora,
+                profesor.nombre || '',
+                enc.periodo === 'ene-jun' ? 'ENE-JUN' : 'AGO-DIC',
+                h.dia || '',
+                h.texto || ''  // El bloque completo (ej: "7-8 AM")
+            ]);
         });
-        
-        const wsHorarios = XLSX.utils.aoa_to_sheet(horariosData);
-        wsHorarios['!cols'] = [{ wch: 14 }, { wch: 38 }, { wch: 10 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 20 }];
-        wsHorarios['!autofilter'] = { ref: `A1:G${horariosData.length}` };
-        aplicarFormatoTabla(wsHorarios, horariosData.length, 7, colores.azulClaro.rgb);
-        XLSX.utils.book_append_sheet(wb, wsHorarios, 'Horarios');
+    }
+});
+
+const wsHorarios = XLSX.utils.aoa_to_sheet(horariosData);
+wsHorarios['!cols'] = [
+    { wch: 12 }, // Fecha
+    { wch: 8 },  // Hora
+    { wch: 38 }, // Profesor
+    { wch: 10 }, // Período
+    { wch: 12 }, // Día
+    { wch: 20 }  // Bloque
+];
+wsHorarios['!autofilter'] = { ref: `A1:F${horariosData.length}` };
+aplicarFormatoTabla(wsHorarios, horariosData.length, 6, colores.azulClaro.rgb);
+XLSX.utils.book_append_sheet(wb, wsHorarios, 'Horarios');
         
         const fecha = new Date().toISOString().split('T')[0];
         XLSX.writeFile(wb, `Encuestas_ITC_${fecha}_${encuestas.length}_registros.xlsx`);
