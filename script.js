@@ -338,6 +338,7 @@ const carrerasDataAGODICOriginal = JSON.parse(JSON.stringify(carrerasDataAGODIC)
 let carrerasDataENEJUNTrabajo = JSON.parse(JSON.stringify(carrerasDataENEJUN));
 let carrerasDataAGODICTrabajo = JSON.parse(JSON.stringify(carrerasDataAGODIC));
 
+
 // ===== VARIABLES GLOBALES =====
 let carrerasData = carrerasDataENEJUN;
 let datosProfesor = {
@@ -357,6 +358,7 @@ let materiaSeleccionadaTemp = null;
 let turnoActivo = 'matutino';
 let periodoActivo = 'ene-jun';
 let adminActivo = false;
+let botonAdmin = null;
 
 // ===== VARIABLES PARA FILTROS EN GESTIÓN =====
 let filtroGestionMaterias = '';
@@ -798,44 +800,47 @@ function actualizarVistaMaterias() {
     console.log('✅ Vista actualizada');
 }
 
-// ===== SISTEMA DE ACCESO ADMIN POR URL (VERSIÓN SEGURA) =====
-async function verificarAccesoAdmin() {
+// ===== VERIFICAR ACCESO ADMIN (VERSIÓN SIMPLE) =====
+function verificarAccesoAdmin() {
     const urlParams = new URLSearchParams(window.location.search);
     const adminKey = urlParams.get('admin');
     
-    if (!adminKey) {
-        adminActivo = false;
-        sessionStorage.removeItem('adminAutenticado');
-        return false;
+    if (adminKey === 'admin2026') {
+        console.log('👑 Acceso administrador concedido por URL');
+        adminActivo = true;
+        sessionStorage.setItem('adminAutenticado', 'true');
+        return true;
     }
     
-    try {
-        const response = await fetch('/.netlify/functions/admin/verificar', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token: adminKey })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok && data.success) {
-            adminActivo = true;
-            sessionStorage.setItem('adminAutenticado', 'true');
-            return true;
-        }
-        
-        adminActivo = false;
-        sessionStorage.removeItem('adminAutenticado');
-        return false;
-        
-    } catch (error) {
-        console.error('Error verificando admin:', error);
-        adminActivo = false;
-        sessionStorage.removeItem('adminAutenticado');
-        return false;
-    }
+    adminActivo = false;
+    sessionStorage.removeItem('adminAutenticado');
+    return false;
 }
 
+// ===== CREAR BOTÓN DE PANEL ADMIN (SIN CORONA) =====
+function crearBotonAdmin() {
+    // Si ya existe, no crear otro
+    if (document.getElementById('adminPanelBtn')) return;
+    
+    // Crear el botón sin ícono
+    const btn = document.createElement('button');
+    btn.id = 'adminPanelBtn';
+    btn.className = 'admin-panel-btn admin-panel-btn-fixed';
+    btn.textContent = 'Panel Admin';  // Solo texto, sin HTML
+    
+    // Agregar al body
+    document.body.appendChild(btn);
+    botonAdmin = btn;
+    
+    // Agregar evento de clic
+    btn.addEventListener('click', () => {
+        const adminPanel = document.getElementById('adminAccess');
+        if (adminPanel) {
+            adminPanel.style.display = 'flex';
+            actualizarInterfazPeriodo();
+        }
+    });
+}
 
 // ===== GENERAR LISTA GLOBAL DE MATERIAS (CON HORAS) =====
 function generarListaGlobalMaterias() {
@@ -2139,30 +2144,36 @@ function configurarAccionesRapidas() {
     document.addEventListener('touchend', finalizarSeleccion);
 }
 
-async function inicializarModoAdmin() {
+// ===== INICIALIZAR MODO ADMIN =====
+function inicializarModoAdmin() {
     console.log('👑 Verificando acceso administrador...');
     
-    const tieneAcceso = await verificarAccesoAdmin();
+    const tieneAcceso = verificarAccesoAdmin();
     
     if (!tieneAcceso) {
         console.log('🔒 Modo administrador desactivado');
-        document.getElementById('adminTrigger').style.display = 'none';
+        
+        // Eliminar botón si existe (por si acaso)
+        if (botonAdmin) {
+            botonAdmin.remove();
+            botonAdmin = null;
+        }
         return;
     }
     
     console.log('✅ Modo administrador activado');
-    document.getElementById('adminTrigger').style.display = 'flex';
     
+    // Crear el botón visible SOLO para admin
+    crearBotonAdmin();
+    
+    // Configurar el panel admin (sin cambios)
     const adminTrigger = document.getElementById('adminTrigger');
     const adminPanel = document.getElementById('adminAccess');
     const closeBtn = document.getElementById('closeAdminBtn');
     
+    // Ocultar el trigger antiguo
     if (adminTrigger) {
-        adminTrigger.style.display = 'flex';
-        adminTrigger.addEventListener('dblclick', () => {
-            adminPanel.style.display = 'flex';
-            actualizarInterfazPeriodo();
-        });
+        adminTrigger.style.display = 'none';
     }
     
     if (closeBtn) {
@@ -2179,7 +2190,7 @@ async function inicializarModoAdmin() {
         });
     }
     
-    // Configurar botones del panel admin
+    // Configurar botones del panel
     const btnENEJUN = document.getElementById('periodoENEJUN');
     const btnAGODIC = document.getElementById('periodoAGODIC');
     
@@ -2242,43 +2253,23 @@ let encuestasFiltradas = [];
 let paginaActual = 1;
 let itemsPorPagina = 10;
 
-// ===== VER TODAS LAS ENCUESTAS (VERSIÓN SERVERLESS) =====
+// ===== VER TODAS LAS ENCUESTAS (VERSIÓN RÁPIDA) =====
 async function verTodasLasEncuestas() {
     try {
         mostrarNotificacion('Cargando encuestas...', 'info');
         
-        const tokenAdmin = sessionStorage.getItem('adminAutenticado');
-        if (!tokenAdmin) {
-            mostrarNotificacion('No tienes permisos de administrador', 'warning');
-            return;
-        }
-
-        const params = new URLSearchParams({
-            pagina: 1,
-            porPagina: 50
+        // Usar PocketBase DIRECTAMENTE
+        todasLasEncuestas = await pb.collection('encuestas').getFullList({
+            sort: '-created'
         });
-
-        const response = await fetch(`/.netlify/functions/encuestas/listar?${params}`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${tokenAdmin}`
-            }
-        });
-
-        const resultado = await response.json();
-
-        if (!response.ok) {
-            throw new Error(resultado.error || 'Error al cargar encuestas');
-        }
-
-        console.log('📋 Encuestas recibidas:', resultado);
         
-        if (!resultado.data || resultado.data.length === 0) {
+        console.log('📋 Encuestas recibidas:', todasLasEncuestas);
+        
+        if (!todasLasEncuestas || todasLasEncuestas.length === 0) {
             mostrarNotificacion('No hay encuestas guardadas', 'info');
             return;
         }
-
-        todasLasEncuestas = resultado.data;
+        
         encuestasFiltradas = [...todasLasEncuestas];
         paginaActual = 1;
         

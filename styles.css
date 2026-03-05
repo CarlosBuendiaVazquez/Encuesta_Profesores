@@ -3019,3 +3019,44 @@ label {
         font-size: 16px !important;
     }
 }
+
+/* ===== BOTÓN DE PANEL ADMIN (SIN CORONA) ===== */
+.admin-panel-btn {
+    background: linear-gradient(135deg, var(--itc-azul-oscuro), var(--itc-azul-medio));
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 25px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    border: 2px solid var(--itc-dorado);
+    z-index: 1000;
+    /* Eliminamos cualquier referencia a i o gap */
+}
+
+.admin-panel-btn:hover {
+    background: linear-gradient(135deg, var(--itc-azul-medio), var(--itc-azul-oscuro));
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Posición fija en la esquina superior derecha */
+.admin-panel-btn-fixed {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+/* Responsive para móvil */
+@media (max-width: 768px) {
+    .admin-panel-btn-fixed {
+        top: 10px;
+        right: 10px;
+        padding: 8px 16px;
+        font-size: 0.85rem;
+    }
+}
