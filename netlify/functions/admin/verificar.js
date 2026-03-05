@@ -7,7 +7,6 @@ exports.handler = async (event) => {
         'Content-Type': 'application/json'
     };
 
-    // Manejar preflight OPTIONS (importante para CORS)
     if (event.httpMethod === 'OPTIONS') {
         return {
             statusCode: 200,
@@ -16,7 +15,6 @@ exports.handler = async (event) => {
         };
     }
 
-    // Solo permitir POST
     if (event.httpMethod !== 'POST') {
         return {
             statusCode: 405,
@@ -29,10 +27,8 @@ exports.handler = async (event) => {
     }
 
     try {
-        // Obtener el token del cuerpo de la petición
         const { token } = JSON.parse(event.body);
         
-        // Validar que se envió un token
         if (!token) {
             return {
                 statusCode: 400,
@@ -44,8 +40,6 @@ exports.handler = async (event) => {
             };
         }
 
-        // Verificar contra variable de entorno de Netlify
-        // ADMIN_SECRET debe estar configurada en Netlify (value = "admin2026")
         if (token === process.env.ADMIN_SECRET) {
             return {
                 statusCode: 200,
@@ -57,7 +51,6 @@ exports.handler = async (event) => {
             };
         }
         
-        // Token incorrecto
         return {
             statusCode: 401,
             headers,
@@ -68,7 +61,6 @@ exports.handler = async (event) => {
         };
         
     } catch (error) {
-        // Error al parsear JSON o error interno
         console.error('Error en verificar.js:', error);
         
         return {

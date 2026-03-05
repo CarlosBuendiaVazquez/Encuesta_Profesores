@@ -1,3 +1,4 @@
+// netlify/functions/encuestas/crear.js
 const { getPocketBaseAdmin } = require('../utils/pocketbase');
 
 const headers = {
@@ -73,4 +74,3 @@ exports.handler = async (event) => {
         };
     }
 };
-

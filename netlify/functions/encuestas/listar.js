@@ -9,7 +9,6 @@ const headers = {
 };
 
 exports.handler = async (event) => {
-    // ===== 1. MANEJAR PREFLIGHT OPTIONS =====
     if (event.httpMethod === 'OPTIONS') {
         return {
             statusCode: 200,
@@ -18,7 +17,6 @@ exports.handler = async (event) => {
         };
     }
 
-    // ===== 2. SOLO PERMITIR GET =====
     if (event.httpMethod !== 'GET') {
         return {
             statusCode: 405,
@@ -31,8 +29,6 @@ exports.handler = async (event) => {
     }
 
     try {
-        // ===== 3. VERIFICAR QUE EL ADMIN ESTÁ AUTENTICADO =====
-        // El token de admin viene en el header Authorization
         const adminToken = event.headers.authorization?.replace('Bearer ', '');
         
         if (!adminToken) {
@@ -46,54 +42,31 @@ exports.handler = async (event) => {
             };
         }
 
-        // Verificar el token contra la función de admin
-        // Esto es una capa extra de seguridad
-        const tokenValido = await verificarTokenAdmin(adminToken);
-        if (!tokenValido) {
-            return {
-                statusCode: 401,
-                headers,
-                body: JSON.stringify({ 
-                    success: false, 
-                    error: 'No autorizado - Token inválido' 
-                })
-            };
-        }
-
-        // ===== 4. CONECTAR A POCKETBASE =====
         const pb = await getPocketBaseAdmin();
 
-        // ===== 5. OBTENER PARÁMETROS DE LA URL (OPCIONAL) =====
         const params = event.queryStringParameters || {};
         const filtro = params.filtro || '';
         const periodo = params.periodo || '';
         const pagina = parseInt(params.pagina) || 1;
         const porPagina = parseInt(params.porPagina) || 10;
 
-        // ===== 6. CONSTRUIR FILTROS =====
         let filtros = [];
         
-        // Filtrar por período si se especifica
         if (periodo && periodo !== 'todos') {
             filtros.push(`periodo = "${periodo}"`);
         }
         
-        // Filtrar por nombre si se especifica
         if (filtro) {
             filtros.push(`profesor.nombre ~ "${filtro}"`);
         }
 
         const filtroFinal = filtros.length > 0 ? filtros.join(' && ') : '';
 
-        // ===== 7. OBTENER ENCUESTAS DE POCKETBASE =====
         const result = await pb.collection('encuestas').getList(pagina, porPagina, {
-            sort: '-created',  // Más recientes primero
-            filter: filtroFinal,
-            expand: ''  // Por si necesitas expandir relaciones
+            sort: '-created',
+            filter: filtroFinal
         });
 
-        // ===== 8. SANITIZAR DATOS (OPCIONAL) =====
-        // Eliminar información sensible si la hubiera
         const encuestasSanitizadas = result.items.map(encuesta => ({
             id: encuesta.id,
             created: encuesta.created,
@@ -106,7 +79,6 @@ exports.handler = async (event) => {
             fecha: encuesta.fecha
         }));
 
-        // ===== 9. DEVOLVER RESPUESTA =====
         return {
             statusCode: 200,
             headers,
@@ -123,7 +95,6 @@ exports.handler = async (event) => {
         };
 
     } catch (error) {
-        // ===== 10. MANEJAR ERRORES =====
         console.error('❌ Error en listar.js:', error);
         
         return {
@@ -137,15 +108,3 @@ exports.handler = async (event) => {
         };
     }
 };
-
-// ===== FUNCIÓN AUXILIAR PARA VERIFICAR TOKEN DE ADMIN =====
-async function verificarTokenAdmin(token) {
-    try {
-        // Aquí podrías verificar contra tu sistema de sesiones
-        // Por ahora, asumimos que si hay token, es válido
-        // En producción, podrías verificar un JWT o similar
-        return true;
-    } catch (error) {
-        return false;
-    }
-}
