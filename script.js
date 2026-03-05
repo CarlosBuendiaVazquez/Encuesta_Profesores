@@ -803,17 +803,13 @@ async function verificarAccesoAdmin() {
     const urlParams = new URLSearchParams(window.location.search);
     const adminKey = urlParams.get('admin');
     
-    // Si no hay clave en la URL, no es admin
     if (!adminKey) {
-        console.log('🔒 No hay clave en URL - Modo usuario normal');
         adminActivo = false;
         sessionStorage.removeItem('adminAutenticado');
         return false;
     }
     
     try {
-        console.log('🔑 Verificando clave con servidor...');
-        
         const response = await fetch('/.netlify/functions/admin/verificar', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -823,24 +819,23 @@ async function verificarAccesoAdmin() {
         const data = await response.json();
         
         if (response.ok && data.success) {
-            console.log('✅ Acceso administrador CONCEDIDO');
             adminActivo = true;
             sessionStorage.setItem('adminAutenticado', 'true');
             return true;
         }
         
-        console.log('❌ Acceso DENEGADO - Clave inválida');
         adminActivo = false;
         sessionStorage.removeItem('adminAutenticado');
         return false;
         
     } catch (error) {
-        console.error('❌ Error verificando admin:', error);
+        console.error('Error verificando admin:', error);
         adminActivo = false;
         sessionStorage.removeItem('adminAutenticado');
         return false;
     }
 }
+
 
 // ===== GENERAR LISTA GLOBAL DE MATERIAS (CON HORAS) =====
 function generarListaGlobalMaterias() {
@@ -2144,7 +2139,6 @@ function configurarAccionesRapidas() {
     document.addEventListener('touchend', finalizarSeleccion);
 }
 
-// ===== SISTEMA DE ADMINISTRACIÓN =====
 async function inicializarModoAdmin() {
     console.log('👑 Verificando acceso administrador...');
     
@@ -2152,16 +2146,12 @@ async function inicializarModoAdmin() {
     
     if (!tieneAcceso) {
         console.log('🔒 Modo administrador desactivado');
-        
-        // Ocultar el trigger si no es admin
-        const adminTrigger = document.getElementById('adminTrigger');
-        if (adminTrigger) {
-            adminTrigger.style.display = 'none';
-        }
+        document.getElementById('adminTrigger').style.display = 'none';
         return;
     }
     
     console.log('✅ Modo administrador activado');
+    document.getElementById('adminTrigger').style.display = 'flex';
     
     const adminTrigger = document.getElementById('adminTrigger');
     const adminPanel = document.getElementById('adminAccess');

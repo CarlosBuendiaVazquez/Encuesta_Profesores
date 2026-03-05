@@ -1,4 +1,3 @@
-// netlify/functions/encuestas/crear.js
 const { getPocketBaseAdmin } = require('../utils/pocketbase');
 
 const headers = {
@@ -17,52 +16,29 @@ exports.handler = async (event) => {
         return {
             statusCode: 405,
             headers,
-            body: JSON.stringify({ error: 'Método no permitido. Solo POST' })
+            body: JSON.stringify({ error: 'Método no permitido' })
         };
     }
 
     try {
-        let datos;
-        try {
-            datos = JSON.parse(event.body);
-        } catch (e) {
+        const datos = JSON.parse(event.body);
+        
+        if (!datos.profesor?.nombre || !datos.profesor?.correo) {
             return {
                 statusCode: 400,
                 headers,
-                body: JSON.stringify({ error: 'El cuerpo de la petición no es JSON válido' })
-            };
-        }
-
-        if (!datos.profesor?.nombre) {
-            return {
-                statusCode: 400,
-                headers,
-                body: JSON.stringify({ error: 'El nombre del profesor es obligatorio' })
-            };
-        }
-
-        if (!datos.profesor?.correo || !datos.profesor.correo.includes('@')) {
-            return {
-                statusCode: 400,
-                headers,
-                body: JSON.stringify({ error: 'Correo electrónico inválido' })
+                body: JSON.stringify({ error: 'Nombre y correo obligatorios' })
             };
         }
 
         const pb = await getPocketBaseAdmin();
-        
         datos.fecha = new Date().toISOString();
-        
         const record = await pb.collection('encuestas').create(datos);
         
         return {
             statusCode: 200,
             headers,
-            body: JSON.stringify({ 
-                success: true, 
-                id: record.id,
-                mensaje: 'Encuesta guardada exitosamente'
-            })
+            body: JSON.stringify({ success: true, id: record.id })
         };
 
     } catch (error) {
@@ -70,7 +46,7 @@ exports.handler = async (event) => {
         return {
             statusCode: 500,
             headers,
-            body: JSON.stringify({ error: 'Error interno del servidor' })
+            body: JSON.stringify({ error: 'Error interno' })
         };
     }
 };
