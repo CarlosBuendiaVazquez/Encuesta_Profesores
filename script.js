@@ -287,7 +287,6 @@ const carrerasDataAGODIC = {
             { nombre: 'Control Neurodifuso Aplicado', semestre: 9 }
         ]
     },
-    // ===== NUEVAS CARRERAS DE POSGRADO =====
     'maestria_ambiental': {
         nombre: 'Maestría en Ciencias Ambientales',
         materias: [
@@ -325,11 +324,6 @@ const carrerasDataAGODIC = {
 // ===== VARIABLES PARA CONTROLAR CARGA =====
 let datosInicialesCargados = false;
 
-// ===== VARIABLES PARA SELECCIÓN POR ARRASTRE =====
-let seleccionando = false;
-let seleccionInicial = null;
-let modoSeleccion = 'agregar'; // 'agregar' o 'quitar'
-
 // ===== RESPALDO DE DATOS ORIGINALES (NO MODIFICAR) =====
 const carrerasDataENEJUNOriginal = JSON.parse(JSON.stringify(carrerasDataENEJUN));
 const carrerasDataAGODICOriginal = JSON.parse(JSON.stringify(carrerasDataAGODIC));
@@ -337,7 +331,6 @@ const carrerasDataAGODICOriginal = JSON.parse(JSON.stringify(carrerasDataAGODIC)
 // ===== DATOS DE TRABAJO (SE MODIFICAN) =====
 let carrerasDataENEJUNTrabajo = JSON.parse(JSON.stringify(carrerasDataENEJUN));
 let carrerasDataAGODICTrabajo = JSON.parse(JSON.stringify(carrerasDataAGODIC));
-
 
 // ===== VARIABLES GLOBALES =====
 let carrerasData = carrerasDataENEJUN;
@@ -359,6 +352,7 @@ let turnoActivo = 'matutino';
 let periodoActivo = 'ene-jun';
 let adminActivo = false;
 let botonAdmin = null;
+let accesoURLValido = false;
 
 // ===== VARIABLES PARA FILTROS EN GESTIÓN =====
 let filtroGestionMaterias = '';
@@ -377,6 +371,13 @@ try {
 } catch (error) {
     console.error('❌ Error conectando a PocketBase:', error);
 }
+
+// ===== CREDENCIALES ADMIN (OFUSCADAS EN BASE64) =====
+// Las credenciales reales se te proporcionan por separado
+const ADMIN_CREDENTIALS = {
+    username: atob('aXRjYW5jdW4='), // itcancun
+    password: atob('VGVjTk0jQ2FuY3VuMjAyNg==') // TecNM#Cancun2026
+};
 
 // ===== FUNCIÓN DE DIAGNÓSTICO =====
 async function diagnosticarMaterias() {
@@ -440,11 +441,8 @@ async function obtenerPeriodoGlobal() {
 }
 
 async function guardarPeriodoGlobal(nuevoPeriodo) {
-    console.log('🔍 Intentando guardar período:', nuevoPeriodo);
-    console.log('👑 ¿Es admin?', adminActivo);
-    
     if (!adminActivo) {
-        mostrarNotificacion('No tienes permisos de administrador', 'warning');
+        mostrarLoginAdmin();
         return false;
     }
     
@@ -641,7 +639,6 @@ async function cargarMateriasGlobales() {
     console.log('📚 Cargando materias desde PocketBase...');
     
     try {
-        // Cargar ENE-JUN
         const recordsENEJUN = await pb.collection('materias_enejun').getFullList();
         console.log(`📦 ${recordsENEJUN.length} carreras ENE-JUN encontradas`);
         
@@ -649,11 +646,10 @@ async function cargarMateriasGlobales() {
             Object.keys(carrerasDataENEJUNTrabajo).forEach(key => delete carrerasDataENEJUNTrabajo[key]);
             
             recordsENEJUN.forEach(record => {
-                // IMPORTANTE: Preservar el campo horas si existe
                 const materiasConHoras = record.materias.map(m => ({
                     nombre: m.nombre,
                     semestre: m.semestre,
-                    horas: m.horas || undefined  // ← CONSERVAR HORAS
+                    horas: m.horas || undefined
                 }));
                 
                 carrerasDataENEJUNTrabajo[record.carrera] = {
@@ -673,7 +669,6 @@ async function cargarMateriasGlobales() {
     }
     
     try {
-        // Cargar AGO-DIC
         const recordsAGODIC = await pb.collection('materias_agodic').getFullList();
         console.log(`📦 ${recordsAGODIC.length} carreras AGO-DIC encontradas`);
         
@@ -681,11 +676,10 @@ async function cargarMateriasGlobales() {
             Object.keys(carrerasDataAGODICTrabajo).forEach(key => delete carrerasDataAGODICTrabajo[key]);
             
             recordsAGODIC.forEach(record => {
-                // IMPORTANTE: Preservar el campo horas si existe
                 const materiasConHoras = record.materias.map(m => ({
                     nombre: m.nombre,
                     semestre: m.semestre,
-                    horas: m.horas || undefined  // ← CONSERVAR HORAS
+                    horas: m.horas || undefined
                 }));
                 
                 carrerasDataAGODICTrabajo[record.carrera] = {
@@ -799,49 +793,8 @@ function actualizarVistaMaterias() {
     
     console.log('✅ Vista actualizada');
 }
-// ===== VERIFICAR ACCESO ADMIN (VERSIÓN SEGURA) =====
-function verificarAccesoAdmin() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const adminKey = urlParams.get('admin');
-    
-    // Contraseña ofuscada (no detectable)
-    const claveReal = String.fromCharCode(97, 100, 109, 105, 110, 50, 48, 50, 54);
-    
-    if (adminKey && adminKey === claveReal) {
-        console.log('👑 Acceso administrador concedido');
-        adminActivo = true;
-        sessionStorage.setItem('adminAutenticado', 'true');
-        return true;
-    }
-    
-    adminActivo = false;
-    sessionStorage.removeItem('adminAutenticado');
-    return false;
-}
 
-
-// ===== CREAR BOTÓN DE PANEL ADMIN (SIN CORONA) =====
-function crearBotonAdmin() {
-    if (document.getElementById('adminPanelBtn')) return;
-    
-    const btn = document.createElement('button');
-    btn.id = 'adminPanelBtn';
-    btn.className = 'admin-panel-btn admin-panel-btn-fixed';
-    btn.textContent = 'Panel Admin';
-    
-    document.body.appendChild(btn);
-    botonAdmin = btn;
-    
-    btn.addEventListener('click', () => {
-        const adminPanel = document.getElementById('adminAccess');
-        if (adminPanel) {
-            adminPanel.style.display = 'flex';
-            actualizarInterfazPeriodo();
-        }
-    });
-}
-
-// ===== GENERAR LISTA GLOBAL DE MATERIAS (CON HORAS) =====
+// ===== GENERAR LISTA GLOBAL DE MATERIAS =====
 function generarListaGlobalMaterias() {
     const materiasMap = new Map();
     
@@ -851,11 +804,10 @@ function generarListaGlobalMaterias() {
             if (!materiasMap.has(key)) {
                 materiasMap.set(key, []);
             }
-            // IMPORTANTE: Incluir TODOS los campos, incluyendo horas
             materiasMap.get(key).push({
                 carrera: carrera.nombre,
                 semestre: materia.semestre,
-                horas: materia.horas  // ← AGREGAR ESTA LÍNEA
+                horas: materia.horas
             });
         });
     });
@@ -986,6 +938,195 @@ function mostrarNotificacion(mensaje, tipo = 'success', duracion = 4000) {
             setTimeout(() => notificacion.remove(), 300);
         }
     }, duracion);
+}
+
+// ===== SISTEMA DE LOGIN ADMIN =====
+function verificarAccesoURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const adminKey = urlParams.get('admin');
+    
+    // La clave real se te proporciona por separado
+    const URL_SECRET = atob('VGVjTk0yMDI2IQ=='); // TecNM2026!
+    
+    if (adminKey === URL_SECRET) {
+        console.log('🔑 Acceso por URL válido');
+        accesoURLValido = true;
+        return true;
+    }
+    console.log('❌ Acceso por URL inválido o ausente');
+    accesoURLValido = false;
+    return false;
+}
+
+function verificarCredenciales(username, password) {
+    return username === ADMIN_CREDENTIALS.username && 
+           password === ADMIN_CREDENTIALS.password;
+}
+
+function mostrarLoginAdmin() {
+    const modal = document.getElementById('loginAdminModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.getElementById('adminUsername').value = '';
+        document.getElementById('adminPassword').value = '';
+        setTimeout(() => document.getElementById('adminUsername').focus(), 100);
+    }
+}
+
+function cerrarLoginAdmin() {
+    document.getElementById('loginAdminModal').style.display = 'none';
+}
+
+function iniciarSesionAdmin() {
+    const username = document.getElementById('adminUsername').value.trim();
+    const password = document.getElementById('adminPassword').value;
+    
+    if (!username || !password) {
+        mostrarNotificacion('Ingresa usuario y contraseña', 'warning');
+        return;
+    }
+    
+    if (verificarCredenciales(username, password)) {
+        console.log('✅ Login admin exitoso');
+        adminActivo = true;
+        sessionStorage.setItem('adminAutenticado', 'true');
+        cerrarLoginAdmin();
+        mostrarPanelAdmin();
+    } else {
+        mostrarNotificacion('❌ Credenciales incorrectas', 'error');
+        document.getElementById('adminPassword').value = '';
+        document.getElementById('adminPassword').focus();
+    }
+}
+
+function mostrarPanelAdmin() {
+    const adminPanel = document.getElementById('adminAccess');
+    if (adminPanel) {
+        adminPanel.style.display = 'flex';
+        actualizarInterfazPeriodo();
+    }
+}
+
+function cerrarSesionAdmin() {
+    adminActivo = false;
+    sessionStorage.removeItem('adminAutenticado');
+    document.getElementById('adminAccess').style.display = 'none';
+    mostrarNotificacion('🔒 Sesión cerrada', 'info');
+}
+
+function crearBotonAccesoAdmin() {
+    if (!accesoURLValido) {
+        console.log('🔒 Botón oculto - URL no válida');
+        return;
+    }
+    
+    if (document.getElementById('adminAccessBtn')) return;
+    
+    const btn = document.createElement('button');
+    btn.id = 'adminAccessBtn';
+    btn.className = 'admin-panel-btn admin-panel-btn-fixed';
+    btn.textContent = 'Panel Admin';  // Solo texto, sin HTML
+    
+    document.body.appendChild(btn);
+    
+    btn.addEventListener('click', () => {
+        if (adminActivo) {
+            mostrarPanelAdmin();
+        } else {
+            mostrarLoginAdmin();
+        }
+    });
+    
+    console.log('✅ Botón Panel Admin creado');
+}
+
+function configurarPanelAdmin() {
+    const adminPanel = document.getElementById('adminAccess');
+    const closeBtn = document.getElementById('closeAdminBtn');
+    
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            adminPanel.style.display = 'none';
+        });
+    }
+    
+    if (adminPanel) {
+        adminPanel.addEventListener('click', (e) => {
+            if (e.target === adminPanel) {
+                adminPanel.style.display = 'none';
+            }
+        });
+    }
+    
+    document.getElementById('periodoENEJUN')?.addEventListener('click', () => {
+        if (!adminActivo) {
+            mostrarLoginAdmin();
+            return;
+        }
+        cambiarPeriodo('ene-jun');
+        document.getElementById('periodoENEJUN').classList.add('active');
+        document.getElementById('periodoAGODIC').classList.remove('active');
+    });
+    
+    document.getElementById('periodoAGODIC')?.addEventListener('click', () => {
+        if (!adminActivo) {
+            mostrarLoginAdmin();
+            return;
+        }
+        cambiarPeriodo('ago-dic');
+        document.getElementById('periodoAGODIC').classList.add('active');
+        document.getElementById('periodoENEJUN').classList.remove('active');
+    });
+    
+    document.getElementById('verEncuestasBtn')?.addEventListener('click', (e) => {
+        if (!adminActivo) {
+            e.preventDefault();
+            mostrarLoginAdmin();
+            return;
+        }
+        verTodasLasEncuestas();
+    });
+    
+    document.getElementById('gestionarMateriasBtn')?.addEventListener('click', (e) => {
+        if (!adminActivo) {
+            e.preventDefault();
+            mostrarLoginAdmin();
+            return;
+        }
+        gestionarMaterias();
+    });
+    
+    document.getElementById('gestionarProfesoresBtn')?.addEventListener('click', (e) => {
+        if (!adminActivo) {
+            e.preventDefault();
+            mostrarLoginAdmin();
+            return;
+        }
+        gestionarProfesores();
+    });
+}
+
+function inicializarModoAdmin() {
+    console.log('👑 Inicializando sistema de acceso admin...');
+    
+    verificarAccesoURL();
+    
+    const sesionActiva = sessionStorage.getItem('adminAutenticado') === 'true';
+    if (sesionActiva) {
+        adminActivo = true;
+        console.log('✅ Sesión admin recuperada');
+    }
+    
+    crearBotonAccesoAdmin();
+    
+    document.getElementById('cerrarLoginBtn')?.addEventListener('click', cerrarLoginAdmin);
+    document.getElementById('loginAdminBtn')?.addEventListener('click', iniciarSesionAdmin);
+    
+    document.getElementById('adminPassword')?.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') iniciarSesionAdmin();
+    });
+    
+    configurarPanelAdmin();
 }
 
 // ===== MANEJO DE TIPO DE PLAZA =====
@@ -1453,50 +1594,32 @@ function manejarBusquedaEnTiempoReal(event) {
     });
 }
 
-// ===== CREAR ITEM DE RESULTADO (VERSIÓN CORREGIDA) =====
 function crearResultadoItem(materia) {
-
-    // ===== DIAGNÓSTICO =====
-    console.log('🔍 MATERIA COMPLETA:', JSON.stringify(materia, null, 2));
-    console.log('🔍 INFO:', materia.info);
-    if (materia.info && materia.info.length > 0) {
-        console.log('🔍 PRIMER INFO:', materia.info[0]);
-        console.log('🔍 ¿TIENE HORAS?', materia.info[0].horas);
-    }
-
     const resultadoItem = document.createElement('div');
     resultadoItem.className = 'resultado-item';
-    
-    // Usar función nombrada para mejor debugging
-    resultadoItem.onclick = function() {
-        seleccionarMateria(materia);
-    };
+    resultadoItem.onclick = () => seleccionarMateria(materia);
     
     const estaSeleccionada = materiasSeleccionadas.some(m => m.nombre === materia.nombre);
     
-    // Construir infoTexto
     let infoTexto = '';
-    if (materia.info && materia.info.length > 0) {
-        for (let i = 0; i < materia.info.length; i++) {
-            const info = materia.info[i];
-            if (i > 0) infoTexto += ' • ';
-            infoTexto += info.carrera + ' - Semestre ' + info.semestre;
-            if (info.horas) {
-                infoTexto += ' (' + info.horas + 'h)';
-            }
+    materia.info.forEach((i, index) => {
+        if (index > 0) infoTexto += ' • ';
+        infoTexto += `${i.carrera} - Semestre ${i.semestre}`;
+        if (i.horas) {
+            infoTexto += ` (${i.horas}h)`;
         }
-    }
+    });
     
-    // Construir HTML de forma segura
-    resultadoItem.innerHTML = 
-        '<div class="resultado-info">' +
-            '<h4>' + materia.nombre + '</h4>' +
-            '<p>' +
-                '<span class="resultado-carrera">' + infoTexto + '</span>' +
-                (estaSeleccionada ? '<span class="resultado-seleccionada"><i class="fas fa-check-circle"></i> Ya agregada</span>' : '') +
-            '</p>' +
-        '</div>' +
-        (!estaSeleccionada ? '<i class="fas fa-plus-circle" style="color: #0077BE; font-size: 1.5rem;"></i>' : '<i class="fas fa-check-circle" style="color: #2ecc71; font-size: 1.5rem;"></i>');
+    resultadoItem.innerHTML = `
+        <div class="resultado-info">
+            <h4>${materia.nombre}</h4>
+            <p>
+                <span class="resultado-carrera">${infoTexto}</span>
+                ${estaSeleccionada ? '<span class="resultado-seleccionada"><i class="fas fa-check-circle"></i> Ya agregada</span>' : ''}
+            </p>
+        </div>
+        ${!estaSeleccionada ? '<i class="fas fa-plus-circle" style="color: #0077BE; font-size: 1.5rem;"></i>' : '<i class="fas fa-check-circle" style="color: #2ecc71; font-size: 1.5rem;"></i>'}
+    `;
     
     if (estaSeleccionada) {
         resultadoItem.style.opacity = '0.7';
@@ -1507,7 +1630,6 @@ function crearResultadoItem(materia) {
     return resultadoItem;
 }
 
-// ===== SELECCIONAR MATERIA (VERSIÓN CORREGIDA) =====
 function seleccionarMateria(materia) {
     const yaExiste = materiasSeleccionadas.some(m => m.nombre === materia.nombre);
     if (yaExiste) {
@@ -1522,26 +1644,14 @@ function seleccionarMateria(materia) {
     const buscador = document.getElementById('buscadorMaterias');
     const resultados = document.getElementById('resultadosBusqueda');
     
-    // Verificar que los elementos existen
-    if (!selectorNivel || !preview || !buscador || !resultados) {
-        console.error('❌ No se encontraron elementos del DOM');
-        return;
-    }
-    
-    // Construir texto de información de forma segura
     let infoTexto = '';
-    if (materia.info && materia.info.length > 0) {
-        for (let i = 0; i < materia.info.length; i++) {
-            const info = materia.info[i];
-            if (i > 0) infoTexto += ' • ';
-            infoTexto += info.carrera + ' - Semestre ' + info.semestre;
-            if (info.horas) {
-                infoTexto += ' (' + info.horas + ' horas)';
-            }
+    materia.info.forEach((i, index) => {
+        if (index > 0) infoTexto += ' • ';
+        infoTexto += `${i.carrera} - Semestre ${i.semestre}`;
+        if (i.horas) {
+            infoTexto += ` (${i.horas} horas)`;
         }
-    } else {
-        infoTexto = 'Sin información de carrera';
-    }
+    });
     
     preview.innerHTML = `
         <h4><i class="fas fa-check-circle" style="color: #27ae60;"></i> ${materia.nombre}</h4>
@@ -1553,9 +1663,7 @@ function seleccionarMateria(materia) {
     selectorNivel.style.display = 'block';
     resultados.style.display = 'none';
     buscador.value = '';
-    
-    const selectNivel = document.getElementById('selectNivel');
-    if (selectNivel) selectNivel.value = '';
+    document.getElementById('selectNivel').value = '';
 }
 
 function cancelarSeleccionMateria() {
@@ -1565,39 +1673,33 @@ function cancelarSeleccionMateria() {
     mostrarTodasLasMateriasDelFiltro();
 }
 
-// ===== MANEJAR AGREGAR MATERIA =====
 function manejarAgregarMateria(event) {
     event.preventDefault();
     event.stopPropagation();
     
-    // VERIFICAR QUE datosProfesor EXISTA
     if (!datosProfesor) {
         console.error('❌ datosProfesor es null');
         mostrarNotificacion('Error: Datos del profesor no inicializados', 'error');
         return;
     }
     
-    // Verificar nombre del profesor
     if (!datosProfesor.nombre) {
         mostrarNotificacion('Por favor, selecciona o ingresa tu nombre', 'warning');
         document.getElementById('buscadorProfesores')?.focus();
         return;
     }
     
-    // Verificar correo
     if (!datosProfesor.correo) {
         mostrarNotificacion('Por favor, ingresa tu correo electrónico', 'warning');
         document.getElementById('correoProfesor')?.focus();
         return;
     }
     
-    // Verificar que haya una materia seleccionada
     if (!materiaSeleccionadaTemp) {
         mostrarNotificacion('Selecciona una materia de la búsqueda', 'warning');
         return;
     }
     
-    // Verificar nivel seleccionado
     const selectNivel = document.getElementById('selectNivel');
     if (!selectNivel) {
         console.error('❌ No se encontró el selector de nivel');
@@ -1610,7 +1712,6 @@ function manejarAgregarMateria(event) {
         return;
     }
     
-    // Verificar que la materia no esté ya agregada
     const yaExiste = materiasSeleccionadas.some(m => m.nombre === materiaSeleccionadaTemp.nombre);
     if (yaExiste) {
         mostrarNotificacion('Esta materia ya ha sido agregada', 'warning');
@@ -1618,7 +1719,6 @@ function manejarAgregarMateria(event) {
         return;
     }
     
-    // Crear nueva materia
     const nuevaMateria = {
         id: Date.now(),
         nombre: materiaSeleccionadaTemp.nombre,
@@ -1626,10 +1726,7 @@ function manejarAgregarMateria(event) {
         nivel: nivel
     };
     
-    // Agregar a la lista
     materiasSeleccionadas.push(nuevaMateria);
-    
-    // Actualizar UI
     renderizarMaterias();
     actualizarContadorMaterias();
     cancelarSeleccionMateria();
@@ -1698,7 +1795,6 @@ function actualizarContadorMaterias() {
     }
 }
 
-// ===== CREAR TARJETA DE MATERIA SELECCIONADA (CON HORAS OPCIONALES) =====
 function crearTarjetaMateria(materia) {
     const div = document.createElement('div');
     div.className = 'materia-card';
@@ -1743,6 +1839,89 @@ function crearTarjetaMateria(materia) {
     return div;
 }
 
+// ===== VARIABLES PARA SELECCIÓN POR ARRASTRE =====
+let seleccionando = false;
+let seleccionInicial = null;
+let modoSeleccion = 'agregar';
+
+// ===== FUNCIONES PARA SELECCIÓN POR ARRASTRE =====
+function iniciarSeleccion(celda) {
+    seleccionando = true;
+    seleccionInicial = celda;
+    
+    const estaSeleccionada = celda.classList.contains('selected');
+    modoSeleccion = estaSeleccionada ? 'quitar' : 'agregar';
+    
+    if (modoSeleccion === 'agregar') {
+        agregarHorario(celda);
+    } else {
+        quitarHorario(celda);
+    }
+}
+
+function procesarCeldaEnArrastre(celda) {
+    if (!seleccionando) return;
+    
+    if (modoSeleccion === 'agregar' && !celda.classList.contains('selected')) {
+        agregarHorario(celda);
+    } else if (modoSeleccion === 'quitar' && celda.classList.contains('selected')) {
+        quitarHorario(celda);
+    }
+}
+
+function finalizarSeleccion() {
+    seleccionando = false;
+    seleccionInicial = null;
+    
+    if (typeof actualizarResumenHorarios === 'function') {
+        actualizarResumenHorarios();
+    } else if (typeof actualizarModalResumen === 'function') {
+        const modal = document.getElementById('confirmacionModal');
+        if (modal && modal.style.display === 'flex') {
+            actualizarModalResumen();
+        }
+    }
+}
+
+function agregarHorario(celda) {
+    const id = celda.getAttribute('data-horario-id');
+    const dia = celda.getAttribute('data-dia');
+    const hora = celda.getAttribute('data-hora');
+    const texto = celda.getAttribute('data-texto');
+    
+    const existe = horariosSeleccionados.some(h => h.id === id);
+    if (!existe) {
+        horariosSeleccionados.push({
+            id: id,
+            dia: dia,
+            hora: hora,
+            texto: texto
+        });
+        celda.classList.add('selected');
+    }
+}
+
+function quitarHorario(celda) {
+    const id = celda.getAttribute('data-horario-id');
+    const index = horariosSeleccionados.findIndex(h => h.id === id);
+    if (index !== -1) {
+        horariosSeleccionados.splice(index, 1);
+        celda.classList.remove('selected');
+    }
+}
+
+function toggleHorarioLimpio(elemento) {
+    if (seleccionando) return;
+    
+    if (elemento.classList.contains('selected')) {
+        quitarHorario(elemento);
+    } else {
+        agregarHorario(elemento);
+    }
+    
+    actualizarResumenHorarios();
+}
+
 // ===== SISTEMA DE HORARIOS =====
 function inicializarHorarios() {
     console.log('📊 Inicializando horarios compactos...');
@@ -1751,6 +1930,10 @@ function inicializarHorarios() {
     generarCuadriculaPorTurno(turnoActivo);
     configurarAccionesRapidas();
     restaurarHorariosSeleccionados();
+    
+    document.addEventListener('mouseup', finalizarSeleccion);
+    document.addEventListener('touchend', finalizarSeleccion);
+    document.addEventListener('touchcancel', finalizarSeleccion);
 }
 
 function configurarPestanas() {
@@ -1840,9 +2023,8 @@ function crearCeldaHorarioLimpia(dia, horaInicio, horaFin) {
         <span class="periodo">${periodo}</span>
     `;
     
-    // Eventos para ratón (PC)
     celda.addEventListener('mousedown', (e) => {
-        e.preventDefault(); // Evita selección de texto
+        e.preventDefault();
         iniciarSeleccion(celda);
     });
     
@@ -1858,7 +2040,6 @@ function crearCeldaHorarioLimpia(dia, horaInicio, horaFin) {
         }
     });
     
-    // Eventos para móvil (touch)
     celda.addEventListener('touchstart', (e) => {
         e.preventDefault();
         iniciarSeleccion(celda);
@@ -1882,160 +2063,6 @@ function crearCeldaHorarioLimpia(dia, horaInicio, horaFin) {
     });
     
     return celda;
-}
-
-// ===== NUEVAS FUNCIONES PARA ARRASTRE =====
-
-// Iniciar selección
-function iniciarSeleccion(celda) {
-    seleccionando = true;
-    seleccionInicial = celda;
-    
-    // Determinar si estamos agregando o quitando basado en el estado actual
-    const estaSeleccionada = celda.classList.contains('selected');
-    modoSeleccion = estaSeleccionada ? 'quitar' : 'agregar';
-    
-    // Aplicar cambio a la celda inicial
-    if (modoSeleccion === 'agregar') {
-        agregarHorario(celda);
-    } else {
-        quitarHorario(celda);
-    }
-}
-
-// Procesar celda durante el arrastre
-function procesarCeldaEnArrastre(celda) {
-    if (!seleccionando) return;
-    
-    if (modoSeleccion === 'agregar' && !celda.classList.contains('selected')) {
-        agregarHorario(celda);
-    } else if (modoSeleccion === 'quitar' && celda.classList.contains('selected')) {
-        quitarHorario(celda);
-    }
-}
-
-// Finalizar selección
-function finalizarSeleccion() {
-    seleccionando = false;
-    seleccionInicial = null;
-}
-
-// Agregar horario
-function agregarHorario(celda) {
-    const id = celda.getAttribute('data-horario-id');
-    const dia = celda.getAttribute('data-dia');
-    const hora = celda.getAttribute('data-hora');
-    const texto = celda.getAttribute('data-texto');
-    
-    horariosSeleccionados.push({
-        id: id,
-        dia: dia,
-        hora: hora,
-        texto: texto
-    });
-    celda.classList.add('selected');
-}
-
-// ===== FUNCIONES PARA SELECCIÓN POR ARRASTRE =====
-
-// Iniciar selección
-function iniciarSeleccion(celda) {
-    seleccionando = true;
-    seleccionInicial = celda;
-    
-    // Determinar si estamos agregando o quitando basado en el estado actual
-    const estaSeleccionada = celda.classList.contains('selected');
-    modoSeleccion = estaSeleccionada ? 'quitar' : 'agregar';
-    
-    // Aplicar cambio a la celda inicial
-    if (modoSeleccion === 'agregar') {
-        agregarHorario(celda);
-    } else {
-        quitarHorario(celda);
-    }
-}
-
-// Procesar celda durante el arrastre
-function procesarCeldaEnArrastre(celda) {
-    if (!seleccionando) return;
-    
-    if (modoSeleccion === 'agregar' && !celda.classList.contains('selected')) {
-        agregarHorario(celda);
-    } else if (modoSeleccion === 'quitar' && celda.classList.contains('selected')) {
-        quitarHorario(celda);
-    }
-}
-
-// Finalizar selección
-function finalizarSeleccion() {
-    seleccionando = false;
-    seleccionInicial = null;
-}
-
-// Agregar horario
-function agregarHorario(celda) {
-    const id = celda.getAttribute('data-horario-id');
-    const dia = celda.getAttribute('data-dia');
-    const hora = celda.getAttribute('data-hora');
-    const texto = celda.getAttribute('data-texto');
-    
-    // Verificar si ya existe (por si acaso)
-    const existe = horariosSeleccionados.some(h => h.id === id);
-    if (!existe) {
-        horariosSeleccionados.push({
-            id: id,
-            dia: dia,
-            hora: hora,
-            texto: texto
-        });
-        celda.classList.add('selected');
-    }
-}
-
-// Quitar horario
-function quitarHorario(celda) {
-    const id = celda.getAttribute('data-horario-id');
-    const index = horariosSeleccionados.findIndex(h => h.id === id);
-    if (index !== -1) {
-        horariosSeleccionados.splice(index, 1);
-        celda.classList.remove('selected');
-    }
-}
-
-// ===== TOGGLE HORARIO LIMPIO (VERSIÓN COMPLETA) =====
-function toggleHorarioLimpio(elemento) {
-    // Si estamos en modo arrastre, no hacer toggle individual
-    if (seleccionando) return;
-    
-    const id = elemento.getAttribute('data-horario-id');
-    const dia = elemento.getAttribute('data-dia');
-    const hora = elemento.getAttribute('data-hora');
-    const texto = elemento.getAttribute('data-texto');
-    
-    // Buscar si ya está seleccionado
-    const index = horariosSeleccionados.findIndex(h => h.id === id);
-    
-    if (index === -1) {
-        // No está seleccionado → agregar
-        horariosSeleccionados.push({
-            id: id,
-            dia: dia,
-            hora: hora,
-            texto: texto
-        });
-        elemento.classList.add('selected');
-        console.log(`✅ Horario agregado: ${dia} ${texto}`);
-    } else {
-        // Ya está seleccionado → quitar
-        horariosSeleccionados.splice(index, 1);
-        elemento.classList.remove('selected');
-        console.log(`❌ Horario quitado: ${dia} ${texto}`);
-    }
-    
-    // Actualizar el resumen (si existe)
-    if (typeof actualizarResumenHorarios === 'function') {
-        actualizarResumenHorarios();
-    }
 }
 
 function restaurarHorariosSeleccionados() {
@@ -2128,7 +2155,6 @@ function configurarAccionesRapidas() {
                 }
             });
             
-            // Resetear estado de arrastre
             finalizarSeleccion();
         });
     }
@@ -2137,65 +2163,12 @@ function configurarAccionesRapidas() {
     if (btnSeleccionarTodo) {
         btnSeleccionarTodo.addEventListener('click', seleccionarTodoTurno);
     }
-    
-    // Agregar evento global para cancelar arrastre
-    document.addEventListener('mouseup', finalizarSeleccion);
-    document.addEventListener('touchend', finalizarSeleccion);
 }
 
-// ===== INICIALIZAR MODO ADMIN =====
-function inicializarModoAdmin() {
-    console.log('👑 Verificando acceso administrador...');
-    
-    const tieneAcceso = verificarAccesoAdmin();
-    
-    if (!tieneAcceso) {
-        console.log('🔒 Modo administrador desactivado');
-        if (botonAdmin) {
-            botonAdmin.remove();
-            botonAdmin = null;
-        }
-        return;
-    }
-    
-    console.log('✅ Modo administrador activado');
-    crearBotonAdmin();
-    
-    // Configurar panel (resto del código igual)
-    const adminPanel = document.getElementById('adminAccess');
-    const closeBtn = document.getElementById('closeAdminBtn');
-    
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-            adminPanel.style.display = 'none';
-        });
-    }
-    
-    if (adminPanel) {
-        adminPanel.addEventListener('click', (e) => {
-            if (e.target === adminPanel) {
-                adminPanel.style.display = 'none';
-            }
-        });
-    }
-    
-    // Botones de período
-    document.getElementById('periodoENEJUN')?.addEventListener('click', () => {
-        cambiarPeriodo('ene-jun');
-    });
-    
-    document.getElementById('periodoAGODIC')?.addEventListener('click', () => {
-        cambiarPeriodo('ago-dic');
-    });
-    
-    document.getElementById('verEncuestasBtn')?.addEventListener('click', verTodasLasEncuestas);
-    document.getElementById('gestionarMateriasBtn')?.addEventListener('click', gestionarMaterias);
-    document.getElementById('gestionarProfesoresBtn')?.addEventListener('click', gestionarProfesores);
-}
-
+// ===== FUNCIONES DE ADMIN CON VALIDACIÓN =====
 async function cambiarPeriodo(nuevoPeriodo) {
     if (!adminActivo) {
-        mostrarNotificacion('No tienes permisos para cambiar el período', 'warning');
+        mostrarLoginAdmin();
         return;
     }
     
@@ -2231,12 +2204,11 @@ let encuestasFiltradas = [];
 let paginaActual = 1;
 let itemsPorPagina = 10;
 
-// ===== VER TODAS LAS ENCUESTAS (VERSIÓN RÁPIDA) =====
+// ===== FUNCIÓN PRINCIPAL PARA VER ENCUESTAS =====
 async function verTodasLasEncuestas() {
     try {
         mostrarNotificacion('Cargando encuestas...', 'info');
         
-        // Usar PocketBase DIRECTAMENTE
         todasLasEncuestas = await pb.collection('encuestas').getFullList({
             sort: '-created'
         });
@@ -2255,7 +2227,7 @@ async function verTodasLasEncuestas() {
         
     } catch (error) {
         console.error('❌ Error al obtener encuestas:', error);
-        mostrarNotificacion('Error al obtener encuestas: ' + error.message, 'error');
+        mostrarNotificacion('Error al obtener encuestas: ' + (error.message || 'Error desconocido'), 'error');
     }
 }
 
@@ -2273,7 +2245,7 @@ function mostrarModalEncuestasAvanzado() {
                     </button>
                 </div>
                 <div class="gestion-body" style="max-height: 80vh; overflow-y: auto;">
-                
+                    
                     <div class="encuestas-stats" style="justify-content: center;">
                         <div class="stat-item">
                             <div class="stat-valor">${totalEncuestas}</div>
@@ -2445,32 +2417,150 @@ function renderizarListaEncuestas() {
                     
                     <div class="detalle-seccion">
                         <h5><i class="fas fa-clock"></i> Horarios seleccionados</h5>
-                        <div class="detalle-horarios">
         `;
         
-        if (enc.horarios && enc.horarios.length > 0) {
-            const horariosPorDia = {};
-            enc.horarios.forEach(h => {
-                if (!horariosPorDia[h.dia]) horariosPorDia[h.dia] = [];
-                horariosPorDia[h.dia].push(h);
+       // ===== SECCIÓN DE HORARIOS - VERSIÓN CON FORMATO CORREGIDO =====
+if (enc.horarios && enc.horarios.length > 0) {
+    // Mapeo de días para asegurar consistencia
+    const mapaDias = {
+        'Lunes': 'Lunes',
+        'Martes': 'Martes',
+        'Miercoles': 'Miércoles',
+        'Miércoles': 'Miércoles',
+        'Jueves': 'Jueves',
+        'Viernes': 'Viernes'
+    };
+    
+    // Inicializar objeto con todos los días
+    const horariosPorDia = {
+        'Lunes': [],
+        'Martes': [],
+        'Miércoles': [],
+        'Jueves': [],
+        'Viernes': []
+    };
+    
+    // Procesar horarios normalizando los nombres de los días
+    enc.horarios.forEach(h => {
+        const diaNormalizado = mapaDias[h.dia] || h.dia;
+        if (horariosPorDia[diaNormalizado]) {
+            horariosPorDia[diaNormalizado].push(parseInt(h.hora));
+        }
+    });
+    
+    // Ordenar horas
+    Object.keys(horariosPorDia).forEach(dia => {
+        horariosPorDia[dia].sort((a, b) => a - b);
+    });
+    
+    // Calcular el rango de horas a mostrar
+    let horaMin = 23, horaMax = 0;
+    let hayHorarios = false;
+    
+    Object.values(horariosPorDia).forEach(horas => {
+        if (horas.length > 0) {
+            hayHorarios = true;
+            horas.forEach(h => {
+                horaMin = Math.min(horaMin, h);
+                horaMax = Math.max(horaMax, h);
             });
-            
-            Object.keys(horariosPorDia).sort().forEach(dia => {
-                html += `<div style="grid-column: 1 / -1;"><strong>${dia}:</strong></div>`;
-                horariosPorDia[dia].forEach(h => {
-                    html += `
-                        <div class="detalle-horario-item">
-                            <i class="fas fa-clock"></i> ${h.texto}
+        }
+    });
+    
+    // Si no hay horarios (no debería pasar), mostrar mensaje
+    if (!hayHorarios) {
+        html += `
+            <div class="detalle-horarios">
+                <div style="color: #6c757d; font-style: italic; padding: 15px; text-align: center; border: 1px dashed #dee2e6; border-radius: 8px;">
+                    <i class="fas fa-clock"></i> Error al cargar los horarios
+                </div>
+            </div>
+        `;
+    } else {
+        // Asegurar un rango mínimo para visualización
+        horaMin = Math.max(7, horaMin - 1);
+        horaMax = Math.min(22, horaMax + 1);
+        
+        html += `
+            <div class="detalle-horarios">
+                <div class="tabla-horarios-detalle" style="margin-top: 10px;">
+                    <!-- HEADER -->
+                    <div class="header-row">
+                        <div class="hora-cell">Hora</div>
+                        <div class="dias-container">
+                            <div class="dia-cell">Lun</div>
+                            <div class="dia-cell">Mar</div>
+                            <div class="dia-cell">Mié</div>
+                            <div class="dia-cell">Jue</div>
+                            <div class="dia-cell">Vie</div>
                         </div>
-                    `;
-                });
-            });
-        } else {
-            html += '<div class="detalle-horario-item">No hay horarios seleccionados</div>';
+                    </div>
+                    
+                    <!-- CUERPO -->
+        `;
+        
+        // Generar horas UNA POR UNA con formato explícito
+        for (let hora = horaMin; hora <= horaMax; hora++) {
+            const horaInicio = hora;
+            const horaFin = hora + 1;
+            // FORMATO EXPLÍCITO - asegura que todas sean iguales
+            const horaStr = horaInicio + ':00-' + horaFin + ':00';
+            
+            html += `
+                <div class="data-row" style="min-height: 36px; height: auto; display: flex; width: 100%; border-bottom: 1px solid #e9ecef;">
+                    <div class="hora-data" style="width: 80px; min-height: 36px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; font-weight: 600; color: #003B6F;">${horaStr}</div>
+                    <div class="dias-data-container" style="flex: 1; display: flex; min-width: 0; min-height: 36px;">
+                        <div class="dia-data" style="flex: 1; min-height: 36px; display: flex; align-items: center; justify-content: center; border-left: 1px solid #e9ecef; background: ${horariosPorDia['Lunes'].includes(hora) ? '#0077BE' : '#ffffff'}; color: ${horariosPorDia['Lunes'].includes(hora) ? 'white' : '#333'};">
+                            ${horariosPorDia['Lunes'].includes(hora) ? '✓' : ''}
+                        </div>
+                        <div class="dia-data" style="flex: 1; min-height: 36px; display: flex; align-items: center; justify-content: center; border-left: 1px solid #e9ecef; background: ${horariosPorDia['Martes'].includes(hora) ? '#0077BE' : '#ffffff'}; color: ${horariosPorDia['Martes'].includes(hora) ? 'white' : '#333'};">
+                            ${horariosPorDia['Martes'].includes(hora) ? '✓' : ''}
+                        </div>
+                        <div class="dia-data" style="flex: 1; min-height: 36px; display: flex; align-items: center; justify-content: center; border-left: 1px solid #e9ecef; background: ${horariosPorDia['Miércoles'].includes(hora) ? '#0077BE' : '#ffffff'}; color: ${horariosPorDia['Miércoles'].includes(hora) ? 'white' : '#333'};">
+                            ${horariosPorDia['Miércoles'].includes(hora) ? '✓' : ''}
+                        </div>
+                        <div class="dia-data" style="flex: 1; min-height: 36px; display: flex; align-items: center; justify-content: center; border-left: 1px solid #e9ecef; background: ${horariosPorDia['Jueves'].includes(hora) ? '#0077BE' : '#ffffff'}; color: ${horariosPorDia['Jueves'].includes(hora) ? 'white' : '#333'};">
+                            ${horariosPorDia['Jueves'].includes(hora) ? '✓' : ''}
+                        </div>
+                        <div class="dia-data" style="flex: 1; min-height: 36px; display: flex; align-items: center; justify-content: center; border-left: 1px solid #e9ecef; background: ${horariosPorDia['Viernes'].includes(hora) ? '#0077BE' : '#ffffff'}; color: ${horariosPorDia['Viernes'].includes(hora) ? 'white' : '#333'};">
+                            ${horariosPorDia['Viernes'].includes(hora) ? '✓' : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
         }
         
         html += `
-                        </div>
+                </div>
+                
+                <!-- LEYENDA -->
+                <div style="display: flex; gap: 20px; margin-top: 10px; padding: 8px 12px; background: #f8f9fa; border-radius: 20px; font-size: 0.75rem;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 14px; height: 14px; background: #0077BE; border-radius: 3px;"></div>
+                        <span>Horario seleccionado</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 14px; height: 14px; background: white; border: 2px solid #dee2e6; border-radius: 3px;"></div>
+                        <span>Horario disponible</span>
+                    </div>
+                    <div style="margin-left: auto;">
+                        <span>${enc.horarios.length} bloque(s) seleccionados</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+} else {
+    html += `
+        <div class="detalle-horarios">
+            <div style="color: #6c757d; font-style: italic; padding: 15px; text-align: center; border: 1px dashed #dee2e6; border-radius: 8px;">
+                <i class="fas fa-clock"></i> No hay horarios seleccionados
+            </div>
+        </div>
+    `;
+}
+        
+        html += `
                     </div>
                 </div>
             </div>
@@ -2524,7 +2614,12 @@ function toggleEncuestaDetalle(id) {
 }
 
 // ===== GESTIÓN DE MATERIAS =====
-function gestionarMaterias() {
+async function gestionarMaterias() {
+    if (!adminActivo) {
+        mostrarLoginAdmin();
+        return;
+    }
+    
     console.log('📚 Abriendo gestión de materias...');
     mostrarNotificacion('Abriendo editor de materias...', 'info', 2000);
     
@@ -2759,6 +2854,11 @@ function agregarMateria(carreraKey, periodo) {
 }
 
 async function eliminarMateria(carreraKey, index, periodo) {
+    if (!adminActivo) {
+        mostrarLoginAdmin();
+        return;
+    }
+    
     if (confirm('¿Estás seguro de eliminar esta materia?')) {
         console.log(`🗑️ Eliminando materia ${index} de ${carreraKey} (${periodo})`);
         
@@ -2793,10 +2893,9 @@ async function eliminarMateria(carreraKey, index, periodo) {
 
 async function guardarCambiosMaterias() {
     console.log('💾 INICIANDO GUARDADO DE MATERIAS');
-    console.log('👑 Es admin?', adminActivo);
     
     if (!adminActivo) {
-        mostrarNotificacion('No tienes permisos de administrador', 'warning');
+        mostrarLoginAdmin();
         return;
     }
     
@@ -2888,6 +2987,11 @@ function cerrarGestionMaterias() {
 
 // ===== GESTIÓN DE PROFESORES =====
 function gestionarProfesores() {
+    if (!adminActivo) {
+        mostrarLoginAdmin();
+        return;
+    }
+    
     console.log('👥 Abriendo gestión de profesores...');
     mostrarNotificacion('Abriendo editor de profesores...', 'info', 2000);
     
@@ -3070,6 +3174,11 @@ function agregarProfesor() {
 }
 
 async function eliminarProfesor(index) {
+    if (!adminActivo) {
+        mostrarLoginAdmin();
+        return;
+    }
+    
     console.log(`🗑️ Intentando eliminar profesor en índice ${index}:`, profesoresDB[index]);
     
     if (!confirm(`¿Estás seguro de eliminar a "${profesoresDB[index]}"?`)) {
@@ -3104,6 +3213,11 @@ async function eliminarProfesor(index) {
 
 async function guardarCambiosProfesores() {
     console.log('💾 INICIANDO GUARDADO DE PROFESORES');
+    
+    if (!adminActivo) {
+        mostrarLoginAdmin();
+        return;
+    }
     
     try {
         const modificados = [];
@@ -3303,33 +3417,32 @@ function actualizarModalResumen() {
     htmlProfesor += '</ul>';
     resumenProfesor.innerHTML = htmlProfesor;
     
-// En actualizarModalResumen, reemplaza la sección de materias:
-const resumenMaterias = document.getElementById('modalResumenMaterias');
-if (materiasSeleccionadas.length > 0) {
-    let htmlMaterias = '<ul>';
-    materiasSeleccionadas.forEach(materia => {
-        const nivelTexto = materia.nivel === 'alta' ? 'Alta' : (materia.nivel === 'media' ? 'Media' : 'Baja');
-        const nivelColor = materia.nivel === 'alta' ? '#e74c3c' : (materia.nivel === 'media' ? '#f39c12' : '#7f8c8d');
-        
-        const carrerasTexto = materia.carreras.map(c => {
-            let texto = `${c.carrera} (Sem ${c.semestre})`;
-            if (c.horas) {
-                texto += ` - ${c.horas} h/sem`;
-            }
-            return texto;
-        }).join(', ');
-        
-        htmlMaterias += `<li>
-            <i class="fas fa-book" style="color: ${nivelColor};"></i>
-            <strong>${materia.nombre}</strong> - <span style="color: ${nivelColor};">${nivelTexto}</span>
-            <br><small style="margin-left: 26px; color: #7f8c8d;">${carrerasTexto}</small>
-        </li>`;
-    });
-    htmlMaterias += '</ul>';
-    resumenMaterias.innerHTML = htmlMaterias;
-} else {
-    resumenMaterias.innerHTML = '<p>No has seleccionado materias</p>';
-}
+    const resumenMaterias = document.getElementById('modalResumenMaterias');
+    if (materiasSeleccionadas.length > 0) {
+        let htmlMaterias = '<ul>';
+        materiasSeleccionadas.forEach(materia => {
+            const nivelTexto = materia.nivel === 'alta' ? 'Alta' : (materia.nivel === 'media' ? 'Media' : 'Baja');
+            const nivelColor = materia.nivel === 'alta' ? '#e74c3c' : (materia.nivel === 'media' ? '#f39c12' : '#7f8c8d');
+            
+            const carrerasTexto = materia.carreras.map(c => {
+                let texto = `${c.carrera} (Sem ${c.semestre})`;
+                if (c.horas) {
+                    texto += ` - ${c.horas} h/sem`;
+                }
+                return texto;
+            }).join(', ');
+            
+            htmlMaterias += `<li>
+                <i class="fas fa-book" style="color: ${nivelColor};"></i>
+                <strong>${materia.nombre}</strong> - <span style="color: ${nivelColor};">${nivelTexto}</span>
+                <br><small style="margin-left: 26px; color: #7f8c8d;">${carrerasTexto}</small>
+            </li>`;
+        });
+        htmlMaterias += '</ul>';
+        resumenMaterias.innerHTML = htmlMaterias;
+    } else {
+        resumenMaterias.innerHTML = '<p>No has seleccionado materias</p>';
+    }
     
     const resumenHorarios = document.getElementById('modalResumenHorarios');
     if (horariosSeleccionados.length > 0) {
@@ -3796,7 +3909,6 @@ function actualizarContadorExportacionCompacto(seleccionadas) {
     }
 }
 
-// ===== EXPORTAR A PDF PERSONALIZADO - VERSIÓN CORREGIDA =====
 async function exportarAPDFPersonalizado(encuestas) {
     try {
         mostrarNotificacion(`Exportando ${encuestas.length} encuestas a PDF...`, 'info');
@@ -3861,6 +3973,10 @@ async function exportarAPDFPersonalizado(encuestas) {
             doc.text('Instituto Tecnológico de Cancún', 105, 290, { align: 'center' });
         }
         
+        function necesitaNuevaPagina(yPos, espacioNecesario) {
+            return yPos + espacioNecesario > 270;
+        }
+        
         for (let i = 0; i < encuestas.length; i++) {
             if (i > 0) doc.addPage();
             
@@ -3871,7 +3987,6 @@ async function exportarAPDFPersonalizado(encuestas) {
             
             let yPos = 25;
             
-            // Tarjeta del profesor
             doc.setFillColor(colores.gris[0], colores.gris[1], colores.gris[2]);
             doc.roundedRect(15, yPos, 180, 55, 3, 3, 'F');
             doc.setDrawColor(colores.azulClaro[0], colores.azulClaro[1], colores.azulClaro[2]);
@@ -3911,7 +4026,6 @@ async function exportarAPDFPersonalizado(encuestas) {
             
             yPos += 70;
             
-            // Materias
             doc.setFillColor(colores.gris[0], colores.gris[1], colores.gris[2]);
             doc.roundedRect(15, yPos, 180, 5, 3, 3, 'F');
             doc.setFontSize(12);
@@ -3952,14 +4066,12 @@ async function exportarAPDFPersonalizado(encuestas) {
                 yPos += 15;
             }
             
-            // ===== HORARIOS SELECCIONADOS - VERSIÓN CORREGIDA =====
             doc.setFillColor(colores.gris[0], colores.gris[1], colores.gris[2]);
             doc.roundedRect(15, yPos, 180, 5, 3, 3, 'F');
-            
             doc.setFontSize(12);
             doc.setTextColor(colores.azulOscuro[0], colores.azulOscuro[1], colores.azulOscuro[2]);
             doc.setFont('helvetica', 'bold');
-            doc.text('Horarios Seleccionados', 20, yPos + 4); // SOLO UNA VEZ
+            doc.text('Horarios Seleccionados', 20, yPos + 4);
             
             doc.setFontSize(7);
             doc.setTextColor(colores.grisOscuro[0], colores.grisOscuro[1], colores.grisOscuro[2]);
@@ -3969,12 +4081,10 @@ async function exportarAPDFPersonalizado(encuestas) {
             yPos += 10;
             
             if (enc.horarios && enc.horarios.length > 0) {
-                // Calcular espacio disponible
                 const espacioRestante = 270 - yPos;
-                const altoTitulo = 5;
                 const altoCuadricula = 175;
                 const altoLeyenda = 15;
-                const espacioNecesario = altoTitulo + altoCuadricula + altoLeyenda + 15;
+                const espacioNecesario = altoCuadricula + altoLeyenda + 10;
                 
                 if (espacioRestante < espacioNecesario) {
                     doc.addPage();
@@ -3996,7 +4106,6 @@ async function exportarAPDFPersonalizado(encuestas) {
                     yPos += 10;
                 }
                 
-                // Agrupar horarios por día
                 const horariosPorDia = {};
                 const diasOrdenados = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes'];
                 
@@ -4009,82 +4118,72 @@ async function exportarAPDFPersonalizado(encuestas) {
                     horariosPorDia[dia].sort((a, b) => a - b);
                 });
                 
-                // ===== BLOQUE CORREGIDO - HORARIOS EN PDF =====
-// Busca esta sección y reemplázala:
-
-// Dibujar cuadrícula
-const anchoDia = 32;
-const altoBloque = 12;
-
-// Encabezados de días
-diasOrdenados.forEach((dia, diaIndex) => {
-    const xPos = 20 + (diaIndex * anchoDia);
-    
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'bold');
-    doc.setTextColor(colores.azulOscuro[0], colores.azulOscuro[1], colores.azulOscuro[2]);
-    doc.text(dia, xPos + 5, yPos - 2);
-});
-
-// Dibujar celdas de horas
-for (let hora = 7; hora <= 21; hora++) {
-    const bloqueY = yPos + ((hora - 7) * (altoBloque + 1));
-    
-    diasOrdenados.forEach((dia, diaIndex) => {
-        const horarios = horariosPorDia[dia] || [];
-        const xPos = 20 + (diaIndex * anchoDia);
-        
-        const horaInicio = hora;
-        const horaFin = hora + 1;
-        const horaStr = `${horaInicio}-${horaFin}`;
-        
-        const seleccionado = horarios.includes(hora);
-        
-        doc.setDrawColor(colores.borde[0], colores.borde[1], colores.borde[2]);
-        doc.setLineWidth(0.2);
-        
-        // Celda
-        if (seleccionado) {
-            doc.setFillColor(colores.azulClaro[0], colores.azulClaro[1], colores.azulClaro[2]);
-            doc.roundedRect(xPos, bloqueY, anchoDia - 2, altoBloque - 1, 2, 2, 'F');
-            doc.roundedRect(xPos, bloqueY, anchoDia - 2, altoBloque - 1, 2, 2, 'S');
-            
-            doc.setFontSize(7);
-            doc.setTextColor(255, 255, 255);
-            doc.setFont('helvetica', 'bold');
-            doc.text(horaStr, xPos + (anchoDia - 2) / 2, bloqueY + 5, { align: 'center' });
-        } else {
-            doc.setFillColor(255, 255, 255);
-            doc.roundedRect(xPos, bloqueY, anchoDia - 2, altoBloque - 1, 2, 2, 'F');
-            doc.roundedRect(xPos, bloqueY, anchoDia - 2, altoBloque - 1, 2, 2, 'S');
-            
-            doc.setFontSize(7);
-            doc.setTextColor(colores.grisOscuro[0], colores.grisOscuro[1], colores.grisOscuro[2]);
-            doc.setFont('helvetica', 'normal');
-            doc.text(horaStr, xPos + (anchoDia - 2) / 2, bloqueY + 5, { align: 'center' });
-        }
-    });
-}
-
-// Líneas horizontales (entre filas)
-for (let h = 0; h <= 15; h++) {
-    const lineY = yPos + (h * (altoBloque + 1)) - 1;
-    doc.setDrawColor(colores.borde[0], colores.borde[1], colores.borde[2]);
-    doc.setLineWidth(0.1);
-    doc.line(20, lineY, 20 + (anchoDia * 5) - 5, lineY);
-}
-
-// Líneas verticales (entre días)
-for (let d = 1; d < 5; d++) {
-    const xLine = 20 + (d * anchoDia) - 2;
-    doc.setDrawColor(colores.borde[0], colores.borde[1], colores.borde[2]);
-    doc.setLineWidth(0.2);
-    doc.line(xLine, yPos - 3, xLine, yPos + (15 * (altoBloque + 1)));
-}
+                const anchoDia = 32;
+                const altoBloque = 12;
+                
+                diasOrdenados.forEach((dia, diaIndex) => {
+                    const xPos = 20 + (diaIndex * anchoDia);
+                    
+                    doc.setFontSize(8);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(colores.azulOscuro[0], colores.azulOscuro[1], colores.azulOscuro[2]);
+                    doc.text(dia, xPos + 5, yPos - 2);
+                });
+                
+                for (let hora = 7; hora <= 21; hora++) {
+                    const bloqueY = yPos + ((hora - 7) * (altoBloque + 1));
+                    
+                    diasOrdenados.forEach((dia, diaIndex) => {
+                        const horarios = horariosPorDia[dia] || [];
+                        const xPos = 20 + (diaIndex * anchoDia);
+                        
+                        const horaInicio = hora;
+                        const horaFin = hora + 1;
+                        const horaStr = `${horaInicio}-${horaFin}`;
+                        
+                        const seleccionado = horarios.includes(hora);
+                        
+                        doc.setDrawColor(colores.borde[0], colores.borde[1], colores.borde[2]);
+                        doc.setLineWidth(0.2);
+                        
+                        if (seleccionado) {
+                            doc.setFillColor(colores.azulClaro[0], colores.azulClaro[1], colores.azulClaro[2]);
+                            doc.roundedRect(xPos, bloqueY, anchoDia - 2, altoBloque - 1, 2, 2, 'F');
+                            doc.roundedRect(xPos, bloqueY, anchoDia - 2, altoBloque - 1, 2, 2, 'S');
+                            
+                            doc.setFontSize(7);
+                            doc.setTextColor(255, 255, 255);
+                            doc.setFont('helvetica', 'bold');
+                            doc.text(horaStr, xPos + (anchoDia - 2) / 2, bloqueY + 5, { align: 'center' });
+                        } else {
+                            doc.setFillColor(255, 255, 255);
+                            doc.roundedRect(xPos, bloqueY, anchoDia - 2, altoBloque - 1, 2, 2, 'F');
+                            doc.roundedRect(xPos, bloqueY, anchoDia - 2, altoBloque - 1, 2, 2, 'S');
+                            
+                            doc.setFontSize(7);
+                            doc.setTextColor(colores.grisOscuro[0], colores.grisOscuro[1], colores.grisOscuro[2]);
+                            doc.setFont('helvetica', 'normal');
+                            doc.text(horaStr, xPos + (anchoDia - 2) / 2, bloqueY + 5, { align: 'center' });
+                        }
+                    });
+                }
+                
+                for (let h = 0; h <= 15; h++) {
+                    const lineY = yPos + (h * (altoBloque + 1)) - 1;
+                    doc.setDrawColor(colores.borde[0], colores.borde[1], colores.borde[2]);
+                    doc.setLineWidth(0.1);
+                    doc.line(20, lineY, 20 + (anchoDia * 5) - 5, lineY);
+                }
+                
+                for (let d = 1; d < 5; d++) {
+                    const xLine = 20 + (d * anchoDia) - 2;
+                    doc.setDrawColor(colores.borde[0], colores.borde[1], colores.borde[2]);
+                    doc.setLineWidth(0.2);
+                    doc.line(xLine, yPos - 3, xLine, yPos + (15 * (altoBloque + 1)));
+                }
                 
                 yPos += 195;
                 
-                // Verificar espacio para leyenda
                 const espacioRestanteLeyenda = 270 - yPos;
                 
                 if (espacioRestanteLeyenda < 15) {
@@ -4093,7 +4192,6 @@ for (let d = 1; d < 5; d++) {
                     yPos = 25;
                 }
                 
-                // Leyenda
                 doc.setFontSize(7);
                 doc.setTextColor(colores.texto[0], colores.texto[1], colores.texto[2]);
                 doc.setFont('helvetica', 'normal');
@@ -4134,7 +4232,6 @@ for (let d = 1; d < 5; d++) {
     }
 }
 
-// ===== EXPORTAR A EXCEL PERSONALIZADO CON COLUMNA DE HORA =====
 async function exportarAExcelPersonalizado(encuestas) {
     try {
         mostrarNotificacion(`Exportando ${encuestas.length} encuestas a Excel...`, 'info');
@@ -4192,7 +4289,6 @@ async function exportarAExcelPersonalizado(encuestas) {
             }
         }
         
-        // ===== HOJA DE RESUMEN CON HORA =====
         const resumenData = [];
         resumenData.push(['Fecha', 'Hora', 'Período', 'Profesor', 'Correo', 'Clave SIE', 'Teléfono', 'Tipo de Plaza', 'Horas', 'Materias', 'Horarios']);
         
@@ -4246,7 +4342,6 @@ async function exportarAExcelPersonalizado(encuestas) {
         aplicarFormatoTabla(wsResumen, resumenData.length, 11, colores.azulOscuro.rgb);
         XLSX.utils.book_append_sheet(wb, wsResumen, 'Resumen');
         
-        // ===== HOJA DE MATERIAS =====
         const materiasData = [];
         materiasData.push(['Fecha', 'Hora', 'Profesor', 'Período', 'Materia', 'Nivel', 'Carrera', 'Semestre']);
         
@@ -4291,42 +4386,41 @@ async function exportarAExcelPersonalizado(encuestas) {
         aplicarFormatoTabla(wsMaterias, materiasData.length, 8, colores.azulMedio.rgb);
         XLSX.utils.book_append_sheet(wb, wsMaterias, 'Materias');
         
-        // ===== HOJA DE HORARIOS - SIN HORA INICIO Y HORA FIN =====
-const horariosData = [];
-horariosData.push(['Fecha', 'Hora', 'Profesor', 'Período', 'Día', 'Bloque']); // Solo 6 columnas
-
-encuestas.forEach(enc => {
-    const profesor = enc.profesor || {};
-    const fechaObj = enc.fecha ? new Date(enc.fecha) : null;
-    const fecha = fechaObj ? fechaObj.toLocaleDateString('es-MX') : 'N/A';
-    const hora = fechaObj ? fechaObj.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) : 'N/A';
-    
-    if (enc.horarios) {
-        enc.horarios.forEach(h => {
-            horariosData.push([
-                fecha,
-                hora,
-                profesor.nombre || '',
-                enc.periodo === 'ene-jun' ? 'ENE-JUN' : 'AGO-DIC',
-                h.dia || '',
-                h.texto || ''  // El bloque completo (ej: "7-8 AM")
-            ]);
+        const horariosData = [];
+        horariosData.push(['Fecha', 'Hora', 'Profesor', 'Período', 'Día', 'Bloque']);
+        
+        encuestas.forEach(enc => {
+            const profesor = enc.profesor || {};
+            const fechaObj = enc.fecha ? new Date(enc.fecha) : null;
+            const fecha = fechaObj ? fechaObj.toLocaleDateString('es-MX') : 'N/A';
+            const hora = fechaObj ? fechaObj.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) : 'N/A';
+            
+            if (enc.horarios) {
+                enc.horarios.forEach(h => {
+                    horariosData.push([
+                        fecha,
+                        hora,
+                        profesor.nombre || '',
+                        enc.periodo === 'ene-jun' ? 'ENE-JUN' : 'AGO-DIC',
+                        h.dia || '',
+                        h.texto || ''
+                    ]);
+                });
+            }
         });
-    }
-});
-
-const wsHorarios = XLSX.utils.aoa_to_sheet(horariosData);
-wsHorarios['!cols'] = [
-    { wch: 12 }, // Fecha
-    { wch: 8 },  // Hora
-    { wch: 38 }, // Profesor
-    { wch: 10 }, // Período
-    { wch: 12 }, // Día
-    { wch: 20 }  // Bloque
-];
-wsHorarios['!autofilter'] = { ref: `A1:F${horariosData.length}` };
-aplicarFormatoTabla(wsHorarios, horariosData.length, 6, colores.azulClaro.rgb);
-XLSX.utils.book_append_sheet(wb, wsHorarios, 'Horarios');
+        
+        const wsHorarios = XLSX.utils.aoa_to_sheet(horariosData);
+        wsHorarios['!cols'] = [
+            { wch: 12 }, // Fecha
+            { wch: 8 },  // Hora
+            { wch: 38 }, // Profesor
+            { wch: 10 }, // Período
+            { wch: 12 }, // Día
+            { wch: 20 }  // Bloque
+        ];
+        wsHorarios['!autofilter'] = { ref: `A1:F${horariosData.length}` };
+        aplicarFormatoTabla(wsHorarios, horariosData.length, 6, colores.azulClaro.rgb);
+        XLSX.utils.book_append_sheet(wb, wsHorarios, 'Horarios');
         
         const fecha = new Date().toISOString().split('T')[0];
         XLSX.writeFile(wb, `Encuestas_ITC_${fecha}_${encuestas.length}_registros.xlsx`);
@@ -4389,10 +4483,5 @@ async function inicializarAplicacion() {
         mostrarNotificacion('Error al iniciar la aplicación', 'error');
     }
 }
-
-// Agregar eventos globales para cancelar arrastre
-document.addEventListener('mouseup', finalizarSeleccion);
-document.addEventListener('touchend', finalizarSeleccion);
-document.addEventListener('touchcancel', finalizarSeleccion);
 
 document.addEventListener('DOMContentLoaded', inicializarAplicacion);

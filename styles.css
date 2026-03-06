@@ -28,7 +28,7 @@ body {
     margin: 0 auto;
 }
 
-/* ===== HEADER CON LOGOS ARRIBA Y TEXTO A LA IZQUIERDA ===== */
+/* ===== HEADER CON LOGOS ARRIBA ===== */
 header {
     background: linear-gradient(135deg, var(--itc-azul-oscuro), var(--itc-azul-medio));
     color: var(--itc-blanco);
@@ -42,7 +42,8 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
+    width: 100%;
 }
 
 .logo-left, .logo-right {
@@ -62,19 +63,60 @@ header {
 }
 
 .header-content {
+    width: 100%;
     text-align: left;
 }
 
 .header-content h1 {
     font-size: 2rem;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
+    color: white;
+    text-align: left;
 }
 
 .header-content .subtitle {
     font-size: 0.95rem;
     opacity: 0.9;
     margin: 0;
+    color: white;
+    text-align: justify;
+    text-justify: inter-word;
     max-width: 100%;
+}
+
+/* ===== VERSIÓN MÓVIL ===== */
+@media (max-width: 768px) {
+    header {
+        padding: 15px;
+    }
+    
+    .logos-superiores {
+        margin-bottom: 15px;
+    }
+    
+    .logo-img {
+        height: 50px;
+    }
+    
+    .header-content h1 {
+        font-size: 1.5rem;
+        text-align: left;
+    }
+    
+    .header-content .subtitle {
+        font-size: 0.85rem;
+        text-align: justify;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo-img {
+        height: 40px;
+    }
+    
+    .header-content h1 {
+        font-size: 1.3rem;
+    }
 }
 
 /* ===== PANELES ===== */
@@ -967,16 +1009,17 @@ label {
     font-size: 0.9rem;
 }
 
-/* ===== CUADRÍCULA DE HORARIOS CON SELECCIÓN POR ARRASTRE ===== */
+/* ===== CUADRÍCULA DE HORARIOS ===== */
 .cuadricula-scroll-container {
     width: 100%;
     overflow-x: auto;
-    overflow-y: hidden; /* CAMBIO CRÍTICO */
+    overflow-y: hidden;
     border-radius: 16px;
     background: white;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     margin-bottom: 25px;
     border: 1px solid #e0e0e0;
+    position: relative;
 }
 
 .horarios-cuadricula-limpia {
@@ -993,7 +1036,7 @@ label {
     color: white;
     border-bottom: 2px solid var(--itc-azul-claro);
     position: relative;
-    z-index: 10; /* Mayor que las celdas */
+    z-index: 10;
 }
 
 .dia-header-limpio {
@@ -1039,7 +1082,7 @@ label {
     padding: 3px 1px;
     text-align: center;
     cursor: pointer;
-    transition: background-color 0.2s ease; /* SOLO background, no transform */
+    transition: all 0.2s ease;
     border-right: 1px solid #ecf0f1;
     border-bottom: 1px solid #ecf0f1;
     display: flex;
@@ -1055,6 +1098,7 @@ label {
     touch-action: pan-y;
     position: relative;
     z-index: 1;
+    overflow: hidden;
 }
 
 .celda-horario-limpia:last-child {
@@ -1064,6 +1108,7 @@ label {
 .celda-horario-limpia:hover {
     background: #e8f4fc;
     border-color: #3498db;
+    z-index: 2;
 }
 
 .celda-horario-limpia.selected {
@@ -1071,13 +1116,6 @@ label {
     color: white;
     border-color: #2980b9;
     box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.celda-horario-limpia.dragging-over {
-    background: #e8f4fc;
-    transform: scale(1.02);
-    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
-    z-index: 10;
 }
 
 .celda-horario-limpia .bloque-hora {
@@ -1147,23 +1185,7 @@ label {
 .seleccionado-color {
     background: var(--itc-azul-claro);
     border: 2px solid var(--itc-azul-oscuro);
-    box-shadow: 0 2px 4px #0077be4d;
-}
-
-/* ===== CORRECCIÓN DEFINITIVA BUG VIERNES ===== */
-.fila-hora-limpia:last-child {
-    border-bottom: none;
-}
-
-.fila-hora-limpia:last-child .celda-horario-limpia {
-    border-bottom: none;
-}
-
-/* Forzar que el contenedor recorte cualquier desbordamiento */
-.cuadricula-scroll-container {
-    mask-image: linear-gradient(to right, black, black);
-    -webkit-mask-image: linear-gradient(to right, black, black);
-    overflow: hidden; /* Doble seguridad */
+    box-shadow: 0 2px 4px rgba(0,119,190,0.3);
 }
 
 /* ===== BOTÓN DE ENVIAR AZUL ===== */
@@ -1472,6 +1494,36 @@ label {
     transform: scale(1.1);
 }
 
+/* ===== BOTÓN DE PANEL ADMIN (SIN CORONA) ===== */
+.admin-panel-btn {
+    background: linear-gradient(135deg, var(--itc-azul-oscuro), var(--itc-azul-medio));
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 25px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    border: 2px solid var(--itc-dorado);
+    z-index: 1000;
+}
+
+.admin-panel-btn:hover {
+    background: linear-gradient(135deg, var(--itc-azul-medio), var(--itc-azul-oscuro));
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Posición fija en la esquina superior derecha */
+.admin-panel-btn-fixed {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
 /* ===== PANEL DE ADMINISTRACIÓN ===== */
 .admin-access {
     position: fixed;
@@ -1743,6 +1795,8 @@ label {
     padding: 25px;
     overflow-y: auto;
     flex: 1;
+    width: 100%;
+    overflow-x: hidden;
 }
 
 .gestion-footer {
@@ -2077,6 +2131,9 @@ label {
     animation: slideIn 0.3s ease;
     position: relative;
     cursor: pointer;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .encuesta-card:hover {
@@ -2180,6 +2237,9 @@ label {
     padding: 15px;
     margin-top: 10px;
     display: none;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 .encuesta-card.expandida .encuesta-detalles {
@@ -2189,6 +2249,9 @@ label {
 
 .detalle-seccion {
     margin-bottom: 20px;
+    width: 100%;
+    padding: 10px 0;
+    box-sizing: border-box;
 }
 
 .detalle-seccion h5 {
@@ -2206,13 +2269,13 @@ label {
     color: var(--itc-azul-claro);
 }
 
-.detalle-materias, .detalle-horarios {
+.detalle-materias {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 10px;
 }
 
-.detalle-materia-item, .detalle-horario-item {
+.detalle-materia-item {
     background: var(--itc-blanco);
     padding: 12px 15px;
     border-radius: 8px;
@@ -2230,25 +2293,96 @@ label {
     color: #7f8c8d;
 }
 
-.detalle-horario-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+/* ===== ESTILOS PARA HORARIOS - AHORA EN BLOQUE ===== */
+.detalle-horarios {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
 }
 
-.detalle-horario-item i {
-    color: #27ae60;
+/* ===== TABLA DE HORARIOS EN MODAL ===== */
+.tabla-horarios-detalle {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin-top: 10px;
 }
 
-.encuesta-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid #ecf0f1;
-    font-size: 0.85rem;
-    color: #95a5a6;
+.tabla-horarios-detalle .header-row {
+    display: flex !important;
+    width: 100% !important;
+    background: linear-gradient(135deg, #003B6F, #004B87) !important;
+    color: white !important;
+    border-radius: 6px 6px 0 0 !important;
+}
+
+.tabla-horarios-detalle .hora-cell {
+    width: 80px !important;
+    flex-shrink: 0 !important;
+    padding: 10px 5px !important;
+    text-align: center !important;
+    font-weight: 600 !important;
+    font-size: 0.85rem !important;
+}
+
+.tabla-horarios-detalle .dias-container {
+    flex: 1 !important;
+    display: flex !important;
+    width: calc(100% - 80px) !important;
+    min-width: 0 !important;
+}
+
+.tabla-horarios-detalle .dia-cell {
+    flex: 1 !important;
+    padding: 10px 2px !important;
+    text-align: center !important;
+    font-weight: 600 !important;
+    font-size: 0.85rem !important;
+    border-left: 1px solid rgba(255,255,255,0.2) !important;
+    white-space: nowrap !important;
+    min-width: 0 !important;
+}
+
+.tabla-horarios-detalle .data-row {
+    display: flex !important;
+    width: 100% !important;
+    border-bottom: 1px solid #e9ecef !important;
+}
+
+.tabla-horarios-detalle .hora-data {
+    width: 80px !important;
+    flex-shrink: 0 !important;
+    padding: 8px 5px !important;
+    background: #f8f9fa !important;
+    text-align: center !important;
+    font-weight: 600 !important;
+    color: #003B6F !important;
+    font-size: 0.8rem !important;
+}
+
+.tabla-horarios-detalle .dias-data-container {
+    flex: 1 !important;
+    display: flex !important;
+    width: calc(100% - 80px) !important;
+    min-width: 0 !important;
+}
+
+.tabla-horarios-detalle .dia-data {
+    flex: 1 !important;
+    padding: 8px 2px !important;
+    text-align: center !important;
+    border-left: 1px solid #e9ecef !important;
+    min-width: 0 !important;
+    font-size: 0.8rem !important;
+}
+
+.tabla-horarios-detalle .dia-data.seleccionado {
+    background: #0077BE !important;
+    color: white !important;
+    font-weight: bold !important;
 }
 
 /* ===== PAGINACIÓN ===== */
@@ -2538,6 +2672,24 @@ label {
     min-width: 120px;
 }
 
+/* ===== MODAL DE LOGIN ADMIN ===== */
+#loginAdminModal .modal-contenido {
+    border-top: 6px solid var(--itc-dorado);
+}
+
+#loginAdminModal .modal-header {
+    background: linear-gradient(135deg, var(--itc-azul-oscuro), var(--itc-azul-medio));
+}
+
+#loginAdminModal .btn-success {
+    background: var(--itc-azul-claro);
+    margin-top: 10px;
+}
+
+#loginAdminModal .btn-success:hover {
+    background: var(--itc-azul-medio);
+}
+
 /* ===== MODAL DE EXPORTACIÓN COMPACTO ===== */
 .exportacion-total-seleccionadas {
     background: rgba(255, 255, 255, 0.2);
@@ -2759,22 +2911,37 @@ label {
 }
 
 @media (max-width: 768px) {
-    .logos-superiores {
-        margin-bottom: 10px;
+    header {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 15px;
+        gap: 10px;
+    }
+    
+    .logo-left, .logo-right {
+        flex: 0 0 auto;
+        margin: 0;
     }
     
     .logo-img {
-        height: 55px;
+        height: 45px;
+    }
+    
+    .header-content {
+        order: 2;
+        width: 100%;
+        text-align: center;
+        padding: 10px 0 0 0;
+        min-width: 100%;
     }
     
     .header-content h1 {
         font-size: 1.5rem;
-        text-align: left;
     }
     
     .header-content .subtitle {
-        font-size: 0.9rem;
-        text-align: left;
+        font-size: 0.85rem;
     }
     
     .materia-card {
@@ -2783,6 +2950,7 @@ label {
     
     .form-row {
         flex-direction: column;
+        gap: 10px;
     }
     
     .nivel-actions {
@@ -2795,14 +2963,13 @@ label {
     }
     
     .botones-accion-horarios {
-        flex-direction: column;
         width: 100%;
+        flex-direction: row;
     }
     
     .btn-seleccionar-turno,
     .btn-limpiar-integrado {
-        width: 100%;
-        justify-content: center;
+        flex: 1;
     }
     
     .celda-horario-limpia {
@@ -2912,15 +3079,18 @@ label {
         flex-direction: column;
         align-items: flex-start;
     }
+    
+    .admin-panel-btn-fixed {
+        top: 10px;
+        right: 10px;
+        padding: 8px 16px;
+        font-size: 0.85rem;
+    }
 }
 
 @media (max-width: 576px) {
     .logo-img {
-        height: 50px;
-    }
-    
-    .header-content h1 {
-        font-size: 1.4rem;
+        height: 40px;
     }
     
     .celda-horario-limpia {
@@ -2944,6 +3114,10 @@ label {
         padding: 6px 1px;
     }
     
+    h1 {
+        font-size: 2rem;
+    }
+    
     .footer {
         margin-top: 30px;
         padding: 30px 20px 15px;
@@ -2952,11 +3126,7 @@ label {
 
 @media (max-width: 480px) {
     .logo-img {
-        height: 45px;
-    }
-    
-    .header-content h1 {
-        font-size: 1.3rem;
+        height: 35px;
     }
     
     .celda-horario-limpia {
@@ -3020,43 +3190,51 @@ label {
     }
 }
 
-/* ===== BOTÓN DE PANEL ADMIN (SIN CORONA) ===== */
-.admin-panel-btn {
-    background: linear-gradient(135deg, var(--itc-azul-oscuro), var(--itc-azul-medio));
-    color: white;
-    border: none;
-    border-radius: 50px;
-    padding: 12px 25px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
-    border: 2px solid var(--itc-dorado);
-    z-index: 1000;
-    /* Eliminamos cualquier referencia a i o gap */
+/* ===== CORRECCIÓN PARA TABLA DE HORARIOS ===== */
+.tabla-horarios-detalle .hora-data {
+    width: 100px !important;  /* Aumentado de 80px a 100px */
+    min-width: 100px !important;
+    white-space: nowrap !important; /* Evita que el texto se rompa */
+    padding: 8px 5px !important;
+    background: #f8f9fa !important;
+    text-align: center !important;
+    font-weight: 600 !important;
+    color: #003B6F !important;
+    font-size: 0.8rem !important;
+    box-sizing: border-box !important;
 }
 
-.admin-panel-btn:hover {
-    background: linear-gradient(135deg, var(--itc-azul-medio), var(--itc-azul-oscuro));
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+.tabla-horarios-detalle .hora-cell {
+    width: 100px !important;  /* Aumentado de 80px a 100px */
+    min-width: 100px !important;
+    padding: 10px 5px !important;
+    text-align: center !important;
+    font-weight: 600 !important;
+    font-size: 0.85rem !important;
 }
 
-/* Posición fija en la esquina superior derecha */
-.admin-panel-btn-fixed {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
+.tabla-horarios-detalle .dias-container {
+    flex: 1 !important;
+    display: flex !important;
+    width: calc(100% - 100px) !important;  /* Ajustado al nuevo ancho */
+    min-width: 0 !important;
 }
 
-/* Responsive para móvil */
-@media (max-width: 768px) {
-    .admin-panel-btn-fixed {
-        top: 10px;
-        right: 10px;
-        padding: 8px 16px;
-        font-size: 0.85rem;
-    }
+.tabla-horarios-detalle .dias-data-container {
+    flex: 1 !important;
+    display: flex !important;
+    width: calc(100% - 100px) !important;  /* Ajustado al nuevo ancho */
+    min-width: 0 !important;
+}
+
+.tabla-horarios-detalle .dia-data {
+    flex: 1 !important;
+    padding: 8px 2px !important;
+    text-align: center !important;
+    border-left: 1px solid #e9ecef !important;
+    min-width: 0 !important;
+    font-size: 0.8rem !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
 }

@@ -10,6 +10,7 @@
 </head>
 <body>
     <div class="container">
+<!-- ===== HEADER CON LOGOS ARRIBA ===== -->
 <header>
     <div class="logos-superiores">
         <div class="logo-left">
@@ -191,7 +192,7 @@
         <!-- ===== PANEL 2: MATERIAS ===== -->
         <div class="panel">
             <h2 class="panel-title">Materias que puedo / me gustaría impartir</h2>
-            <p>Selecciona las materias que deseas impartir. Puedes filtrar por carrera y semestre.</p>
+            <p>Selecciona las materias que deseas impartir. Puedes filtrar por carrera/posgrado y semestre.</p>
             
             <!-- FILTROS COMBINADOS -->
             <div class="filtros-combinados">
@@ -201,7 +202,7 @@
                         <span class="periodo-badge" id="periodoBadge">ENE - JUN</span>
                     </div>
                     <select id="selectCarrera" class="select-carrera">
-    <option value="">-- Todas las carreras --</option>
+    <option value="">-- Todas las carreras y posgrados --</option>
     <option value="arquitectura">Arquitectura</option>
     <option value="civil">Ing. Civil</option>
     <option value="electromecanica">Ing. Electromecánica</option>
@@ -463,6 +464,34 @@ El nivel de preferencia indica tu grado de interés en impartir cada materia:
             return true;
         }
     </script>
+
+    <!-- ===== MODAL DE LOGIN ADMIN ===== -->
+<div class="modal-overlay" id="loginAdminModal" style="display: none;">
+    <div class="modal-contenido" style="max-width: 400px;">
+        <div class="modal-header">
+            <h3><i class="fas fa-lock"></i> Acceso Administrador</h3>
+            <button class="modal-cerrar" id="cerrarLoginBtn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="adminUsername">Usuario</label>
+                <input type="text" id="adminUsername" class="form-input" placeholder="Ingresa tu usuario">
+            </div>
+            <div class="form-group">
+                <label for="adminPassword">Contraseña</label>
+                <input type="password" id="adminPassword" class="form-input" placeholder="Ingresa tu contraseña">
+            </div>
+            <button class="btn btn-success btn-lg" id="loginAdminBtn" style="width: 100%;">
+                <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+            </button>
+        </div>
+        <div class="modal-footer" style="justify-content: center;">
+            <p style="color: #7f8c8d; font-size: 0.85rem;">Acceso restringido a personal autorizado</p>
+        </div>
+    </div>
+</div>
 
     <!-- Librerías -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
