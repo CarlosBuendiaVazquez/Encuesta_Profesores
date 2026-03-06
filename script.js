@@ -942,8 +942,8 @@ function verificarAccesoURL() {
     const adminKey = urlParams.get('admin');
     
     const URL_SECRET = (typeof process !== 'undefined' && process.env.ADMIN_SECRET) 
-        ? process.env.ADMIN_SECRET 
-        : 'Tec' + 'NM' + '2026' + '!';
+    ? process.env.ADMIN_SECRET 
+    : 'Tec' + 'NM' + '2026';
     
     if (adminKey && adminKey === URL_SECRET) {
         console.log('🔑 Acceso por URL válido');
