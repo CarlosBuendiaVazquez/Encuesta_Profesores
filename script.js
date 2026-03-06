@@ -360,8 +360,8 @@ let filtroGestionCarrera = '';
 let materiasGestionOriginal = [];
 let filtroGestionProfesores = '';
 
-// ===== CONEXIÓN A POCKETBASE =====
-const POCKETBASE_URL = 'https://encuestas-profesores-pb.fly.dev';
+// ===== CONEXIÓN A POCKETBASE (compatible con local y Netlify) =====
+const POCKETBASE_URL = process.env.POCKETBASE_URL || 'https://encuestas-profesores-pb.fly.dev';
 let pb;
 
 try {
