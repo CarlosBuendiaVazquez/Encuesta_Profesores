@@ -360,22 +360,21 @@ let filtroGestionCarrera = '';
 let materiasGestionOriginal = [];
 let filtroGestionProfesores = '';
 
-// ===== CONEXIÓN A POCKETBASE (compatible con local y Netlify) =====
-const POCKETBASE_URL = process.env.POCKETBASE_URL || 'https://encuestas-profesores-pb.fly.dev';
+// ===== CONEXIÓN A POCKETBASE =====
+// En local usa la URL directa, en Netlify usa process.env
+const POCKETBASE_URL = (typeof process !== 'undefined' && process.env.POCKETBASE_URL) 
+    ? process.env.POCKETBASE_URL 
+    : 'https://encuestas-profesores-pb.fly.dev';
+
 let pb;
 
 try {
     pb = new PocketBase(POCKETBASE_URL);
     pb.autoCancellation(false);
-    console.log('✅ Conectado a PocketBase en Fly.io');
+    console.log('✅ Conectado a PocketBase');
 } catch (error) {
     console.error('❌ Error conectando a PocketBase:', error);
 }
-
-const ADMIN_CREDENTIALS = {
-    username: atob('aXRjYW5jdW4='),
-    password: atob('VGVjTk0jQ2FuY3VuMjAyNg==')
-};
 
 // ===== FUNCIÓN DE DIAGNÓSTICO =====
 async function diagnosticarMaterias() {
@@ -943,10 +942,12 @@ function verificarAccesoURL() {
     const urlParams = new URLSearchParams(window.location.search);
     const adminKey = urlParams.get('admin');
     
-    // La clave real se te proporciona por separado
-    const URL_SECRET = atob('VGVjTk0yMDI2IQ==');
+    // En local usa el valor directo, en Netlify usa process.env
+    const URL_SECRET = (typeof process !== 'undefined' && process.env.ADMIN_SECRET) 
+        ? process.env.ADMIN_SECRET 
+        : 'TecNM2026!';
     
-    if (adminKey === URL_SECRET) {
+    if (adminKey && adminKey === URL_SECRET) {
         console.log('🔑 Acceso por URL válido');
         accesoURLValido = true;
         return true;
@@ -955,6 +956,17 @@ function verificarAccesoURL() {
     accesoURLValido = false;
     return false;
 }
+
+// Credenciales con fallback local
+const ADMIN_CREDENTIALS = {
+    username: (typeof process !== 'undefined' && process.env.ADMIN_USER) 
+        ? process.env.ADMIN_USER 
+        : 'itcancun',
+    password: (typeof process !== 'undefined' && process.env.ADMIN_PASS) 
+        ? process.env.ADMIN_PASS 
+        : 'TecNM#Cancun2026'
+};
+
 
 function verificarCredenciales(username, password) {
     return username === ADMIN_CREDENTIALS.username && 
