@@ -372,11 +372,9 @@ try {
     console.error('❌ Error conectando a PocketBase:', error);
 }
 
-// ===== CREDENCIALES ADMIN (OFUSCADAS EN BASE64) =====
-// Las credenciales reales se te proporcionan por separado
 const ADMIN_CREDENTIALS = {
-    username: atob('aXRjYW5jdW4='), // itcancun
-    password: atob('VGVjTk0jQ2FuY3VuMjAyNg==') // TecNM#Cancun2026
+    username: atob('aXRjYW5jdW4='),
+    password: atob('VGVjTk0jQ2FuY3VuMjAyNg==')
 };
 
 // ===== FUNCIÓN DE DIAGNÓSTICO =====
@@ -946,7 +944,7 @@ function verificarAccesoURL() {
     const adminKey = urlParams.get('admin');
     
     // La clave real se te proporciona por separado
-    const URL_SECRET = atob('VGVjTk0yMDI2IQ=='); // TecNM2026!
+    const URL_SECRET = atob('VGVjTk0yMDI2IQ==');
     
     if (adminKey === URL_SECRET) {
         console.log('🔑 Acceso por URL válido');
