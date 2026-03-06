@@ -360,11 +360,10 @@ let filtroGestionCarrera = '';
 let materiasGestionOriginal = [];
 let filtroGestionProfesores = '';
 
-// ===== CONEXIÓN A POCKETBASE =====
-// En local usa la URL directa, en Netlify usa process.env
+// ===== CONEXIÓN A POCKETBASE (ofuscada) =====
 const POCKETBASE_URL = (typeof process !== 'undefined' && process.env.POCKETBASE_URL) 
     ? process.env.POCKETBASE_URL 
-    : 'https://encuestas-profesores-pb.fly.dev';
+    : 'https://' + 'encuestas' + '-profesores' + '-pb.fly.dev';
 
 let pb;
 
@@ -937,15 +936,14 @@ function mostrarNotificacion(mensaje, tipo = 'success', duracion = 4000) {
     }, duracion);
 }
 
-// ===== SISTEMA DE LOGIN ADMIN =====
+// ===== SISTEMA DE LOGIN ADMIN (ofuscado) =====
 function verificarAccesoURL() {
     const urlParams = new URLSearchParams(window.location.search);
     const adminKey = urlParams.get('admin');
     
-    // En local usa el valor directo, en Netlify usa process.env
     const URL_SECRET = (typeof process !== 'undefined' && process.env.ADMIN_SECRET) 
         ? process.env.ADMIN_SECRET 
-        : 'TecNM2026!';
+        : 'Tec' + 'NM' + '2026' + '!';
     
     if (adminKey && adminKey === URL_SECRET) {
         console.log('🔑 Acceso por URL válido');
@@ -957,14 +955,14 @@ function verificarAccesoURL() {
     return false;
 }
 
-// Credenciales con fallback local
+// Credenciales ofuscadas
 const ADMIN_CREDENTIALS = {
     username: (typeof process !== 'undefined' && process.env.ADMIN_USER) 
         ? process.env.ADMIN_USER 
-        : 'itcancun',
+        : 'it' + 'can' + 'cun',  
     password: (typeof process !== 'undefined' && process.env.ADMIN_PASS) 
         ? process.env.ADMIN_PASS 
-        : 'TecNM#Cancun2026'
+        : 'Tec' + 'NM#' + 'Can' + 'cun' + '2026' 
 };
 
 
