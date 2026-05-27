@@ -27,47 +27,59 @@
 </header>
 
         <!-- ===== ACCESO ADMINISTRADOR ===== -->
-        <div class="admin-access" id="adminAccess" style="display: none;">
-            <div class="admin-panel">
-                <div class="admin-header">
-                    <h3><i class="fas fa-crown"></i> Panel de Administración</h3>
-                    <button class="btn-close-admin" id="closeAdminBtn" title="Cerrar panel">
-                        <i class="fas fa-times"></i>
+<div class="admin-access" id="adminAccess" style="display: none;">
+    <div class="admin-panel">
+        <div class="admin-header">
+            <h3><i class="fas fa-crown"></i> Panel de Administración</h3>
+            <button class="btn-close-admin" id="closeAdminBtn" title="Cerrar panel">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="admin-content">
+            <div class="admin-section">
+                <h4><i class="fas fa-calendar-alt"></i> Período Académico</h4>
+                <div class="periodo-selector">
+                    <button class="periodo-btn active" id="periodoENEJUN" data-periodo="ene-jun">
+                        <i class="fas fa-sun"></i> ENE - JUN
+                    </button>
+                    <button class="periodo-btn" id="periodoAGODIC" data-periodo="ago-dic">
+                        <i class="fas fa-snowflake"></i> AGO - DIC
                     </button>
                 </div>
-                <div class="admin-content">
-                    <div class="admin-section">
-                        <h4><i class="fas fa-calendar-alt"></i> Período Académico</h4>
-                        <div class="periodo-selector">
-                            <button class="periodo-btn active" id="periodoENEJUN" data-periodo="ene-jun">
-                                <i class="fas fa-sun"></i> ENE - JUN
-                            </button>
-                            <button class="periodo-btn" id="periodoAGODIC" data-periodo="ago-dic">
-                                <i class="fas fa-snowflake"></i> AGO - DIC
-                            </button>
-                        </div>
-                        <p class="periodo-actual">Período activo: <span id="periodoActualDisplay">ENE - JUN</span></p>
-                    </div>
-                    
-                    <div class="admin-section">
-                        <h4><i class="fas fa-database"></i> Datos Guardados</h4>
-                        <button class="admin-btn" id="verEncuestasBtn">
-                            <i class="fas fa-eye"></i> Ver todas las encuestas
-                        </button>
-                    </div>
-                    
-                    <div class="admin-section">
-                        <h4><i class="fas fa-cog"></i> Configuración</h4>
-                        <button class="admin-btn" id="gestionarMateriasBtn">
-                            <i class="fas fa-book"></i> Gestionar materias
-                        </button>
-                        <button class="admin-btn" id="gestionarProfesoresBtn">
-                            <i class="fas fa-users"></i> Gestionar profesores
-                        </button>
-                    </div>
-                </div>
+                <p class="periodo-actual">Período activo: <span id="periodoActualDisplay">ENE - JUN</span></p>
+            </div>
+            
+            <div class="admin-section">
+                <h4><i class="fas fa-database"></i> Datos Guardados</h4>
+                <button class="admin-btn" id="verEncuestasBtn">
+                    <i class="fas fa-eye"></i> Ver todas las encuestas
+                </button>
+                <!-- NUEVO: Botón de Backup -->
+                <button class="admin-btn" id="backupBtn">
+    <i class="fas fa-download"></i> Backup de Seguridad
+</button>
+            </div>
+            
+            <div class="admin-section">
+                <h4><i class="fas fa-cog"></i> Configuración</h4>
+                <button class="admin-btn" id="gestionarMateriasBtn">
+                    <i class="fas fa-book"></i> Gestionar materias
+                </button>
+                <button class="admin-btn" id="gestionarProfesoresBtn">
+                    <i class="fas fa-users"></i> Gestionar profesores
+                </button>
+            </div>
+            
+            <!-- OPCIONAL: Sección de Restauración -->
+            <div class="admin-section">
+                <h4><i class="fas fa-undo-alt"></i> Restauración</h4>
+                <button class="admin-btn" id="restaurarBtn">
+    <i class="fas fa-upload"></i> Restaurar desde Backup
+</button>
             </div>
         </div>
+    </div>
+</div>
 
         <!-- Sistema de notificaciones visuales -->
         <div id="notificationArea" class="notification-container"></div>
@@ -191,7 +203,7 @@
 
         <!-- ===== PANEL 2: MATERIAS ===== -->
         <div class="panel">
-            <h2 class="panel-title">Materias que puedo / me gustaría impartir</h2>
+            <h2 class="panel-title">Materias que puedo / Me gustaría impartir</h2>
             <p>Selecciona las materias que deseas impartir. Puedes filtrar por carrera/posgrado y semestre.</p>
             
             <!-- FILTROS COMBINADOS -->
@@ -444,6 +456,52 @@ El nivel de preferencia indica tu grado de interés en impartir cada materia:
         </footer>
     </div>
 
+    <!-- MODAL DE RECUPERACIÓN DE BORRADOR -->
+<div class="modal-overlay" id="borradorModal" style="display: none;">
+    <div class="modal-contenido" style="max-width: 450px;">
+        <div class="modal-header" style="background: linear-gradient(135deg, var(--itc-azul-oscuro), var(--itc-azul-medio));">
+            <h3><i class="fas fa-save" style="color: var(--itc-dorado);"></i> Borrador encontrado</h3>
+            <button class="modal-cerrar" id="cerrarBorradorBtn" style="background: rgba(255,255,255,0.2);">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body" style="padding: 25px; text-align: center;">
+            <p style="margin-bottom: 20px; font-size: 1.1rem; color: var(--itc-azul-oscuro);">
+                Tienes un borrador guardado de una encuesta anterior.
+            </p>
+            <div id="borradorInfo" style="background: #e6f3ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left; border-left: 4px solid var(--itc-azul-claro);">
+                <p style="margin: 8px 0; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-user" style="width: 20px; color: var(--itc-azul-claro);"></i>
+                    <strong>Profesor:</strong> <span id="borradorProfesor">-</span>
+                </p>
+                <p style="margin: 8px 0; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-book" style="width: 20px; color: var(--itc-azul-claro);"></i>
+                    <strong>Materias:</strong> <span id="borradorMaterias">0</span>
+                </p>
+                <p style="margin: 8px 0; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-clock" style="width: 20px; color: var(--itc-azul-claro);"></i>
+                    <strong>Horarios:</strong> <span id="borradorHorarios">0</span>
+                </p>
+                <p style="margin: 8px 0; display: flex; align-items: center; gap: 10px;">
+                    <i class="far fa-calendar-alt" style="width: 20px; color: var(--itc-azul-claro);"></i>
+                    <strong>Guardado:</strong> <span id="borradorFecha">-</span>
+                </p>
+            </div>
+            <p style="color: #7f8c8d; font-size: 0.9rem; margin-bottom: 20px;">
+                ¿Qué deseas hacer?
+            </p>
+        </div>
+        <div class="modal-footer" style="justify-content: center; gap: 15px;">
+            <button class="btn btn-success" id="btnRecuperarBorrador" style="background: var(--itc-azul-claro);">
+                <i class="fas fa-redo-alt"></i> Recuperar
+            </button>
+            <button class="btn btn-secondary" id="btnDescartarBorrador" onclick="descartarBorradorDirecto()" style="background: #7f8c8d;">
+    <i class="fas fa-trash"></i> Descartar
+</button>
+        </div>
+    </div>
+</div>
+
     <!-- Funciones de validación -->
     <script>
         function soloLetras(e) {
@@ -500,6 +558,59 @@ El nivel de preferencia indica tu grado de interés en impartir cada materia:
     <script src="https://unpkg.com/pocketbase@0.25.2/dist/pocketbase.umd.js"></script>
     <script src="script.js"></script>
 
+<!-- BOTÓN DE MODO OSCURO/CLARO -->
+<button id="themeToggle" class="theme-toggle-btn" title="Cambiar tema">
+    <span class="theme-text">Modo Oscuro</span>
+</button>
 
+<!-- MODAL PARA RECUPERAR ENCUESTA ANTERIOR -->
+<div class="modal-overlay" id="modalRecuperarEncuesta" style="display: none;">
+    <div class="modal-contenido" style="max-width: 500px;">
+        <div class="modal-header" style="background: linear-gradient(135deg, var(--itc-azul-oscuro), var(--itc-azul-medio));">
+            <h3><i class="fas fa-history" style="color: var(--itc-dorado);"></i> Encuesta anterior encontrada</h3>
+            <button class="modal-cerrar" id="cerrarRecuperarModalBtn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body" style="padding: 20px 25px;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <i class="fas fa-calendar-alt" style="font-size: 2.5rem; color: var(--itc-azul-claro);"></i>
+            </div>
+            <div id="recuperarInfo" style="background: var(--fondo-panel-secundario); padding: 15px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid var(--itc-azul-claro);">
+                <p style="margin: 8px 0; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-user" style="width: 20px; color: var(--itc-azul-claro);"></i>
+                    <strong>Profesor:</strong> <span id="recuperarProfesor">-</span>
+                </p>
+                <p style="margin: 8px 0; display: flex; align-items: center; gap: 10px;">
+                    <i style="width: 20px; color: var(--itc-azul-claro);"></i>
+                    <strong>Fecha de envío:</strong> <span id="recuperarFecha">-</span>
+                </p>
+                <p style="margin: 8px 0; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-book" style="width: 20px; color: var(--itc-azul-claro);"></i>
+                    <strong>Materias:</strong> <span id="recuperarMaterias">0</span>
+                </p>
+                <p style="margin: 8px 0; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-clock" style="width: 20px; color: var(--itc-azul-claro);"></i>
+                    <strong>Horarios:</strong> <span id="recuperarHorarios">0</span>
+                </p>
+                <p style="margin: 8px 0; display: flex; align-items: center; gap: 10px;">
+                    <i class="fas fa-id-card" style="width: 20px; color: var(--itc-azul-claro);"></i>
+                    <strong>Clave docente:</strong> <span id="recuperarClave">-</span>
+                </p>
+            </div>
+            <p style="color: var(--texto-secundario); font-size: 0.9rem; text-align: center; margin-bottom: 0;">
+                ¿Deseas cargar estos datos para empezar una nueva encuesta?
+            </p>
+        </div>
+        <div class="modal-footer" style="justify-content: center; gap: 15px;">
+            <button class="btn btn-success" id="btnRecuperarEncuestaConfirmar" style="background: var(--itc-azul-claro);">
+                <i class="fas fa-check-circle"></i> Sí, cargar
+            </button>
+            <button class="btn btn-secondary" id="btnRecuperarEncuestaCancelar">
+                <i class="fas fa-times"></i> No, empezar desde cero
+            </button>
+        </div>
+    </div>
+</div>
 </body>
 </html>

@@ -3,138 +3,136 @@ const carrerasDataENEJUN = {
     'arquitectura': {
         nombre: 'Arquitectura',
         materias: [
-            { nombre: 'Análisis Crítico de la Arquitectura y el Arte II', semestre: 2 },
-            { nombre: 'Fundamentos Teóricos del Diseño II', semestre: 2 },
-            { nombre: 'Geometría Descriptiva II', semestre: 2 },
-            { nombre: 'Matemáticas Aplicadas a la Arquitectura', semestre: 2 },
-            { nombre: 'Metodología para el Diseño', semestre: 2 },
-            { nombre: 'Taller de Lenguaje Arquitectónico I', semestre: 2 },
-            { nombre: 'Análisis Crítico de la Arquitectura y el Arte IV', semestre: 4 },
-            { nombre: 'Estructuras II', semestre: 4 },
-            { nombre: 'Instalaciones I', semestre: 4 },
-            { nombre: 'Pensamiento Arquitectónico Contemporáneo', semestre: 4 },
-            { nombre: 'Taller de Construcción I', semestre: 4 },
-            { nombre: 'Taller de Diseño II', semestre: 4 },
-            { nombre: 'Administración de la Construcción I', semestre: 6 },
-            { nombre: 'Estructuras de Acero', semestre: 6 },
-            { nombre: 'Taller de Diseño IV', semestre: 6 },
-            { nombre: 'Taller de Investigación I', semestre: 6 },
-            { nombre: 'Urbanismo I', semestre: 6 },
-            { nombre: 'Administración de Empresas Constructoras I', semestre: 8 },
-            { nombre: 'Gestión Urbanística', semestre: 8 },
-            { nombre: 'Taller de Diseño VI', semestre: 8 },
-            { nombre: 'Plan de Desarrollo Bioclimático y Sustentable', semestre: 8 },
-            { nombre: 'Arquitectura Urbana Sustentable para Zonas Turísticas', semestre: 8 },
-            { nombre: 'Sistemas de Automatizacion en Interiores', semestre: 8 }
+            { nombre: 'Análisis Crítico de la Arquitectura y el Arte II', semestre: 2, horas: 4 },
+            { nombre: 'Fundamentos Teóricos del Diseño II', semestre: 2, horas: 4 },
+            { nombre: 'Geometría Descriptiva II', semestre: 2, horas: 4 },
+            { nombre: 'Matemáticas Aplicadas a la Arquitectura', semestre: 2, horas: 4 },
+            { nombre: 'Metodología para el Diseño', semestre: 2, horas: 4 },
+            { nombre: 'Taller de Lenguaje Arquitectónico I', semestre: 2, horas: 6 },
+            { nombre: 'Análisis Crítico de la Arquitectura y el Arte IV', semestre: 4, horas: 4 },
+            { nombre: 'Estructuras II', semestre: 4, horas: 4 },
+            { nombre: 'Instalaciones I', semestre: 4, horas: 4 },
+            { nombre: 'Pensamiento Arquitectónico Contemporáneo', semestre: 4, horas: 4 },
+            { nombre: 'Taller de Construcción I', semestre: 4, horas: 6 },
+            { nombre: 'Taller de Diseño II', semestre: 4, horas: 8 },
+            { nombre: 'Administración de la Construcción I', semestre: 6, horas: 4 },
+            { nombre: 'Estructuras de Acero', semestre: 6, horas: 4 },
+            { nombre: 'Taller de Diseño IV', semestre: 6, horas: 8 },
+            { nombre: 'Taller de Investigación I', semestre: 6, horas: 4 },
+            { nombre: 'Urbanismo I', semestre: 6, horas: 4 },
+            { nombre: 'Administración de Empresas Constructoras I', semestre: 8, horas: 4 },
+            { nombre: 'Gestión Urbanística', semestre: 8, horas: 4 },
+            { nombre: 'Taller de Diseño VI', semestre: 8, horas: 8 }
         ]
     },
     'civil': {
         nombre: 'Ing. Civil',
         materias: [
-            { nombre: 'Cálculo Integral', semestre: 2 },
-            { nombre: 'Cálculo Vectorial', semestre: 2 },
-            { nombre: 'Geología', semestre: 2 },
-            { nombre: 'Materiales y Procesos Constructivos', semestre: 2 },
-            { nombre: 'Probabilidad y Estadística', semestre: 2 },
-            { nombre: 'Topografía', semestre: 2 },
-            { nombre: 'Dinámica', semestre: 4 },
-            { nombre: 'Fundamentos de la Mecánica de los Medios Continuos', semestre: 4 },
-            { nombre: 'Maquinaria Pesada y Movimiento de Tierra', semestre: 4 },
-            { nombre: 'Mecánica de Suelos', semestre: 4 },
-            { nombre: 'Modelos de Optimización de Recursos', semestre: 4 },
-            { nombre: 'Métodos Numéricos', semestre: 4 },
-            { nombre: 'Administración de la Construcción', semestre: 6 },
-            { nombre: 'Análisis Estructural', semestre: 6 },
-            { nombre: 'Diseño y Construcción de Pavimentos', semestre: 6 },
-            { nombre: 'Hidrología Superficial', semestre: 6 },
-            { nombre: 'Hidráulica de Canales', semestre: 6 },
-            { nombre: 'Instalaciones en los Edificios', semestre: 6 },
-            { nombre: 'Alcantarillado', semestre: 8 },
-            { nombre: 'Diseño Estructural de Cimentaciones', semestre: 8 },
-            { nombre: 'Diseño de Elementos de Acero', semestre: 8 },
-            { nombre: 'Formulación y Evaluación de Proyectos', semestre: 8 },
-            { nombre: 'Supervision y Control De Calidad en las Obras', semestre: 8 },
-            { nombre: 'Instalaciones Espaciales en Edificios', semestre: 8 }
+            { nombre: 'Cálculo Integral', semestre: 2, horas: 5 },
+            { nombre: 'Algebra lineal', semestre: 2, horas: 5 },
+            { nombre: 'Geología', semestre: 2, horas: 4 },
+            { nombre: 'Materiales y Procesos Constructivos', semestre: 2, horas: 4 },
+            { nombre: 'Probabilidad y Estadística', semestre: 2, horas: 4 },
+            { nombre: 'Topografía', semestre: 2, horas: 8 },
+            { nombre: 'Dinámica', semestre: 4, horas: 5 },
+            { nombre: 'Fundamentos de la Mecánica de los Medios Continuos', semestre: 4, horas: 4 },
+            { nombre: 'Maquinaria Pesada y Movimiento de Tierra', semestre: 4, horas: 4 },
+            { nombre: 'Mecánica de Suelos', semestre: 4, horas: 6 },
+            { nombre: 'Modelos de Optimización de Recursos', semestre: 4, horas: 4 },
+            { nombre: 'Ecuaciones Diferenciales', semestre: 4, horas: 5 },
+            { nombre: 'Administración de la Construcción', semestre: 6, horas: 4 },
+            { nombre: 'Análisis Estructural', semestre: 6, horas: 5 },
+            { nombre: 'Diseño y Construcción de Pavimentos', semestre: 6, horas: 6 },
+            { nombre: 'Hidrología Superficial', semestre: 6, horas: 4 },
+            { nombre: 'Hidráulica de Canales', semestre: 6, horas: 6 },
+            { nombre: 'Instalaciones en los Edificios', semestre: 6, horas: 5 },
+            { nombre: 'Alcantarillado', semestre: 8, horas: 4 },
+            { nombre: 'Diseño Estructural de Cimentaciones', semestre: 8, horas: 4 },
+            { nombre: 'Diseño de Elementos de Acero', semestre: 8, horas: 5 },
+            { nombre: 'Formulación y Evaluación de Proyectos', semestre: 8, horas: 4 },
+            { nombre: 'Supervision y Control De Calidad en las Obras', semestre: 8, horas: 5 },
+            { nombre: 'Instalaciones Espaciales en Edificios', semestre: 8, horas: 5 }
         ]
     },
     'electromecanica': {
         nombre: 'Ing. Electromecánica',
         materias: [
-            { nombre: 'Dibujo Electromecánico', semestre: 2 },
-            { nombre: 'Estática', semestre: 2 },
-            { nombre: 'Metrología y Normalización', semestre: 2 },
-            { nombre: 'Tecnología de los Materiales', semestre: 2 },
-            { nombre: 'Álgebra Lineal', semestre: 2 },
-            { nombre: 'Análisis de Circuitos Eléctricos de CD', semestre: 4 },
-            { nombre: 'Análisis y Síntesis de Mecanismos', semestre: 4 },
-            { nombre: 'Ecuaciones Diferenciales', semestre: 4 },
-            { nombre: 'Electrónica Analógica', semestre: 4 },
-            { nombre: 'Mecánica de Fluidos', semestre: 4 },
-            { nombre: 'Termodinámica', semestre: 4 },
-            { nombre: 'Administración y Técnicas de Mantenimiento', semestre: 6 },
-            { nombre: 'Ahorro de Energía', semestre: 6 },
-            { nombre: 'Instalaciones Eléctricas', semestre: 6 },
-            { nombre: 'Máquinas Eléctricas', semestre: 6 },
-            { nombre: 'Máquinas y Equipos Térmicos I', semestre: 6 },
-            { nombre: 'Taller de Investigación I', semestre: 6 },
-            { nombre: 'Formulación y Evaluación de Proyectos', semestre: 8 },
-            { nombre: 'Refrigeración y Aire Acondicionado', semestre: 8 },
-            { nombre: 'Sistemas Hidráulicos y Neumáticos de Potencia', semestre: 8 },
-            { nombre: 'Subestaciones Eléctricas', semestre: 8 },
-            { nombre: 'Sistemas Solares Fotovoltaicos y Térmicos', semestre: 8 }
+            { nombre: 'Probabilidad y Estadística', semestre: 2, horas: 4 },
+            { nombre: 'Cálculo Integral', semestre: 2, horas: 5 },
+            { nombre: 'Estática', semestre: 2, horas: 4 },
+            { nombre: 'Metrología y Normalización', semestre: 2, horas: 4 },
+            { nombre: 'Tecnología de los Materiales', semestre: 2, horas: 4 },
+            { nombre: 'Desarollo Sustentable', semestre: 2, horas: 5 },
+            { nombre: 'Análisis de Circuitos Eléctricos de CD', semestre: 4, horas: 5 },
+            { nombre: 'Análisis y Síntesis de Mecanismos', semestre: 4, horas: 4 },
+            { nombre: 'Ecuaciones Diferenciales', semestre: 4, horas: 5 },
+            { nombre: 'Mecánica de Materiales', semestre: 4, horas: 6 },
+            { nombre: 'Diseño e Ingeniería Asistido por Computadora', semestre: 4, horas: 4 },
+            { nombre: 'Termodinámica', semestre: 4, horas: 4 },
+            { nombre: 'Administración y Técnicas de Mantenimiento', semestre: 6, horas: 6 },
+            { nombre: 'Electrónica Digital', semestre: 6, horas: 4 },
+            { nombre: 'Instalaciones Eléctricas', semestre: 6, horas: 5 },
+            { nombre: 'Máquinas Eléctricas', semestre: 6, horas: 6 },
+            { nombre: 'Máquinas y Equipos Térmicos I', semestre: 6, horas: 4 },
+            { nombre: 'Sistemas y Maquinas de Fluido', semestre: 6, horas: 6 },
+            { nombre: 'Formulación y Evaluación de Proyectos', semestre: 8, horas: 4 },
+            { nombre: 'Ingenieria de control clásico', semestre: 8, horas: 6 },
+            { nombre: 'Sistemas Hidráulicos y Neumáticos de Potencia', semestre: 8, horas: 6 },
+            { nombre: 'Subestaciones Eléctricas', semestre: 8, horas: 5 },
+            { nombre: 'Sistemas Solares Fotovoltaicos y Térmicos', semestre: 8, horas: 5 }
         ]
     },
     'ferroviaria': {
         nombre: 'Ing. Ferroviaria',
         materias: [
-            { nombre: 'Cálculo Integral', semestre: 2 },
-            { nombre: 'Dibujo Asistido por Computadora', semestre: 2 },
-            { nombre: 'Metrología y Normalización', semestre: 2 },
-            { nombre: 'Probabilidad y Estadística', semestre: 2 },
-            { nombre: 'Topografía para Vías Ferroviarias', semestre: 2 },
-            { nombre: 'Álgebra Lineal', semestre: 2 },
-            { nombre: 'Circuitos Eléctricos y Electrónicos', semestre: 4 },
-            { nombre: 'Ecuaciones Diferenciales', semestre: 4 },
-            { nombre: 'Innovación y Gestión del Conocimiento', semestre: 4 },
-            { nombre: 'Métodos Numéricos', semestre: 4 },
-            { nombre: 'Principios Básicos de Geotecnia', semestre: 4 },
-            { nombre: 'Vibraciones Mecánicas', semestre: 4 },
-            { nombre: 'Electrificación de Sistemas Ferroviarios', semestre: 6 },
-            { nombre: 'Gestión de la Calidad del Servicio Ferroviario', semestre: 6 },
-            { nombre: 'Instrumentación', semestre: 6 },
-            { nombre: 'Logística Ferroviaria', semestre: 6 },
-            { nombre: 'Material Rodante', semestre: 6 },
-            { nombre: 'Supervisión y Control de Calidad de la Infraestructura Ferroviaria', semestre: 6 },
-            { nombre: 'Automatización Ferroviaria', semestre: 8 },
-            { nombre: 'Mantenimiento en Sistemas Ferroviarias', semestre: 8 }
+            { nombre: 'Cálculo Integral', semestre: 2, horas: 5 },
+            { nombre: 'Dibujo Asistido por Computadora', semestre: 2, horas: 4 },
+            { nombre: 'Metrología y Normalización', semestre: 2, horas: 4 },
+            { nombre: 'Probabilidad y Estadística', semestre: 2, horas: 4 },
+            { nombre: 'Topografía para Vías Ferroviarias', semestre: 2, horas: 8 },
+            { nombre: 'Álgebra Lineal', semestre: 2, horas: 5 },
+            { nombre: 'Circuitos Eléctricos y Electrónicos', semestre: 4, horas: 5 },
+            { nombre: 'Ecuaciones Diferenciales', semestre: 4, horas: 5 },
+            { nombre: 'Innovación y Gestión del Conocimiento', semestre: 4, horas: 3 },
+            { nombre: 'Métodos Numéricos', semestre: 4, horas: 4 },
+            { nombre: 'Principios Básicos de Geotecnia', semestre: 4, horas: 6 },
+            { nombre: 'Vibraciones Mecánicas', semestre: 4, horas: 5 },
+            { nombre: 'Electrificación de Sistemas Ferroviarios', semestre: 6, horas: 8 },
+            { nombre: 'Gestión de la Calidad del Servicio Ferroviario', semestre: 6, horas: 5 },
+            { nombre: 'Instrumentación', semestre: 6, horas: 5 },
+            { nombre: 'Logística Ferroviaria', semestre: 6, horas: 5 },
+            { nombre: 'Material Rodante', semestre: 6, horas: 5 },
+            { nombre: 'Supervisión y Control de Calidad de la Infraestructura Ferroviaria', semestre: 6, horas: 5 },
+            { nombre: 'Automatización Ferroviaria', semestre: 8, horas: 5 },
+            { nombre: 'Mantenimiento en Sistemas Ferroviarias', semestre: 8, horas: 5 }
         ]
     },
     'mecatronica': {
         nombre: 'Ing. Mecatrónica',
         materias: [
-            { nombre: 'Administración y Contabilidad', semestre: 2 },
-            { nombre: 'Ciencia e Ingeniería de Materiales', semestre: 2 },
-            { nombre: 'Cálculo Integral', semestre: 2 },
-            { nombre: 'Estadística y Control de Calidad', semestre: 2 },
-            { nombre: 'Programación Básica', semestre: 2 },
-            { nombre: 'Álgebra Lineal', semestre: 2 },
-            { nombre: 'Análisis de Circuitos Eléctricos', semestre: 4 },
-            { nombre: 'Dinámica', semestre: 4 },
-            { nombre: 'Ecuaciones Diferenciales', semestre: 4 },
-            { nombre: 'Fundamentos de Termodinámica', semestre: 4 },
-            { nombre: 'Mecánica de Materiales', semestre: 4 },
-            { nombre: 'Diseño de Elementos Mecánicos', semestre: 6 },
-            { nombre: 'Electrónica Digital', semestre: 6 },
-            { nombre: 'Electrónica de Potencia Aplicada', semestre: 6 },
-            { nombre: 'Instrumentación', semestre: 6 },
-            { nombre: 'Taller de Investigación II', semestre: 6 },
-            { nombre: 'Vibraciones Mecánicas', semestre: 6 },
-            { nombre: 'Control', semestre: 8 },
-            { nombre: 'Controladores Lógicos Programables', semestre: 8 },
-            { nombre: 'Formulación y Evaluación de Proyectos', semestre: 8 },
-            { nombre: 'Procesamiento Digital de Señales 1', semestre: 8 },
-            { nombre: 'IOT e Industria 4.0', semestre: 8 },
-            { nombre: 'Analisis de Costos Mecatrónicos', semestre: 8 }
+            { nombre: 'Administración y Contabilidad', semestre: 2, horas: 4 },
+            { nombre: 'Ciencia e Ingeniería de Materiales', semestre: 2, horas: 5 },
+            { nombre: 'Cálculo Integral', semestre: 2, horas: 5 },
+            { nombre: 'Estadística y Control de Calidad', semestre: 2, horas: 4 },
+            { nombre: 'Programación Básica', semestre: 2, horas: 5 },
+            { nombre: 'Álgebra lineal', semestre: 2, horas: 5 },
+            { nombre: 'Análisis de Circuitos Eléctricos', semestre: 4, horas: 6 },
+            { nombre: 'Dinámica', semestre: 4, horas: 4 },
+            { nombre: 'Ecuaciones Diferenciales', semestre: 4, horas: 5 },
+            { nombre: 'Fundamentos de Termodinámica', semestre: 4, horas: 4 },
+            { nombre: 'Mecánica de Materiales', semestre: 4, horas: 6 },
+            { nombre: 'Diseño de Elementos Mecánicos', semestre: 6, horas: 5 },
+            { nombre: 'Electrónica Digital', semestre: 6, horas: 5 },
+            { nombre: 'Electrónica de Potencia Aplicada', semestre: 6, horas: 6 },
+            { nombre: 'Instrumentación', semestre: 6, horas: 5 },
+            { nombre: 'Taller de Investigación II', semestre: 6, horas: 4 },
+            { nombre: 'Vibraciones Mecánicas', semestre: 6, horas: 5 },
+            { nombre: 'Control', semestre: 8, horas: 6 },
+            { nombre: 'Controladores Lógicos Programables', semestre: 8, horas: 5 },
+            { nombre: 'Formulación y Evaluación de Proyectos', semestre: 8, horas: 3 },
+            { nombre: 'Procesamiento Digital de Señales I', semestre: 8, horas: 5 },
+            { nombre: 'IOT e Industria 4.0', semestre: 8, horas: 5 },
+            { nombre: 'Analisis de Costos Mecatrónicos', semestre: 8, horas: 5 }
         ]
     }
 };
@@ -144,147 +142,151 @@ const carrerasDataAGODIC = {
     'arquitectura': {
         nombre: 'Arquitectura',
         materias: [
-            { nombre: 'Análisis Crítico de la Arquitectura y el Arte I', semestre: 1 },
-            { nombre: 'Análisis Proyectual', semestre: 1 },
-            { nombre: 'Fundamentos Teóricos del Diseño', semestre: 1 },
-            { nombre: 'Fundamentos de Investigación', semestre: 1 },
-            { nombre: 'Geometría Descriptiva I', semestre: 1 },
-            { nombre: 'Taller de Expresión Plástica', semestre: 1 },
-            { nombre: 'Análisis Crítico de la Arquitectura y el Arte III', semestre: 3 },
-            { nombre: 'Estructuras I', semestre: 3 },
-            { nombre: 'Propiedades y Comportamiento de los Materiales', semestre: 3 },
-            { nombre: 'Taller de Diseño I', semestre: 3 },
-            { nombre: 'Taller de Lenguaje Arquitectónico II', semestre: 3 },
-            { nombre: 'Topografía', semestre: 3 },
-            { nombre: 'Desarrollo Sustentable', semestre: 5 },
-            { nombre: 'Estructuras de Concreto', semestre: 5 },
-            { nombre: 'Estética', semestre: 5 },
-            { nombre: 'Instalaciones II', semestre: 5 },
-            { nombre: 'Taller de Construcción II', semestre: 5 },
-            { nombre: 'Taller de Diseño III', semestre: 5 },
-            { nombre: 'Administración de la Construcción II', semestre: 7 },
-            { nombre: 'Taller de Diseño V', semestre: 7 },
-            { nombre: 'Taller de Investigación II', semestre: 7 },
-            { nombre: 'Taller de Ética', semestre: 7 },
-            { nombre: 'Urbanismo II', semestre: 7 },
-            { nombre: 'Administración de Empresas Constructoras II', semestre: 9 }
+            { nombre: 'Análisis Crítico de la Arquitectura y el Arte I', semestre: 1, horas: 4 },
+            { nombre: 'Análisis Proyectual', semestre: 1, horas: 4 },
+            { nombre: 'Fundamentos Teóricos del Diseño I', semestre: 1, horas: 4 },
+            { nombre: 'Fundamentos de Investigación', semestre: 1, horas: 4 },
+            { nombre: 'Geometría Descriptiva I', semestre: 1, horas: 4 },
+            { nombre: 'Taller de Expresión Plástica', semestre: 1, horas: 6 },
+            { nombre: 'Análisis Crítico de la Arquitectura y el Arte III', semestre: 3, horas: 4 },
+            { nombre: 'Estructuras I', semestre: 3, horas: 4 },
+            { nombre: 'Propiedades y Comportamiento de los Materiales', semestre: 3, horas: 4 },
+            { nombre: 'Taller de Diseño I', semestre: 3, horas: 6 },
+            { nombre: 'Taller de Lenguaje Arquitectónico II', semestre: 3, horas: 6 },
+            { nombre: 'Topografía', semestre: 3, horas: 4 },
+            { nombre: 'Desarrollo Sustentable', semestre: 5, horas: 5 },
+            { nombre: 'Estructuras de Concreto', semestre: 5, horas: 6 },
+            { nombre: 'Estética', semestre: 5, horas: 3 },
+            { nombre: 'Instalaciones II', semestre: 5, horas: 4 },
+            { nombre: 'Taller de Construcción II', semestre: 5, horas: 6 },
+            { nombre: 'Taller de Diseño III', semestre: 5, horas: 8 },
+            { nombre: 'Administración de la Construcción II', semestre: 7, horas: 4 },
+            { nombre: 'Taller de Diseño V', semestre: 7, horas: 8 },
+            { nombre: 'Taller de Investigación II', semestre: 7, horas: 4 },
+            { nombre: 'Taller de Ética', semestre: 7, horas: 4 },
+            { nombre: 'Urbanismo II', semestre: 7, horas: 4 },
+            { nombre: 'Administración de Empresas Constructoras II', semestre: 9, horas: 4 }
         ]
     },
     'civil': {
         nombre: 'Ing. Civil',
         materias: [
-            { nombre: 'Cálculo Diferencial', semestre: 1 },
-            { nombre: 'Dibujo en Ingeniería Civil', semestre: 1 },
-            { nombre: 'Fundamentos de Investigación', semestre: 1 },
-            { nombre: 'Química', semestre: 1 },
-            { nombre: 'Software en Ingeniería Civil', semestre: 1 },
-            { nombre: 'Taller de Ética', semestre: 1 },
-            { nombre: 'Carreteras', semestre: 3 },
-            { nombre: 'Ecuaciones Diferenciales', semestre: 3 },
-            { nombre: 'Estática', semestre: 3 },
-            { nombre: 'Sistemas de Transporte', semestre: 3 },
-            { nombre: 'Tecnología del Concreto', semestre: 3 },
-            { nombre: 'Álgebra Lineal', semestre: 3 },
-            { nombre: 'Costos y Presupuestos', semestre: 5 },
-            { nombre: 'Desarrollo Sustentable', semestre: 5 },
-            { nombre: 'Hidráulica Básica', semestre: 5 },
-            { nombre: 'Mecánica de Materiales', semestre: 5 },
-            { nombre: 'Mecánica de Suelos Aplicada', semestre: 5 },
-            { nombre: 'Taller de Investigación I', semestre: 5 },
-            { nombre: 'Abastecimiento de Agua', semestre: 7 },
-            { nombre: 'Análisis Estructural Avanzado', semestre: 7 },
-            { nombre: 'Diseño de Elementos de Concreto Reforzado', semestre: 7 },
-            { nombre: 'Taller de Investigación II', semestre: 7 },
-            { nombre: 'Planificacion Urbana', semestre: 9 },
-            { nombre: 'Diseños de Plantas de Tratamiento de Aguas Residuales', semestre: 9 },
-            { nombre: 'Diseño Estructural', semestre: 9 }
+            { nombre: 'Cálculo Diferencial', semestre: 1, horas: 5 },
+            { nombre: 'Dibujo en Ingeniería Civil', semestre: 1, horas: 6 },
+            { nombre: 'Fundamentos de Investigación', semestre: 1, horas: 4 },
+            { nombre: 'Química', semestre: 1, horas: 4 },
+            { nombre: 'Software en Ingeniería Civil', semestre: 1, horas: 4 },
+            { nombre: 'Taller de Ética', semestre: 1, horas: 4 },
+            { nombre: 'Carreteras', semestre: 3, horas: 6 },
+            { nombre: 'Desarrollo Sustentable', semestre: 3, horas: 5 },
+            { nombre: 'Estática', semestre: 3, horas: 5 },
+            { nombre: 'Sistemas de Transporte', semestre: 3, horas: 4 },
+            { nombre: 'Tecnología del Concreto', semestre: 3, horas: 4 },
+            { nombre: 'Cálculo Vectorial', semestre: 3, horas: 5 },
+            { nombre: 'Costos y Presupuestos', semestre: 5, horas: 4 },
+            { nombre: 'Métodos Numéricos', semestre: 5, horas: 4 },
+            { nombre: 'Hidráulica Básica', semestre: 5, horas: 6 },
+            { nombre: 'Mecánica de Materiales', semestre: 5, horas: 5 },
+            { nombre: 'Mecánica de Suelos Aplicada', semestre: 5, horas: 6 },
+            { nombre: 'Taller de Investigación I', semestre: 5, horas: 4 },
+            { nombre: 'Abastecimiento de Agua', semestre: 7, horas: 6 },
+            { nombre: 'Análisis Estructural Avanzado', semestre: 7, horas: 5 },
+            { nombre: 'Diseño de Elementos de Concreto Reforzado', semestre: 7, horas: 5 },
+            { nombre: 'Taller de Investigación II', semestre: 7, horas: 4 },
+            { nombre: 'Planificacion Urbana', semestre: 9, horas: 5 },
+            { nombre: 'Diseños de Plantas de Tratamiento de Aguas Residuales', semestre: 9, horas: 5 },
+            { nombre: 'Diseño Estructural', semestre: 9, horas: 5 }
         ]
     },
     'electromecanica': {
         nombre: 'Ing. Electromecánica',
         materias: [
-            { nombre: 'Fundamentos de Investigación', semestre: 1 },
-            { nombre: 'Introducción a la Programación', semestre: 1 },
-            { nombre: 'Química', semestre: 1 },
-            { nombre: 'Taller de Ética', semestre: 1 },
-            { nombre: 'Cálculo Vectorial', semestre: 3 },
-            { nombre: 'Dinámica', semestre: 3 },
-            { nombre: 'Electricidad y Magnetismo', semestre: 3 },
-            { nombre: 'Mecánica de Materiales', semestre: 3 },
-            { nombre: 'Probabilidad y Estadística', semestre: 3 },
-            { nombre: 'Procesos de Manufactura', semestre: 3 },
-            { nombre: 'Análisis de Circuitos Eléctricos de CA', semestre: 5 },
-            { nombre: 'Diseño de Elementos de Máquinas', semestre: 5 },
-            { nombre: 'Diseño e Ingeniería Asistidos por Computadora', semestre: 5 },
-            { nombre: 'Electrónica Digital', semestre: 5 },
-            { nombre: 'Sistemas y Máquinas de Fluidos', semestre: 5 },
-            { nombre: 'Transferencia de Calor', semestre: 5 },
-            { nombre: 'Controles Eléctricos', semestre: 7 },
-            { nombre: 'Ingeniería de Control Clásico', semestre: 7 },
-            { nombre: 'Máquinas y Equipos Térmicos II', semestre: 7 },
-            { nombre: 'Sistemas Eléctricos de Potencia', semestre: 7 },
-            { nombre: 'Taller de Investigación II', semestre: 7 },
-            { nombre: 'Fuentes Alternas de Energía', semestre: 7 },
-            { nombre: 'Energia Eolica', semestre: 9 },
-            { nombre: 'Biocombustibles', semestre: 9 }
+            { nombre: 'Algebra Lineal', semestre: 1, horas: 5 },
+            { nombre: 'Cálculo Diferencial', semestre: 1, horas: 5 },
+            { nombre: 'Fundamentos de Investigación', semestre: 1, horas: 4 },
+            { nombre: 'Introducción a la Programación', semestre: 1, horas: 4 },
+            { nombre: 'Química', semestre: 1, horas: 4 },
+            { nombre: 'Taller de Ética', semestre: 1, horas: 4 },
+            { nombre: 'Cálculo Vectorial', semestre: 3, horas: 5 },
+            { nombre: 'Dinámica', semestre: 3, horas: 4 },
+            { nombre: 'Electricidad y Magnetismo', semestre: 3, horas: 4 },
+            { nombre: 'Dibujo Electromecánico', semestre: 3, horas: 5 },
+            { nombre: 'Taller de Investigacion I', semestre: 3, horas: 4 },
+            { nombre: 'Procesos de Manufactura', semestre: 3, horas: 4 },
+            { nombre: 'Análisis de Circuitos Eléctricos de CA', semestre: 5, horas: 5 },
+            { nombre: 'Diseño de Elementos de Máquinas', semestre: 5, horas: 5 },
+            { nombre: 'Electrónica Analógica', semestre: 5, horas: 5 },
+            { nombre: 'Mecánica de Fluidos', semestre: 5, horas: 4 },
+            { nombre: 'Taller de Investigacion II', semestre: 5, horas: 4 },
+            { nombre: 'Transferencia de Calor', semestre: 5, horas: 4 },
+            { nombre: 'Controles Eléctricos', semestre: 7, horas: 5 },
+            { nombre: 'Refrigeracion y Aire Acondicionado', semestre: 7, horas: 5 },
+            { nombre: 'Máquinas y Equipos Térmicos II', semestre: 7, horas: 4 },
+            { nombre: 'Sistemas Eléctricos de Potencia', semestre: 7, horas: 5 },
+            { nombre: 'Marco Legal en la Gestion Energetica', semestre: 7, horas: 5 },
+            { nombre: 'Fuentes Alternas de Energía', semestre: 7, horas: 5 },
+            { nombre: 'Energia Eolica', semestre: 9, horas: 5 },
+            { nombre: 'Biocombustibles', semestre: 9, horas: 5 },
+            { nombre: 'Ahorro de Energía', semestre: 9, horas: 6 }
         ]
     },
     'ferroviaria': {
         nombre: 'Ing. Ferroviaria',
         materias: [
-            { nombre: 'Desarrollo Sustentable', semestre: 1 },
-            { nombre: 'Fundamentos de Investigación', semestre: 1 },
-            { nombre: 'Introducción a la Ingeniería Ferroviaria', semestre: 1 },
-            { nombre: 'Introducción a la Programación', semestre: 1 },
-            { nombre: 'Taller de Ética', semestre: 1 },
-            { nombre: 'Ciencia e Ingeniería de los Materiales', semestre: 3 },
-            { nombre: 'Cálculo Vectorial', semestre: 3 },
-            { nombre: 'Electromagnetismo', semestre: 3 },
-            { nombre: 'Gestión Ambiental Ferroviaria', semestre: 3 },
-            { nombre: 'Introducción a la Administración y Economía', semestre: 3 },
-            { nombre: 'Mecánica Clásica', semestre: 3 },
-            { nombre: 'Circuitos Electrónicos de Potencia', semestre: 5 },
-            { nombre: 'Diseño Mecánico I', semestre: 5 },
-            { nombre: 'Ferrocarriles', semestre: 5 },
-            { nombre: 'Fundamentos de Telecomunicaciones', semestre: 5 },
-            { nombre: 'Geotecnia Aplicada a la Infraestructura Ferroviaria', semestre: 5 },
-            { nombre: 'Taller de Investigación I', semestre: 5 },
-            { nombre: 'Fundamentos de Información Financiera', semestre: 7 },
-            { nombre: 'Sistemas Neumáticos Ferroviarios', semestre: 7 },
-            { nombre: 'Sistemas de Señalización y Control', semestre: 7 },
-            { nombre: 'Sistemas de Tracción y de Frenado', semestre: 7 },
-            { nombre: 'Taller de Investigación II', semestre: 7 }
+            { nombre: 'Desarrollo Sustentable', semestre: 1, horas: 5 },
+            { nombre: 'Cálculo Diferencial', semestre: 1, horas: 5 },
+            { nombre: 'Fundamentos de Investigación', semestre: 1, horas: 4 },
+            { nombre: 'Introducción a la Ingeniería Ferroviaria', semestre: 1, horas: 3 },
+            { nombre: 'Introducción a la Programación', semestre: 1, horas: 4 },
+            { nombre: 'Taller de Ética', semestre: 1, horas: 4 },
+            { nombre: 'Ciencia e Ingeniería de los Materiales', semestre: 3, horas: 5 },
+            { nombre: 'Cálculo Vectorial', semestre: 3, horas: 5 },
+            { nombre: 'Electromagnetismo', semestre: 3, horas: 5 },
+            { nombre: 'Gestión Ambiental Ferroviaria', semestre: 3, horas: 4 },
+            { nombre: 'Introducción a la Administración y Economía', semestre: 3, horas: 4 },
+            { nombre: 'Mecánica Clásica', semestre: 3, horas: 5 },
+            { nombre: 'Circuitos Electrónicos de Potencia', semestre: 5, horas: 5 },
+            { nombre: 'Diseño Mecánico I', semestre: 5, horas: 5 },
+            { nombre: 'Ferrocarriles', semestre: 5, horas: 5 },
+            { nombre: 'Fundamentos de Telecomunicaciones', semestre: 5, horas: 4 },
+            { nombre: 'Geotecnia Aplicada a la Infraestructura Ferroviaria', semestre: 5, horas: 6 },
+            { nombre: 'Taller de Investigación I', semestre: 5, horas: 4 },
+            { nombre: 'Fundamentos de Información Financiera', semestre: 7, horas: 3 },
+            { nombre: 'Sistemas Neumáticos Ferroviarios', semestre: 7, horas: 4 },
+            { nombre: 'Sistemas de Señalización y Control', semestre: 7, horas: 5 },
+            { nombre: 'Sistemas de Tracción y de Frenado', semestre: 7, horas: 6 },
+            { nombre: 'Taller de Investigación II', semestre: 7, horas: 4 }
         ]
     },
     'mecatronica': {
         nombre: 'Ing. Mecatrónica',
         materias: [
-            { nombre: 'Cálculo Diferencial', semestre: 1 },
-            { nombre: 'Dibujo Asistido por Computadora', semestre: 1 },
-            { nombre: 'Fundamentos de investigación', semestre: 1 },
-            { nombre: 'Metrológia y Normalización', semestre: 1 },
-            { nombre: 'Química', semestre: 1 },
-            { nombre: 'Taller de Ética', semestre: 1 },
-            { nombre: 'Cálculo Vectorial', semestre: 3 },
-            { nombre: 'Desarrollo Sustentable', semestre: 3 },
-            { nombre: 'Electromagnetismo', semestre: 3 },
-            { nombre: 'Estática', semestre: 3 },
-            { nombre: 'Métodos Numéricos', semestre: 3 },
-            { nombre: 'Procesos de Fabricación', semestre: 3 },
-            { nombre: 'Análisis de Fluidos', semestre: 5 },
-            { nombre: 'Electrónica Analógica', semestre: 5 },
-            { nombre: 'Mecanismos', semestre: 5 },
-            { nombre: 'Máquinas Eléctricas', semestre: 5 },
-            { nombre: 'Taller de Investigación I', semestre: 5 },
-            { nombre: 'Circuitos Hidráulicos y Neumáticos', semestre: 7 },
-            { nombre: 'Dinámica de Sistemas', semestre: 7 },
-            { nombre: 'Mantenimiento', semestre: 7 },
-            { nombre: 'Manufactura Avanzada', semestre: 7 },
-            { nombre: 'Microcontroladores', semestre: 7 },
-            { nombre: 'Programación Avanzada', semestre: 7 },
-            { nombre: 'Robótica', semestre: 9 },
-            { nombre: 'Procesamiento Digital de Señales 2', semestre: 9 },
-            { nombre: 'Control Neurodifuso Aplicado', semestre: 9 }
+            { nombre: 'Cálculo Diferencial', semestre: 1, horas: 5 },
+            { nombre: 'Dibujo Asistido por Computadora', semestre: 1, horas: 4 },
+            { nombre: 'Fundamentos de investigación', semestre: 1, horas: 4 },
+            { nombre: 'Metrológia y Normalización', semestre: 1, horas: 4 },
+            { nombre: 'Química', semestre: 1, horas: 4 },
+            { nombre: 'Taller de Ética', semestre: 1, horas: 4 },
+            { nombre: 'Cálculo Vectorial', semestre: 3, horas: 5 },
+            { nombre: 'Desarrollo Sustentable', semestre: 3, horas: 5 },
+            { nombre: 'Electromagnetismo', semestre: 3, horas: 5 },
+            { nombre: 'Estática', semestre: 3, horas: 4 },
+            { nombre: 'Métodos Numéricos', semestre: 3, horas: 4 },
+            { nombre: 'Procesos de Fabricación', semestre: 3, horas: 4 },
+            { nombre: 'Análisis de Fluidos', semestre: 5, horas: 4 },
+            { nombre: 'Electrónica Analógica', semestre: 5, horas: 6 },
+            { nombre: 'Mecanismos', semestre: 5, horas: 5 },
+            { nombre: 'Máquinas Eléctricas', semestre: 5, horas: 5 },
+            { nombre: 'Taller de Investigación I', semestre: 5, horas: 4 },
+            { nombre: 'Circuitos Hidráulicos y Neumáticos', semestre: 7, horas: 6 },
+            { nombre: 'Dinámica de Sistemas', semestre: 7, horas: 5 },
+            { nombre: 'Mantenimiento', semestre: 7, horas: 5 },
+            { nombre: 'Manufactura Avanzada', semestre: 7, horas: 5 },
+            { nombre: 'Microcontroladores', semestre: 7, horas: 5 },
+            { nombre: 'Programación Avanzada', semestre: 7, horas: 6 },
+            { nombre: 'Robótica', semestre: 9, horas: 5 },
+            { nombre: 'Procesamiento Digital de Señales 2', semestre: 9, horas: 5 },
+            { nombre: 'Control Neurodifuso Aplicado', semestre: 9, horas: 5 }
         ]
     },
     'maestria_ambiental': {
@@ -353,12 +355,562 @@ let periodoActivo = 'ene-jun';
 let adminActivo = false;
 let botonAdmin = null;
 let accesoURLValido = false;
+let yaPregunteEstaCombinacion = false;
+let bloqueado = false;
+let ultimaPreguntaEncuesta = null;
+let todasLasMaterias = [];
 
 // ===== VARIABLES PARA FILTROS EN GESTIÓN =====
 let filtroGestionMaterias = '';
 let filtroGestionCarrera = '';
 let materiasGestionOriginal = [];
 let filtroGestionProfesores = '';
+
+// ===== FUNCIONES DE VALIDACIÓN =====
+function soloLetras(e) {
+    const char = String.fromCharCode(e.keyCode);
+    if(!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(char)) {
+        e.preventDefault();
+        return false;
+    }
+    return true;
+}
+
+function soloNumeros(e) {
+    const char = String.fromCharCode(e.keyCode);
+    if(!/^[0-9]+$/.test(char)) {
+        e.preventDefault();
+        return false;
+    }
+    return true;
+}
+
+function validarEmail(email) {
+    if (!email) return false;
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+}
+
+function quitarAcentos(texto) {
+    return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+// ===== SISTEMA DE BACKUPS AUTOMÁTICOS =====
+const BackupSystem = {
+    // Colecciones a respaldar
+    colecciones: ['encuestas', 'profesores', 'materias_enejun', 'materias_agodic', 'config'],
+    
+    // Realizar backup manual
+    realizarBackup: async function() {
+        try {
+            mostrarNotificacion('📦 Realizando backup...', 'info');
+            
+            const backupData = {};
+            let totalRegistros = 0;
+            
+            // Recorrer todas las colecciones
+            for (const coleccion of this.colecciones) {
+                try {
+                    const records = await pb.collection(coleccion).getFullList({
+                        sort: '-created',
+                        requestKey: null // Evitar caché
+                    });
+                    
+                    // Limpiar campos internos de PocketBase
+                    backupData[coleccion] = records.map(r => {
+                        const { '@collectionId': cid, '@collectionName': cn, ...data } = r;
+                        return data;
+                    });
+                    
+                    totalRegistros += records.length;
+                    console.log(`✅ ${coleccion}: ${records.length} registros`);
+                } catch (e) {
+                    console.warn(`⚠️ No se pudo respaldar ${coleccion}:`, e);
+                    backupData[coleccion] = [];
+                }
+            }
+            
+            // Agregar metadatos
+            backupData.metadata = {
+                fecha: new Date().toISOString(),
+                timestamp: Date.now(),
+                version: '1.0',
+                totalRegistros: totalRegistros,
+                colecciones: this.colecciones
+            };
+            
+            // Guardar en localStorage como registro del último backup
+            localStorage.setItem('ultimo_backup_info', JSON.stringify({
+                fecha: backupData.metadata.fecha,
+                totalRegistros: totalRegistros
+            }));
+            
+            // Descargar archivo
+            this.descargarBackup(backupData);
+            
+            mostrarNotificacion(`✅ Backup completado: ${totalRegistros} registros`, 'success');
+            
+            return backupData;
+            
+        } catch (error) {
+            console.error('❌ Error en backup:', error);
+            mostrarNotificacion('Error al realizar backup', 'error');
+            return null;
+        }
+    },
+    
+    // Descargar backup como archivo JSON
+    descargarBackup: function(data) {
+        const fecha = new Date().toISOString().split('T')[0];
+        const hora = new Date().toTimeString().split(' ')[0].replace(/:/g, '-');
+        const nombreArchivo = `backup_itc_${fecha}_${hora}.json`;
+        
+        const jsonStr = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = nombreArchivo;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        console.log('📥 Archivo descargado:', nombreArchivo);
+    },
+    
+    // Restaurar desde backup
+    restaurarBackup: async function(archivoJSON) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            
+            reader.onload = async (e) => {
+                try {
+                    mostrarNotificacion('🔄 Restaurando backup...', 'info');
+                    
+                    const backupData = JSON.parse(e.target.result);
+                    
+                    // Validar estructura
+                    if (!backupData.metadata || !backupData.metadata.fecha) {
+                        throw new Error('El archivo no parece ser un backup válido');
+                    }
+                    
+                    // Confirmar restauración
+                    if (!confirm(`¿Restaurar ${backupData.metadata.totalRegistros} registros?\n\nEsta acción NO se puede deshacer.`)) {
+                        resolve(false);
+                        return;
+                    }
+                    
+                    let totalRestaurados = 0;
+                    let totalErrores = 0;
+                    
+                    // Restaurar cada colección
+                    for (const coleccion of this.colecciones) {
+                        if (backupData[coleccion] && backupData[coleccion].length > 0) {
+                            try {
+                                // Preguntar si eliminar existentes
+                                const eliminarExistentes = confirm(`¿Eliminar los registros actuales de "${coleccion}" antes de restaurar?`);
+                                
+                                if (eliminarExistentes) {
+                                    try {
+                                        const existentes = await pb.collection(coleccion).getFullList();
+                                        for (const reg of existentes) {
+                                            await pb.collection(coleccion).delete(reg.id);
+                                        }
+                                        console.log(`🗑️ ${existentes.length} registros eliminados de ${coleccion}`);
+                                    } catch (e) {
+                                        console.warn(`⚠️ No se pudieron eliminar registros de ${coleccion}:`, e);
+                                    }
+                                }
+                                
+                                // Insertar nuevos registros
+                                for (const registro of backupData[coleccion]) {
+                                    try {
+                                        await pb.collection(coleccion).create(registro);
+                                        totalRestaurados++;
+                                    } catch (e) {
+                                        totalErrores++;
+                                        console.warn(`⚠️ Error insertando en ${coleccion}:`, e);
+                                    }
+                                }
+                                console.log(`✅ ${coleccion} restaurada: ${backupData[coleccion].length} registros`);
+                            } catch (e) {
+                                console.warn(`⚠️ Error restaurando ${coleccion}:`, e);
+                            }
+                        }
+                    }
+                    
+                    if (totalErrores > 0) {
+                        mostrarNotificacion(`⚠️ Restauración con errores: ${totalRestaurados} ok, ${totalErrores} fallos`, 'warning');
+                    } else {
+                        mostrarNotificacion(`✅ Restauración completa: ${totalRestaurados} registros`, 'success');
+                    }
+                    
+                    resolve(true);
+                    
+                } catch (error) {
+                    console.error('❌ Error al restaurar:', error);
+                    mostrarNotificacion('Error al restaurar backup: ' + error.message, 'error');
+                    reject(error);
+                }
+            };
+            
+            reader.readAsText(archivoJSON);
+        });
+    },
+    
+    // Backup automático programado
+    iniciarBackupAutomatico: function() {
+        // Verificar si ya hay uno programado
+        if (window.backupInterval) {
+            clearInterval(window.backupInterval);
+        }
+        
+        // Backup cada 24 horas (86400000 ms)
+        window.backupInterval = setInterval(() => {
+            console.log('⏰ Ejecutando backup automático programado...');
+            
+            // Solo ejecutar si el admin está activo (opcional)
+            if (adminActivo) {
+                this.realizarBackup();
+            } else {
+                console.log('⏸️ Backup automático omitido (admin no activo)');
+            }
+        }, 86400000); // 24 horas
+        
+        console.log('✅ Backup automático programado (cada 24 horas)');
+        
+        // Guardar el intervalo para poder cancelarlo después
+        return window.backupInterval;
+    },
+    
+    // Detener backup automático
+    detenerBackupAutomatico: function() {
+        if (window.backupInterval) {
+            clearInterval(window.backupInterval);
+            window.backupInterval = null;
+            console.log('🛑 Backup automático detenido');
+        }
+    },
+    
+    // Mostrar modal de restauración (selector de archivo)
+    mostrarModalRestauracion: function() {
+        // Crear input de archivo
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.style.display = 'none';
+        
+        input.onchange = (e) => {
+            const archivo = e.target.files[0];
+            if (archivo) {
+                // Confirmar antes de restaurar
+                if (confirm(`¿Restaurar desde el archivo "${archivo.name}"?\n\nEsta acción puede sobrescribir datos existentes.`)) {
+                    this.restaurarBackup(archivo);
+                }
+            }
+        };
+        
+        document.body.appendChild(input);
+        input.click();
+        
+        // Limpiar después
+        setTimeout(() => {
+            document.body.removeChild(input);
+        }, 1000);
+    },
+    
+    // Obtener información del último backup
+    obtenerInfoUltimoBackup: function() {
+        const info = localStorage.getItem('ultimo_backup_info');
+        return info ? JSON.parse(info) : null;
+    },
+    
+    // Limpiar backups antiguos del localStorage
+    limpiarBackupsAntiguos: function(dias = 7) {
+        try {
+            const keys = Object.keys(localStorage);
+            const fechaLimite = Date.now() - (dias * 24 * 60 * 60 * 1000);
+            let eliminados = 0;
+            
+            keys.forEach(key => {
+                if (key.startsWith('backup_')) {
+                    try {
+                        const backup = JSON.parse(localStorage.getItem(key));
+                        if (backup.timestamp && backup.timestamp < fechaLimite) {
+                            localStorage.removeItem(key);
+                            eliminados++;
+                        }
+                    } catch (e) {
+                        // Si no se puede parsear, eliminar si es antiguo por nombre
+                        if (key.includes('backup_')) {
+                            localStorage.removeItem(key);
+                            eliminados++;
+                        }
+                    }
+                }
+            });
+            
+            console.log(`🧹 ${eliminados} backups antiguos eliminados`);
+        } catch (e) {
+            console.warn('⚠️ Error limpiando backups:', e);
+        }
+    }
+};
+
+// ===== SISTEMA DE CACHÉ INTELIGENTE =====
+const Cache = {
+    _data: {},
+    
+    _ttls: {
+        materias: 3600000,      // 1 hora
+        profesores: 7200000,    // 2 horas
+        config: 300000,         // 5 minutos
+        encuestas: 300000       // 5 minutos
+    },
+    
+    set: function(key, data, ttl = 3600000) {
+        this._data[key] = {
+            data: data,
+            timestamp: Date.now(),
+            ttl: ttl
+        };
+        // console.log(`💾 Caché: Guardado ${key}`); // Comentado para optimizar
+    },
+    
+    get: function(key) {
+        const item = this._data[key];
+        if (!item) return null;
+        
+        const ahora = Date.now();
+        if (ahora - item.timestamp > item.ttl) {
+            delete this._data[key];
+            return null;
+        }
+        
+        return item.data;
+    },
+    
+    clear: function(key) {
+        delete this._data[key];
+    },
+    
+    clearAll: function() {
+        this._data = {};
+    }
+};
+
+// ===== CACHÉ PARA BÚSQUEDAS DE ENCUESTAS =====
+const EncuestaCache = {
+    _cache: {},
+    
+    // Tiempo de vida: 5 minutos (300000 ms)
+    get: function(nombre, correo, clave) {
+        const key = `${nombre}_${correo}_${clave}`;
+        const item = this._cache[key];
+        
+        if (item && (Date.now() - item.timestamp) < 300000) {
+            console.log('📦 Usando caché para:', nombre);
+            return item.data;
+        }
+        return null;
+    },
+    
+    set: function(nombre, correo, clave, data) {
+        const key = `${nombre}_${correo}_${clave}`;
+        this._cache[key] = {
+            data: data,
+            timestamp: Date.now()
+        };
+    },
+    
+    clear: function(nombre, correo, clave) {
+        const key = `${nombre}_${correo}_${clave}`;
+        delete this._cache[key];
+    }
+};
+
+// ===== SISTEMA DE BORRADOR AUTOMÁTICO =====
+const BORRADOR_KEY = 'encuesta_borrador';
+let autoSaveInterval = null;
+
+// ===== GUARDAR BORRADOR =====
+function guardarBorrador() {
+    // Solo guardar si hay al menos algo de información
+    if (!datosProfesor.nombre && !datosProfesor.correo && 
+        materiasSeleccionadas.length === 0 && horariosSeleccionados.length === 0) {
+        return; // No guardar si está todo vacío
+    }
+    
+    try {
+        const borrador = {
+            profesor: { 
+                nombre: datosProfesor.nombre || '',
+                correo: datosProfesor.correo || '',
+                telefono: datosProfesor.telefono || '',
+                codigo: datosProfesor.codigo || '',
+                tipoPlaza: datosProfesor.tipoPlaza || '',
+                horasPlaza: datosProfesor.horasPlaza || ''
+            },
+            materias: materiasSeleccionadas.map(m => ({...m})),
+            horarios: horariosSeleccionados.map(h => ({...h})),
+            timestamp: Date.now(),
+            periodo: periodoActivo
+        };
+        
+        localStorage.setItem(BORRADOR_KEY, JSON.stringify(borrador));
+        console.log('💾 Borrador guardado:', new Date().toLocaleTimeString());
+    } catch (e) {
+        console.error('❌ Error guardando borrador:', e);
+    }
+}
+
+// ===== APLICAR BORRADOR =====
+async function aplicarBorrador(borrador) {
+    console.log('🔄 Aplicando borrador...');
+    
+    if (!borrador) return;
+    
+    // 1. Restaurar datos del profesor
+    if (borrador.profesor) {
+        datosProfesor = { ...borrador.profesor };
+        
+        // Actualizar campos en la interfaz
+        const nombreInput = document.getElementById('nombreProfesor');
+        const buscador = document.getElementById('buscadorProfesores');
+        const correo = document.getElementById('correoProfesor');
+        const telefono = document.getElementById('telefonoProfesor');
+        const codigo = document.getElementById('codigoProfesor');
+        const selectPlaza = document.getElementById('tipoPlaza');
+        const horasContainer = document.getElementById('horasPlazaContainer');
+        const inputHoras = document.getElementById('horasPlaza');
+        
+        if (nombreInput) nombreInput.value = datosProfesor.nombre || '';
+        if (buscador) buscador.value = datosProfesor.nombre || '';
+        if (correo) correo.value = datosProfesor.correo || '';
+        if (telefono) telefono.value = datosProfesor.telefono || '';
+        if (codigo) codigo.value = datosProfesor.codigo || '';
+        
+        if (selectPlaza && datosProfesor.tipoPlaza) {
+            selectPlaza.value = datosProfesor.tipoPlaza;
+            
+            // Manejar campo de horas
+            if (datosProfesor.tipoPlaza === 'por_horas') {
+                if (horasContainer) horasContainer.style.display = 'flex';
+                if (inputHoras && datosProfesor.horasPlaza) {
+                    inputHoras.value = datosProfesor.horasPlaza;
+                }
+            } else {
+                if (horasContainer) horasContainer.style.display = 'none';
+            }
+        }
+    }
+    
+    // 2. Restaurar materias
+    if (borrador.materias && borrador.materias.length > 0) {
+        materiasSeleccionadas = borrador.materias.map(m => ({...m}));
+        renderizarMaterias();
+        actualizarContadorMaterias();
+    }
+    
+    // 3. Restaurar horarios
+    if (borrador.horarios && borrador.horarios.length > 0) {
+        horariosSeleccionados = borrador.horarios.map(h => ({...h}));
+        restaurarHorariosSeleccionados();
+    }
+    
+}
+
+// ===== CARGAR BORRADOR =====
+function cargarBorrador() {
+    try {
+        const borradorGuardado = localStorage.getItem(BORRADOR_KEY);
+        if (!borradorGuardado) return null;
+        
+        return JSON.parse(borradorGuardado);
+    } catch (e) {
+        console.error('❌ Error al leer borrador:', e);
+        return null;
+    }
+}
+
+// ===== ELIMINAR BORRADOR =====  ← AGREGAR AQUÍ
+function eliminarBorrador() {
+    localStorage.removeItem(BORRADOR_KEY);
+    console.log('🗑️ Borrador eliminado');
+}
+
+
+// ===== MOSTRAR MODAL DE BORRADOR =====
+function mostrarModalBorrador(borrador) {
+    const modal = document.getElementById('borradorModal');
+    if (!modal) {
+        console.error('❌ No se encontró el modal de borrador');
+        return;
+    }
+    
+    // Actualizar información
+    const profElem = document.getElementById('borradorProfesor');
+    const matElem = document.getElementById('borradorMaterias');
+    const horElem = document.getElementById('borradorHorarios');
+    const fechaElem = document.getElementById('borradorFecha');
+    
+    if (profElem) profElem.textContent = borrador.profesor?.nombre || 'No especificado';
+    if (matElem) matElem.textContent = borrador.materias?.length || 0;
+    if (horElem) horElem.textContent = borrador.horarios?.length || 0;
+    
+    if (fechaElem && borrador.timestamp) {
+        try {
+            const fecha = new Date(borrador.timestamp);
+            fechaElem.textContent = fecha.toLocaleDateString('es-MX') + ' ' + 
+                                    fecha.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+        } catch (e) {
+            fechaElem.textContent = 'Fecha desconocida';
+        }
+    }
+    
+    modal.style.display = 'flex';
+}
+
+// ===== CONFIGURAR BOTONES DEL MODAL DE BORRADOR =====
+function configurarBotonesBorrador() {
+    console.log('🔧 Configurando botones del modal...');
+    
+    const modal = document.getElementById('borradorModal');
+    const btnRecuperar = document.getElementById('btnRecuperarBorrador');
+    const btnCerrar = document.getElementById('cerrarBorradorBtn');
+    
+    // Botón RECUPERAR
+    if (btnRecuperar) {
+        btnRecuperar.onclick = function(e) {
+            e.preventDefault();
+            console.log('🔄 Recuperando borrador...');
+            const borrador = cargarBorrador();
+            if (borrador) {
+                aplicarBorrador(borrador);
+                if (modal) modal.style.display = 'none';
+            }
+        };
+    }
+    
+    // Botón CERRAR (X)
+    if (btnCerrar) {
+        btnCerrar.onclick = function(e) {
+            e.preventDefault();
+            if (modal) modal.style.display = 'none';
+        };
+    }
+    
+    // Cerrar al hacer clic fuera
+    if (modal) {
+        modal.onclick = function(e) {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+    }
+}
 
 // ===== CONEXIÓN A POCKETBASE (ofuscada) =====
 const POCKETBASE_URL = (typeof process !== 'undefined' && process.env.POCKETBASE_URL) 
@@ -370,7 +922,6 @@ let pb;
 try {
     pb = new PocketBase(POCKETBASE_URL);
     pb.autoCancellation(false);
-    console.log('✅ Conectado a PocketBase');
 } catch (error) {
     console.error('❌ Error conectando a PocketBase:', error);
 }
@@ -417,15 +968,11 @@ async function diagnosticarMaterias() {
 // ===== FUNCIONES PARA PERÍODO GLOBAL =====
 async function obtenerPeriodoGlobal() {
     try {
-        console.log('🔍 Intentando obtener período global...');
         const records = await pb.collection('config').getList(1, 1, {
             filter: 'key = "periodo_activo"'
         });
-        
-        console.log('📦 Respuesta de PocketBase:', records);
-        
+                
         if (records.items.length > 0) {
-            console.log('✅ Período encontrado:', records.items[0].value);
             return records.items[0].value;
         }
         console.log('⚠️ No se encontró período, usando default');
@@ -631,18 +1178,38 @@ async function guardarMateriasAGODIC() {
     return todasExitosas;
 }
 
+// ===== CARGAR MATERIAS GLOBALES CON CACHÉ =====
 async function cargarMateriasGlobales() {
-    console.log('📚 Cargando materias desde PocketBase...');
     
-    try {
-        const recordsENEJUN = await pb.collection('materias_enejun').getFullList();
-        console.log(`📦 ${recordsENEJUN.length} carreras ENE-JUN encontradas`);
+    // INTENTAR OBTENER DEL CACHÉ PRIMERO
+    const materiasCached = Cache.get('materias_completas');
+    if (materiasCached) {
+        console.log('📦 Usando materias del caché');
         
+        // Restaurar datos del caché
+        Object.keys(carrerasDataENEJUNTrabajo).forEach(key => delete carrerasDataENEJUNTrabajo[key]);
+        Object.keys(carrerasDataAGODICTrabajo).forEach(key => delete carrerasDataAGODICTrabajo[key]);
+        
+        Object.assign(carrerasDataENEJUNTrabajo, materiasCached.enejun);
+        Object.assign(carrerasDataAGODICTrabajo, materiasCached.agodic);
+        
+        return true;
+    }
+    
+    // SI NO HAY CACHÉ, CARGAR DE POCKETBASE (EN PARALELO)
+    try {
+        // Cargar ambas colecciones en paralelo
+        const [recordsENEJUN, recordsAGODIC] = await Promise.all([
+            pb.collection('materias_enejun').getFullList().catch(() => []),
+            pb.collection('materias_agodic').getFullList().catch(() => [])
+        ]);
+                
+        // Procesar ENE-JUN
         if (recordsENEJUN.length > 0) {
             Object.keys(carrerasDataENEJUNTrabajo).forEach(key => delete carrerasDataENEJUNTrabajo[key]);
             
             recordsENEJUN.forEach(record => {
-                const materiasConHoras = record.materias.map(m => ({
+                const materiasConHoras = (record.materias || []).map(m => ({
                     nombre: m.nombre,
                     semestre: m.semestre,
                     horas: m.horas || undefined
@@ -653,26 +1220,19 @@ async function cargarMateriasGlobales() {
                     materias: materiasConHoras
                 };
             });
-            console.log('✅ Materias ENE-JUN cargadas de PocketBase');
         } else {
             console.log('⚠️ No hay materias ENE-JUN, usando locales');
             Object.assign(carrerasDataENEJUNTrabajo, carrerasDataENEJUNOriginal);
-            await guardarMateriasENEJUN();
+            // Guardar en segundo plano (no await)
+            guardarMateriasENEJUN().catch(e => console.warn('Error guardando ENE-JUN:', e));
         }
-    } catch (error) {
-        console.error('❌ Error cargando ENE-JUN:', error);
-        Object.assign(carrerasDataENEJUNTrabajo, carrerasDataENEJUNOriginal);
-    }
-    
-    try {
-        const recordsAGODIC = await pb.collection('materias_agodic').getFullList();
-        console.log(`📦 ${recordsAGODIC.length} carreras AGO-DIC encontradas`);
         
+        // Procesar AGO-DIC
         if (recordsAGODIC.length > 0) {
             Object.keys(carrerasDataAGODICTrabajo).forEach(key => delete carrerasDataAGODICTrabajo[key]);
             
             recordsAGODIC.forEach(record => {
-                const materiasConHoras = record.materias.map(m => ({
+                const materiasConHoras = (record.materias || []).map(m => ({
                     nombre: m.nombre,
                     semestre: m.semestre,
                     horas: m.horas || undefined
@@ -683,23 +1243,44 @@ async function cargarMateriasGlobales() {
                     materias: materiasConHoras
                 };
             });
-            console.log('✅ Materias AGO-DIC cargadas de PocketBase');
         } else {
             console.log('⚠️ No hay materias AGO-DIC, usando locales');
             Object.assign(carrerasDataAGODICTrabajo, carrerasDataAGODICOriginal);
-            await guardarMateriasAGODIC();
+            // Guardar en segundo plano (no await)
+            guardarMateriasAGODIC().catch(e => console.warn('Error guardando AGO-DIC:', e));
         }
+        
+        // Guardar en caché para la próxima vez
+        const materiasParaCache = {
+            enejun: JSON.parse(JSON.stringify(carrerasDataENEJUNTrabajo)),
+            agodic: JSON.parse(JSON.stringify(carrerasDataAGODICTrabajo))
+        };
+        Cache.set('materias_completas', materiasParaCache, Cache._ttls.materias);
+        
+        return true;
+        
     } catch (error) {
-        console.error('❌ Error cargando AGO-DIC:', error);
+        console.error('❌ Error cargando materias:', error);
+        
+        // Fallback a datos locales
+        Object.assign(carrerasDataENEJUNTrabajo, carrerasDataENEJUNOriginal);
         Object.assign(carrerasDataAGODICTrabajo, carrerasDataAGODICOriginal);
+        
+        return false;
     }
-    
-    return true;
 }
 
-// ===== FUNCIONES PARA PROFESORES GLOBALES =====
+// ===== CARGAR PROFESORES GLOBALES CON CACHÉ =====
 async function cargarProfesoresGlobales() {
-    console.log('👥 Cargando profesores desde PocketBase...');
+    
+    // INTENTAR OBTENER DEL CACHÉ PRIMERO
+    const profesoresCached = Cache.get('profesores');
+    if (profesoresCached) {
+        console.log('📦 Usando profesores del caché');
+        profesoresDB.length = 0;
+        profesoresDB.push(...profesoresCached);
+        return true;
+    }
     
     try {
         const records = await pb.collection('profesores').getFullList({
@@ -708,12 +1289,16 @@ async function cargarProfesoresGlobales() {
         
         if (records.length > 0) {
             profesoresDB.length = 0;
-            records.forEach(r => profesoresDB.push(r.nombre));
-            console.log(`✅ ${profesoresDB.length} profesores cargados de PocketBase`);
+            records.forEach(r => {
+                if (r.nombre) profesoresDB.push(r.nombre);
+            });
+            
+            // Guardar en caché
+            Cache.set('profesores', [...profesoresDB], Cache._ttls.profesores);
+            
             return true;
         } else {
-            console.log('⚠️ No hay profesores en PocketBase, guardando locales...');
-            await guardarProfesoresGlobales();
+            console.log('⚠️ No hay profesores en PocketBase');
             return false;
         }
     } catch (error) {
@@ -722,54 +1307,15 @@ async function cargarProfesoresGlobales() {
     }
 }
 
-async function guardarProfesoresGlobales() {
-    if (!adminActivo) {
-        console.log('⛔ No es admin, no se guarda');
-        return false;
+// Limpiar caché cuando se modifican datos
+function limpiarCacheAlEditar(tipo) {
+    if (tipo === 'materias' || tipo === 'todo') {
+        Cache.clear('materias_completas');
+        console.log('🗑️ Caché de materias limpiado');
     }
-    
-    console.log('📤 Guardando profesores en PocketBase...');
-    console.log('Total a guardar:', profesoresDB.length);
-    
-    try {
-        try {
-            await pb.collection('profesores').getFirstListItem('id != ""');
-        } catch (e) {
-            console.log('⚠️ La colección profesores no existe, creándola...');
-        }
-        
-        const existentes = await pb.collection('profesores').getFullList();
-        console.log('Existentes en PocketBase:', existentes.length);
-        
-        for (let prof of existentes) {
-            await pb.collection('profesores').delete(prof.id);
-            console.log(`🗑️ Eliminado: ${prof.nombre}`);
-        }
-        
-        let exitosos = 0;
-        for (let nombre of profesoresDB) {
-            if (!nombre || nombre.trim() === '') continue;
-            
-            try {
-                await pb.collection('profesores').create({
-                    nombre: nombre.trim()
-                });
-                exitosos++;
-            } catch (error) {
-                console.error(`❌ Error creando: ${nombre}`, error);
-            }
-        }
-        
-        console.log(`✅ ${exitosos} profesores guardados en PocketBase`);
-        
-        const verificacion = await pb.collection('profesores').getFullList();
-        console.log('Verificación final:', verificacion.length, 'profesores en PocketBase');
-        
-        return exitosos === profesoresDB.length;
-        
-    } catch (error) {
-        console.error('❌ Error guardando profesores:', error);
-        return false;
+    if (tipo === 'profesores' || tipo === 'todo') {
+        Cache.clear('profesores');
+        console.log('🗑️ Caché de profesores limpiado');
     }
 }
 
@@ -790,7 +1336,7 @@ function actualizarVistaMaterias() {
     console.log('✅ Vista actualizada');
 }
 
-// ===== GENERAR LISTA GLOBAL DE MATERIAS =====
+// ===== GENERAR LISTA GLOBAL DE MATERIAS (CON HORAS) =====
 function generarListaGlobalMaterias() {
     const materiasMap = new Map();
     
@@ -803,7 +1349,7 @@ function generarListaGlobalMaterias() {
             materiasMap.get(key).push({
                 carrera: carrera.nombre,
                 semestre: materia.semestre,
-                horas: materia.horas
+                horas: materia.horas || null  // ← ASEGURAR QUE HORAS SE INCLUYE
             });
         });
     });
@@ -817,10 +1363,13 @@ function generarListaGlobalMaterias() {
     });
     
     materiasGlobales.sort((a, b) => a.nombre.localeCompare(b.nombre));
+    
+    // Verificar primera materia como ejemplo
+    if (materiasGlobales.length > 0) {
+    }
+    
     return materiasGlobales;
 }
-
-let todasLasMaterias = generarListaGlobalMaterias();
 
 // ===== BASE DE DATOS DE PROFESORES =====
 let profesoresDB = [
@@ -985,6 +1534,7 @@ function cerrarLoginAdmin() {
     document.getElementById('loginAdminModal').style.display = 'none';
 }
 
+// ===== INICIAR SESIÓN ADMIN =====
 function iniciarSesionAdmin() {
     const username = document.getElementById('adminUsername').value.trim();
     const password = document.getElementById('adminPassword').value;
@@ -1000,6 +1550,20 @@ function iniciarSesionAdmin() {
         sessionStorage.setItem('adminAutenticado', 'true');
         cerrarLoginAdmin();
         mostrarPanelAdmin();
+        
+        // === BACKUP AUTOMÁTICO AL INICIAR SESIÓN ===
+        setTimeout(() => {
+            if (confirm('¿Deseas realizar un backup automático ahora?')) {
+                BackupSystem.realizarBackup();
+            }
+        }, 1000);
+        
+        // === INICIAR BACKUP PROGRAMADO ===
+        if (typeof BackupSystem !== 'undefined' && BackupSystem.iniciarBackupAutomatico) {
+            BackupSystem.iniciarBackupAutomatico();
+            mostrarNotificacion('⏰ Backup automático programado (cada 24h)', 'info', 3000);
+        }
+                
     } else {
         mostrarNotificacion('❌ Credenciales incorrectas', 'error');
         document.getElementById('adminPassword').value = '';
@@ -1048,16 +1612,21 @@ function crearBotonAccesoAdmin() {
     console.log('✅ Botón Panel Admin creado');
 }
 
+// ===== CONFIGURAR PANEL DE ADMINISTRACIÓN =====
 function configurarPanelAdmin() {
+    console.log('⚙️ Configurando panel de administración...');
+    
     const adminPanel = document.getElementById('adminAccess');
     const closeBtn = document.getElementById('closeAdminBtn');
     
+    // Cerrar panel con botón X
     if (closeBtn) {
         closeBtn.addEventListener('click', () => {
             adminPanel.style.display = 'none';
         });
     }
     
+    // Cerrar panel al hacer clic fuera
     if (adminPanel) {
         adminPanel.addEventListener('click', (e) => {
             if (e.target === adminPanel) {
@@ -1066,52 +1635,113 @@ function configurarPanelAdmin() {
         });
     }
     
-    document.getElementById('periodoENEJUN')?.addEventListener('click', () => {
-        if (!adminActivo) {
-            mostrarLoginAdmin();
-            return;
-        }
-        cambiarPeriodo('ene-jun');
-        document.getElementById('periodoENEJUN').classList.add('active');
-        document.getElementById('periodoAGODIC').classList.remove('active');
-    });
+    // Botones de período
+    const btnENEJUN = document.getElementById('periodoENEJUN');
+    const btnAGODIC = document.getElementById('periodoAGODIC');
     
-    document.getElementById('periodoAGODIC')?.addEventListener('click', () => {
-        if (!adminActivo) {
-            mostrarLoginAdmin();
-            return;
-        }
-        cambiarPeriodo('ago-dic');
-        document.getElementById('periodoAGODIC').classList.add('active');
-        document.getElementById('periodoENEJUN').classList.remove('active');
-    });
+    if (btnENEJUN) {
+        btnENEJUN.addEventListener('click', () => {
+            if (!adminActivo) {
+                mostrarLoginAdmin();
+                return;
+            }
+            cambiarPeriodo('ene-jun');
+            btnENEJUN.classList.add('active');
+            btnAGODIC.classList.remove('active');
+        });
+    }
     
-    document.getElementById('verEncuestasBtn')?.addEventListener('click', (e) => {
-        if (!adminActivo) {
+    if (btnAGODIC) {
+        btnAGODIC.addEventListener('click', () => {
+            if (!adminActivo) {
+                mostrarLoginAdmin();
+                return;
+            }
+            cambiarPeriodo('ago-dic');
+            btnAGODIC.classList.add('active');
+            btnENEJUN.classList.remove('active');
+        });
+    }
+    
+    // Botón Ver Encuestas
+    const verEncuestasBtn = document.getElementById('verEncuestasBtn');
+    if (verEncuestasBtn) {
+        verEncuestasBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            mostrarLoginAdmin();
-            return;
-        }
-        verTodasLasEncuestas();
-    });
+            if (!adminActivo) {
+                mostrarLoginAdmin();
+                return;
+            }
+            verTodasLasEncuestas();
+        });
+    }
     
-    document.getElementById('gestionarMateriasBtn')?.addEventListener('click', (e) => {
-        if (!adminActivo) {
+    // Botón Gestionar Materias
+    const gestionarMateriasBtn = document.getElementById('gestionarMateriasBtn');
+    if (gestionarMateriasBtn) {
+        gestionarMateriasBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            mostrarLoginAdmin();
-            return;
-        }
-        gestionarMaterias();
-    });
+            if (!adminActivo) {
+                mostrarLoginAdmin();
+                return;
+            }
+            gestionarMaterias();
+        });
+    }
     
-    document.getElementById('gestionarProfesoresBtn')?.addEventListener('click', (e) => {
-        if (!adminActivo) {
+    // Botón Gestionar Profesores
+    const gestionarProfesoresBtn = document.getElementById('gestionarProfesoresBtn');
+    if (gestionarProfesoresBtn) {
+        gestionarProfesoresBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            mostrarLoginAdmin();
-            return;
-        }
-        gestionarProfesores();
-    });
+            if (!adminActivo) {
+                mostrarLoginAdmin();
+                return;
+            }
+            gestionarProfesores();
+        });
+    }
+    
+    // === NUEVO: Botón de Backup ===
+    const backupBtn = document.getElementById('backupBtn');
+    if (backupBtn) {
+        backupBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            if (!adminActivo) {
+                mostrarLoginAdmin();
+                return;
+            }
+            
+            // Verificar que BackupSystem existe
+            if (typeof BackupSystem !== 'undefined') {
+                await BackupSystem.realizarBackup();
+            } else {
+                console.error('❌ BackupSystem no está definido');
+                mostrarNotificacion('Error: Sistema de backup no disponible', 'error');
+            }
+        });
+    }
+    
+    // === OPCIONAL: Botón de Restaurar ===
+    const restaurarBtn = document.getElementById('restaurarBtn');
+    if (restaurarBtn) {
+        restaurarBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (!adminActivo) {
+                mostrarLoginAdmin();
+                return;
+            }
+            
+            if (typeof BackupSystem !== 'undefined') {
+                BackupSystem.mostrarModalRestauracion();
+            } else {
+                console.error('❌ BackupSystem no está definido');
+                mostrarNotificacion('Error: Sistema de restauración no disponible', 'error');
+            }
+        });
+    }
+    
+    console.log('✅ Panel de administración configurado');
 }
 
 function inicializarModoAdmin() {
@@ -1145,6 +1775,21 @@ function inicializarTipoPlaza() {
     
     if (selectPlaza) {
         selectPlaza.addEventListener('change', function() {
+            // === CORRECCIÓN: Si estamos restaurando borrador, no hacer focus ===
+            if (window.validandoActivo) {
+                const valor = this.value;
+                if (valor === 'por_horas') {
+                    horasContainer.style.display = 'flex';
+                } else {
+                    horasContainer.style.display = 'none';
+                    inputHoras.value = '';
+                    datosProfesor.horasPlaza = '';
+                }
+                actualizarDatosProfesor();
+                return;
+            }
+            // === FIN CORRECCIÓN ===
+            
             const valor = this.value;
             
             if (valor === 'por_horas') {
@@ -1175,7 +1820,6 @@ function inicializarTipoPlaza() {
 
 // ===== SISTEMA DE BÚSQUEDA DE PROFESORES =====
 function inicializarBuscadorProfesores() {
-    console.log('👤 Inicializando buscador de profesores...');
     
     const buscador = document.getElementById('buscadorProfesores');
     if (!buscador) return;
@@ -1280,6 +1924,55 @@ function buscarProfesores(termino) {
     });
 }
 
+// ===== SELECCIONAR PROFESOR (OPTIMIZADO) =====
+window.seleccionarProfesor = async function(nombre) {
+    console.log('👤 Seleccionando profesor:', nombre);
+    
+    document.getElementById('nombreProfesor').value = nombre;
+    document.getElementById('buscadorProfesores').value = nombre;
+    document.getElementById('resultadosProfesores').style.display = 'none';
+    document.getElementById('otroProfesorContainer').style.display = 'none';
+    
+    actualizarDatosProfesor();
+    
+    // Resetear controles
+    yaPregunteEstaCombinacion = false;
+    bloqueado = false;
+    ultimaPreguntaEncuesta = null;
+    
+    const correoActual = document.getElementById('correoProfesor').value.trim();
+    const claveActual = document.getElementById('codigoProfesor').value.trim();
+    
+    if (!correoActual) {
+        mostrarNotificacion('📧 Por favor ingresa tu correo para buscar encuestas anteriores', 'info', 4000);
+    } else if (validarEmail(correoActual)) {
+        // Verificar con reintentos
+        let intentos = 0;
+        const maxIntentos = 5;
+        
+        async function intentarVerificar() {
+            const correo = document.getElementById('correoProfesor').value.trim();
+            const clave = document.getElementById('codigoProfesor').value.trim();
+            
+            if (correo && validarEmail(correo)) {
+                const encontrada = await verificarEncuestaForzado(nombre, correo, clave, true);
+                if (encontrada) return true;
+            }
+            
+            if (intentos < maxIntentos) {
+                intentos++;
+                setTimeout(intentarVerificar, 300);
+            }
+            return false;
+        }
+        
+        intentarVerificar();
+    }
+    
+    guardarBorrador();
+    mostrarNotificacion(`Profesor "${nombre}" seleccionado`, 'success');
+}
+
 function crearItemProfesor(nombre) {
     console.log('Creando item para:', nombre);
     
@@ -1311,7 +2004,8 @@ window.mostrarCampoOtroProfesor = function() {
     mostrarNotificacion('Ingresa el nombre del profesor manualmente', 'info');
 }
 
-window.confirmarOtroProfesor = function() {
+// ===== CONFIRMAR OTRO PROFESOR (OPTIMIZADO) =====
+window.confirmarOtroProfesor = async function() {
     const nombre = document.getElementById('otroProfesorInput').value.trim();
     
     if (!nombre) {
@@ -1319,15 +2013,64 @@ window.confirmarOtroProfesor = function() {
         return;
     }
     
+    console.log('👤 Registrando otro profesor:', nombre);
+    
+    // Establecer el nombre
     document.getElementById('nombreProfesor').value = nombre;
     document.getElementById('buscadorProfesores').value = nombre;
     document.getElementById('otroProfesorContainer').style.display = 'none';
     document.getElementById('otroProfesorInput').value = '';
     
     actualizarDatosProfesor();
+    
+    // Resetear controles
+    yaPregunteEstaCombinacion = false;
+    bloqueado = false;
+    ultimaPreguntaEncuesta = null;
+    
+    // Función de verificación con reintentos
+    let intentos = 0;
+    const maxIntentos = 8;
+    
+    async function intentarVerificar() {
+        const correo = document.getElementById('correoProfesor').value.trim();
+        const clave = document.getElementById('codigoProfesor').value.trim();
+        
+        if (correo && validarEmail(correo)) {
+            const encontrada = await verificarEncuestaForzado(nombre, correo, clave, true);
+            if (encontrada) return true;
+        }
+        
+        if (intentos < maxIntentos) {
+            intentos++;
+            setTimeout(intentarVerificar, 400);
+        }
+        return false;
+    }
+    
+    // Ejecutar verificación
+    intentarVerificar();
+    
+    guardarBorrador();
     mostrarNotificacion(`Profesor "${nombre}" registrado`, 'success');
 }
 
+// ===== MOSTRAR CAMPO OTRO PROFESOR (VERSIÓN GLOBAL) =====
+window.mostrarCampoOtroProfesor = function() {
+    document.getElementById('resultadosProfesores').style.display = 'none';
+    document.getElementById('buscadorProfesores').value = '';
+    
+    const container = document.getElementById('otroProfesorContainer');
+    container.style.display = 'block';
+    
+    setTimeout(() => {
+        document.getElementById('otroProfesorInput').focus();
+    }, 100);
+    
+    mostrarNotificacion('Ingresa el nombre del profesor manualmente', 'info');
+}
+
+// ===== CANCELAR OTRO PROFESOR (VERSIÓN GLOBAL) =====
 window.cancelarOtroProfesor = function() {
     document.getElementById('otroProfesorContainer').style.display = 'none';
     document.getElementById('otroProfesorInput').value = '';
@@ -1335,15 +2078,6 @@ window.cancelarOtroProfesor = function() {
     mostrarNotificacion('Selecciona un profesor de la lista', 'info');
 }
 
-function seleccionarProfesor(nombre) {
-    document.getElementById('nombreProfesor').value = nombre;
-    document.getElementById('buscadorProfesores').value = nombre;
-    document.getElementById('resultadosProfesores').style.display = 'none';
-    document.getElementById('otroProfesorContainer').style.display = 'none';
-    
-    actualizarDatosProfesor();
-    mostrarNotificacion(`Profesor "${nombre}" seleccionado`, 'success');
-}
 
 // ===== FUNCIONES PARA FILTRO DE SEMESTRE =====
 function actualizarOpcionesSemestre() {
@@ -1376,7 +2110,6 @@ function actualizarOpcionesSemestre() {
 
 // ===== SISTEMA DE BÚSQUEDA DE MATERIAS =====
 function inicializarSistemaMaterias() {
-    console.log('🔍 Inicializando buscador de materias...');
     
     const selectCarrera = document.getElementById('selectCarrera');
     if (selectCarrera) {
@@ -1391,7 +2124,9 @@ function inicializarSistemaMaterias() {
     const buscador = document.getElementById('buscadorMaterias');
     if (buscador) {
         buscador.addEventListener('focus', function() {
-            mostrarTodasLasMateriasDelFiltro();
+            if (typeof todasLasMaterias !== 'undefined') {
+                mostrarTodasLasMateriasDelFiltro();
+            }
         });
         
         buscador.addEventListener('input', manejarBusquedaEnTiempoReal);
@@ -1422,9 +2157,17 @@ function inicializarSistemaMaterias() {
     renderizarMaterias();
     actualizarContadorMaterias();
     
-    setTimeout(() => {
-        mostrarTodasLasMateriasDelFiltro();
-    }, 100);
+    // Versión mejorada que espera a que las materias estén listas
+    function esperarMateriasYMostrar() {
+        if (typeof todasLasMaterias !== 'undefined' && todasLasMaterias.length > 0) {
+            console.log('✅ Materias listas, mostrando resultados');
+            mostrarTodasLasMateriasDelFiltro();
+        } else {
+            setTimeout(esperarMateriasYMostrar, 200);
+        }
+    }
+    
+    setTimeout(esperarMateriasYMostrar, 100);
 }
 
 function manejarCambioFiltros() {
@@ -1614,7 +2357,7 @@ function crearResultadoItem(materia) {
         if (index > 0) infoTexto += ' • ';
         infoTexto += `${i.carrera} - Semestre ${i.semestre}`;
         if (i.horas) {
-            infoTexto += ` (${i.horas}h)`;
+            infoTexto += ` (${i.horas} h/sem)`;  // ← AGREGADO: mostrar horas
         }
     });
     
@@ -1657,7 +2400,7 @@ function seleccionarMateria(materia) {
         if (index > 0) infoTexto += ' • ';
         infoTexto += `${i.carrera} - Semestre ${i.semestre}`;
         if (i.horas) {
-            infoTexto += ` (${i.horas} horas)`;
+            infoTexto += ` (${i.horas} h/sem)`;  // ← AGREGADO: mostrar horas
         }
     });
     
@@ -1685,6 +2428,9 @@ function manejarAgregarMateria(event) {
     event.preventDefault();
     event.stopPropagation();
     
+    console.log('📝 Intentando agregar materia...');
+    
+    // 1. Verificar datos del profesor
     if (!datosProfesor) {
         console.error('❌ datosProfesor es null');
         mostrarNotificacion('Error: Datos del profesor no inicializados', 'error');
@@ -1703,11 +2449,26 @@ function manejarAgregarMateria(event) {
         return;
     }
     
+    // 2. Verificar que hay una materia seleccionada
     if (!materiaSeleccionadaTemp) {
-        mostrarNotificacion('Selecciona una materia de la búsqueda', 'warning');
+        console.log('⚠️ No hay materia seleccionada');
+        mostrarNotificacion('Primero selecciona una materia de la lista', 'warning');
+        
+        // Mostrar la lista de materias
+        const resultados = document.getElementById('resultadosBusqueda');
+        if (resultados) resultados.style.display = 'block';
         return;
     }
     
+    // 3. Verificar que la materia tiene nombre
+    if (!materiaSeleccionadaTemp.nombre) {
+        console.error('❌ Materia sin nombre:', materiaSeleccionadaTemp);
+        mostrarNotificacion('Error: Materia inválida', 'error');
+        cancelarSeleccionMateria();
+        return;
+    }
+    
+    // 4. Verificar nivel seleccionado
     const selectNivel = document.getElementById('selectNivel');
     if (!selectNivel) {
         console.error('❌ No se encontró el selector de nivel');
@@ -1720,26 +2481,33 @@ function manejarAgregarMateria(event) {
         return;
     }
     
-    const yaExiste = materiasSeleccionadas.some(m => m.nombre === materiaSeleccionadaTemp.nombre);
+    // 5. Verificar que no esté ya agregada
+    const nombreMateria = materiaSeleccionadaTemp.nombre;
+    const yaExiste = materiasSeleccionadas.some(m => m.nombre === nombreMateria);
+    
     if (yaExiste) {
-        mostrarNotificacion('Esta materia ya ha sido agregada', 'warning');
+        mostrarNotificacion(`"${nombreMateria}" ya está agregada`, 'warning');
         cancelarSeleccionMateria();
         return;
     }
     
+    // 6. Crear y agregar la nueva materia
+    console.log('✅ Agregando materia:', nombreMateria);
+    
     const nuevaMateria = {
-        id: Date.now(),
-        nombre: materiaSeleccionadaTemp.nombre,
-        carreras: [...(materiaSeleccionadaTemp.info || [])],
-        nivel: nivel
-    };
+    id: Date.now(),
+    nombre: materiaSeleccionadaTemp.nombre,
+    carreras: [...(materiaSeleccionadaTemp.info || [])], // ← Aquí están las horas
+    nivel: nivel
+};
     
     materiasSeleccionadas.push(nuevaMateria);
     renderizarMaterias();
     actualizarContadorMaterias();
     cancelarSeleccionMateria();
+    guardarBorrador();
     
-    mostrarNotificacion(`"${materiaSeleccionadaTemp.nombre}" agregada`, 'success');
+    mostrarNotificacion(`"${nombreMateria}" agregada`, 'success');
 }
 
 function manejarEventosMaterias(event) {
@@ -1763,7 +2531,7 @@ function eliminarMateriaPorId(id) {
         renderizarMaterias();
         actualizarContadorMaterias();
         mostrarNotificacion(`"${materiaEliminada.nombre}" eliminada`, 'info');
-        
+        guardarBorrador();
         if (document.getElementById('resultadosBusqueda').style.display === 'block') {
             mostrarTodasLasMateriasDelFiltro();
         }
@@ -1827,8 +2595,8 @@ function crearTarjetaMateria(materia) {
     const infoOrdenada = [...materia.carreras].sort((a, b) => a.semestre - b.semestre);
     const infoTexto = infoOrdenada.map(c => {
         let texto = `${c.carrera} - Semestre ${c.semestre}`;
-        if (c.horas) {
-            texto += ` (${c.horas}h)`;
+        if (c.horas && c.horas !== null) {
+            texto += ` (${c.horas} h/sem)`;
         }
         return texto;
     }).join(', ');
@@ -1906,6 +2674,7 @@ function agregarHorario(celda) {
             texto: texto
         });
         celda.classList.add('selected');
+        guardarBorrador();
     }
 }
 
@@ -1915,6 +2684,7 @@ function quitarHorario(celda) {
     if (index !== -1) {
         horariosSeleccionados.splice(index, 1);
         celda.classList.remove('selected');
+        guardarBorrador();
     }
 }
 
@@ -1932,7 +2702,6 @@ function toggleHorarioLimpio(elemento) {
 
 // ===== SISTEMA DE HORARIOS =====
 function inicializarHorarios() {
-    console.log('📊 Inicializando horarios compactos...');
     
     configurarPestanas();
     generarCuadriculaPorTurno(turnoActivo);
@@ -2031,6 +2800,15 @@ function crearCeldaHorarioLimpia(dia, horaInicio, horaFin) {
         <span class="periodo">${periodo}</span>
     `;
     
+    // ===== VARIABLES PARA CONTROL TÁCTIL =====
+    let touchStartY = 0;
+    let touchStartX = 0;
+    let touchStartTime = 0;
+    let isDragging = false;
+    let touchMoved = false;
+    const DRAG_THRESHOLD = 5; // Reducido para mejor sensibilidad
+
+    // ===== EVENTOS PARA RATÓN (PC) =====
     celda.addEventListener('mousedown', (e) => {
         e.preventDefault();
         iniciarSeleccion(celda);
@@ -2047,27 +2825,93 @@ function crearCeldaHorarioLimpia(dia, horaInicio, horaFin) {
             finalizarSeleccion();
         }
     });
-    
+
+    // ===== EVENTOS TÁCTILES - VERSIÓN SIMPLIFICADA Y CORREGIDA =====
     celda.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        iniciarSeleccion(celda);
-    }, { passive: false });
-    
-    celda.addEventListener('touchmove', (e) => {
-        e.preventDefault();
+        e.preventDefault(); // Prevenimos para tener control total
         const touch = e.touches[0];
-        const elemento = document.elementFromPoint(touch.clientX, touch.clientY);
-        if (elemento && elemento.classList.contains('celda-horario-limpia')) {
-            procesarCeldaEnArrastre(elemento);
+        touchStartY = touch.clientY;
+        touchStartX = touch.clientX;
+        touchStartTime = Date.now();
+        isDragging = false;
+        touchMoved = false;
+    }, { passive: false });
+
+    celda.addEventListener('touchmove', (e) => {
+        e.preventDefault(); // Prevenimos scroll mientras interactuamos
+        const touch = e.touches[0];
+        const deltaY = Math.abs(touch.clientY - touchStartY);
+        const deltaX = Math.abs(touch.clientX - touchStartX);
+        
+        // Si hay movimiento en CUALQUIER dirección, activamos arrastre
+        if (deltaX > DRAG_THRESHOLD || deltaY > DRAG_THRESHOLD) {
+            touchMoved = true;
+            
+            if (!isDragging) {
+                isDragging = true;
+                
+                // Iniciar selección
+                seleccionando = true;
+                const estaSeleccionada = celda.classList.contains('selected');
+                modoSeleccion = estaSeleccionada ? 'quitar' : 'agregar';
+                
+                // Aplicar a la celda inicial
+                if (modoSeleccion === 'agregar') {
+                    agregarHorario(celda);
+                } else {
+                    quitarHorario(celda);
+                }
+            }
+            
+            // Procesar celdas durante el arrastre
+            if (isDragging) {
+                const elemento = document.elementFromPoint(touch.clientX, touch.clientY);
+                if (elemento && elemento.classList.contains('celda-horario-limpia')) {
+                    procesarCeldaEnArrastre(elemento);
+                }
+            }
         }
     }, { passive: false });
-    
-    celda.addEventListener('touchend', () => {
-        finalizarSeleccion();
-    });
-    
+
+    celda.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        
+        // Si NO hubo movimiento significativo, es un TAP
+        if (!touchMoved) {
+            const estaSeleccionada = celda.classList.contains('selected');
+            
+            if (estaSeleccionada) {
+                const index = horariosSeleccionados.findIndex(h => h.id === id);
+                if (index !== -1) {
+                    horariosSeleccionados.splice(index, 1);
+                    celda.classList.remove('selected');
+                }
+            } else {
+                horariosSeleccionados.push({ id, dia, hora: horaInicio, texto: textoHora });
+                celda.classList.add('selected');
+            }
+        }
+        
+        // Finalizar arrastre
+        if (seleccionando && isDragging) {
+            seleccionando = false;
+        }
+        
+        // Resetear variables
+        isDragging = false;
+        touchMoved = false;
+        
+        // Llamar a la función global
+        if (typeof actualizarResumenHorarios === 'function') {
+            actualizarResumenHorarios();
+        }
+        
+    }, { passive: false });
+
     celda.addEventListener('touchcancel', () => {
-        finalizarSeleccion();
+        seleccionando = false;
+        isDragging = false;
+        touchMoved = false;
     });
     
     return celda;
@@ -2128,6 +2972,7 @@ function seleccionarTodoTurno() {
     horariosSeleccionados = [...horariosOtrosTurnos, ...nuevosHorarios];
     
     restaurarHorariosSeleccionados();
+    guardarBorrador();
 }
 
 function configurarAccionesRapidas() {
@@ -2152,6 +2997,7 @@ function configurarAccionesRapidas() {
                 } else {
                     return hora < 14;
                 }
+                
             });
             
             document.querySelectorAll(`.celda-horario-limpia`).forEach(celda => {
@@ -2162,7 +3008,7 @@ function configurarAccionesRapidas() {
                     celda.classList.remove('selected');
                 }
             });
-            
+            guardarBorrador();
             finalizarSeleccion();
         });
     }
@@ -2427,7 +3273,7 @@ function renderizarListaEncuestas() {
                         <h5><i class="fas fa-clock"></i> Horarios seleccionados</h5>
         `;
         
-       // ===== SECCIÓN DE HORARIOS - VERSIÓN CON FORMATO CORREGIDO =====
+       // ===== SECCIÓN DE HORARIOS - VERSIÓN CORREGIDA CON CLASES =====
 if (enc.horarios && enc.horarios.length > 0) {
     // Mapeo de días para asegurar consistencia
     const mapaDias = {
@@ -2507,35 +3353,34 @@ if (enc.horarios && enc.horarios.length > 0) {
                     <!-- CUERPO -->
         `;
         
-        // Generar horas UNA POR UNA con formato explícito
+        // Generar horas UNA POR UNA
         for (let hora = horaMin; hora <= horaMax; hora++) {
             const horaInicio = hora;
             const horaFin = hora + 1;
-            // FORMATO EXPLÍCITO - asegura que todas sean iguales
             const horaStr = horaInicio + ':00-' + horaFin + ':00';
             
             html += `
-                <div class="data-row" style="min-height: 36px; height: auto; display: flex; width: 100%; border-bottom: 1px solid #e9ecef;">
-                    <div class="hora-data" style="width: 80px; min-height: 36px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; font-weight: 600; color: #003B6F;">${horaStr}</div>
-                    <div class="dias-data-container" style="flex: 1; display: flex; min-width: 0; min-height: 36px;">
-                        <div class="dia-data" style="flex: 1; min-height: 36px; display: flex; align-items: center; justify-content: center; border-left: 1px solid #e9ecef; background: ${horariosPorDia['Lunes'].includes(hora) ? '#0077BE' : '#ffffff'}; color: ${horariosPorDia['Lunes'].includes(hora) ? 'white' : '#333'};">
-                            ${horariosPorDia['Lunes'].includes(hora) ? '✓' : ''}
-                        </div>
-                        <div class="dia-data" style="flex: 1; min-height: 36px; display: flex; align-items: center; justify-content: center; border-left: 1px solid #e9ecef; background: ${horariosPorDia['Martes'].includes(hora) ? '#0077BE' : '#ffffff'}; color: ${horariosPorDia['Martes'].includes(hora) ? 'white' : '#333'};">
-                            ${horariosPorDia['Martes'].includes(hora) ? '✓' : ''}
-                        </div>
-                        <div class="dia-data" style="flex: 1; min-height: 36px; display: flex; align-items: center; justify-content: center; border-left: 1px solid #e9ecef; background: ${horariosPorDia['Miércoles'].includes(hora) ? '#0077BE' : '#ffffff'}; color: ${horariosPorDia['Miércoles'].includes(hora) ? 'white' : '#333'};">
-                            ${horariosPorDia['Miércoles'].includes(hora) ? '✓' : ''}
-                        </div>
-                        <div class="dia-data" style="flex: 1; min-height: 36px; display: flex; align-items: center; justify-content: center; border-left: 1px solid #e9ecef; background: ${horariosPorDia['Jueves'].includes(hora) ? '#0077BE' : '#ffffff'}; color: ${horariosPorDia['Jueves'].includes(hora) ? 'white' : '#333'};">
-                            ${horariosPorDia['Jueves'].includes(hora) ? '✓' : ''}
-                        </div>
-                        <div class="dia-data" style="flex: 1; min-height: 36px; display: flex; align-items: center; justify-content: center; border-left: 1px solid #e9ecef; background: ${horariosPorDia['Viernes'].includes(hora) ? '#0077BE' : '#ffffff'}; color: ${horariosPorDia['Viernes'].includes(hora) ? 'white' : '#333'};">
-                            ${horariosPorDia['Viernes'].includes(hora) ? '✓' : ''}
-                        </div>
-                    </div>
-                </div>
-            `;
+    <div class="data-row" style="min-height: 36px; height: auto; display: flex; width: 100%; border-bottom: 1px solid #e9ecef;">
+        <div class="hora-data" style="width: 80px; min-height: 36px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; font-weight: 600; color: #003B6F;">${horaStr}</div>
+        <div class="dias-data-container" style="flex: 1; display: flex; min-width: 0; min-height: 36px;">
+            <div class="dia-data ${horariosPorDia['Lunes'].includes(hora) ? 'seleccionado' : ''}" data-dia="Lunes" data-hora="${hora}">
+                ${horariosPorDia['Lunes'].includes(hora) ? '<span class="check-symbol">✓</span>' : ''}
+            </div>
+            <div class="dia-data ${horariosPorDia['Martes'].includes(hora) ? 'seleccionado' : ''}" data-dia="Martes" data-hora="${hora}">
+                ${horariosPorDia['Martes'].includes(hora) ? '<span class="check-symbol">✓</span>' : ''}
+            </div>
+            <div class="dia-data ${horariosPorDia['Miércoles'].includes(hora) ? 'seleccionado' : ''}" data-dia="Miércoles" data-hora="${hora}">
+                ${horariosPorDia['Miércoles'].includes(hora) ? '<span class="check-symbol">✓</span>' : ''}
+            </div>
+            <div class="dia-data ${horariosPorDia['Jueves'].includes(hora) ? 'seleccionado' : ''}" data-dia="Jueves" data-hora="${hora}">
+                ${horariosPorDia['Jueves'].includes(hora) ? '<span class="check-symbol">✓</span>' : ''}
+            </div>
+            <div class="dia-data ${horariosPorDia['Viernes'].includes(hora) ? 'seleccionado' : ''}" data-dia="Viernes" data-hora="${hora}">
+                ${horariosPorDia['Viernes'].includes(hora) ? '<span class="check-symbol">✓</span>' : ''}
+            </div>
+        </div>
+    </div>
+`;
         }
         
         html += `
@@ -2544,11 +3389,11 @@ if (enc.horarios && enc.horarios.length > 0) {
                 <!-- LEYENDA -->
                 <div style="display: flex; gap: 20px; margin-top: 10px; padding: 8px 12px; background: #f8f9fa; border-radius: 20px; font-size: 0.75rem;">
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <div style="width: 14px; height: 14px; background: #0077BE; border-radius: 3px;"></div>
+                        <div class="leyenda-cuadrado seleccionado"></div>
                         <span>Horario seleccionado</span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <div style="width: 14px; height: 14px; background: white; border: 2px solid #dee2e6; border-radius: 3px;"></div>
+                        <div class="leyenda-cuadrado disponible"></div>
                         <span>Horario disponible</span>
                     </div>
                     <div style="margin-left: auto;">
@@ -2773,14 +3618,25 @@ function cargarMateriasParaGestion(periodo) {
                                placeholder="Nombre de la materia"
                                data-carrera="${carreraKey}"
                                data-index="${indexOriginal}"
-                               data-periodo="${periodo}">
+                               data-periodo="${periodo}"
+                               style="flex: 2;">
                         <input type="number" class="materia-semestre" 
                                value="${materia.semestre}" 
                                placeholder="Semestre"
                                min="1" max="12"
                                data-carrera="${carreraKey}"
                                data-index="${indexOriginal}"
-                               data-periodo="${periodo}">
+                               data-periodo="${periodo}"
+                               style="flex: 0.5; min-width: 80px;">
+                        <!-- NUEVO: Campo de horas -->
+                        <input type="number" class="materia-horas" 
+                               value="${materia.horas || ''}" 
+                               placeholder="Horas"
+                               min="0" max="20"
+                               data-carrera="${carreraKey}"
+                               data-index="${indexOriginal}"
+                               data-periodo="${periodo}"
+                               style="flex: 0.3; min-width: 70px;">
                         <button class="btn-remove-materia" onclick="eliminarMateria('${carreraKey}', ${indexOriginal}, '${periodo}')">
                             <i class="fas fa-trash"></i>
                         </button>
@@ -2846,13 +3702,23 @@ function agregarMateria(carreraKey, periodo) {
                placeholder="Nombre de la materia"
                data-carrera="${carreraKey}"
                data-nuevo="true"
-               data-periodo="${periodo}">
+               data-periodo="${periodo}"
+               style="flex: 2;">
         <input type="number" class="materia-semestre nueva" 
                placeholder="Semestre"
                min="1" max="12"
                data-carrera="${carreraKey}"
                data-nuevo="true"
-               data-periodo="${periodo}">
+               data-periodo="${periodo}"
+               style="flex: 0.5; min-width: 80px;">
+        <!-- NUEVO: Campo de horas para nueva materia -->
+        <input type="number" class="materia-horas nueva" 
+               placeholder="Horas"
+               min="0" max="20"
+               data-carrera="${carreraKey}"
+               data-nuevo="true"
+               data-periodo="${periodo}"
+               style="flex: 0.3; min-width: 70px;">
         <button class="btn-remove-materia" onclick="this.parentElement.remove()">
             <i class="fas fa-times"></i>
         </button>
@@ -2913,8 +3779,10 @@ async function guardarCambiosMaterias() {
         document.querySelectorAll('.materia-item').forEach(item => {
             const nombreInput = item.querySelector('.materia-nombre:not(.nueva)');
             const semestreInput = item.querySelector('.materia-semestre:not(.nueva)');
+            const horasInput = item.querySelector('.materia-horas:not(.nueva)'); // NUEVO
             const nuevaNombre = item.querySelector('.materia-nombre.nueva');
             const nuevaSemestre = item.querySelector('.materia-semestre.nueva');
+            const nuevaHoras = item.querySelector('.materia-horas.nueva'); // NUEVO
             
             if (nombreInput && semestreInput) {
                 materiasModificadas.push({
@@ -2923,7 +3791,8 @@ async function guardarCambiosMaterias() {
                     index: parseInt(nombreInput.dataset.index),
                     periodo: nombreInput.dataset.periodo,
                     nombre: nombreInput.value,
-                    semestre: parseInt(semestreInput.value)
+                    semestre: parseInt(semestreInput.value),
+                    horas: horasInput ? (parseInt(horasInput.value) || null) : null // NUEVO
                 });
             }
             
@@ -2933,7 +3802,8 @@ async function guardarCambiosMaterias() {
                     carrera: nuevaNombre.dataset.carrera,
                     periodo: nuevaNombre.dataset.periodo,
                     nombre: nuevaNombre.value,
-                    semestre: parseInt(nuevaSemestre.value)
+                    semestre: parseInt(nuevaSemestre.value),
+                    horas: nuevaHoras ? (parseInt(nuevaHoras.value) || null) : null // NUEVO
                 });
             }
         });
@@ -2947,12 +3817,14 @@ async function guardarCambiosMaterias() {
                 if (dataTrabajo[item.carrera] && dataTrabajo[item.carrera].materias[item.index]) {
                     dataTrabajo[item.carrera].materias[item.index].nombre = item.nombre;
                     dataTrabajo[item.carrera].materias[item.index].semestre = item.semestre;
+                    dataTrabajo[item.carrera].materias[item.index].horas = item.horas; // NUEVO
                 }
             } else {
                 if (dataTrabajo[item.carrera]) {
                     dataTrabajo[item.carrera].materias.push({
                         nombre: item.nombre,
-                        semestre: item.semestre
+                        semestre: item.semestre,
+                        horas: item.horas // NUEVO
                     });
                 }
             }
@@ -2971,6 +3843,7 @@ async function guardarCambiosMaterias() {
             localStorage.setItem('carrerasDataAGODIC', JSON.stringify(carrerasDataAGODICTrabajo));
             
             actualizarVistaMaterias();
+            limpiarCacheAlEditar('materias');
             mostrarNotificacion('Materias guardadas correctamente', 'success');
             
             setTimeout(() => {
@@ -3269,6 +4142,7 @@ async function guardarCambiosProfesores() {
         if (guardado) {
             console.log('✅ Profesores guardados en PocketBase');
             localStorage.setItem('profesoresDB', JSON.stringify(profesoresDB));
+            limpiarCacheAlEditar('profesores');
             mostrarNotificacion(`${modificados.length + nuevos.length} cambio(s) guardados correctamente`, 'success');
             
             setTimeout(() => {
@@ -3290,6 +4164,284 @@ function cerrarGestionProfesores() {
     const modal = document.getElementById('gestionProfesoresModal');
     if (modal) modal.remove();
 }
+
+// ===== BUSCAR ÚLTIMA ENCUESTA DEL PROFESOR (OPTIMIZADA) =====
+async function buscarUltimaEncuestaProfesor(nombreProfesor, correoProfesor, claveProfesor = '') {
+    if (!nombreProfesor || !correoProfesor) return null;
+    if (!validarEmail(correoProfesor)) return null;
+    
+    // Intentar caché primero
+    const cacheado = EncuestaCache.get(nombreProfesor, correoProfesor, claveProfesor);
+    if (cacheado !== null) return cacheado;
+    
+    try {
+        let filter = '';
+        const tieneClave = claveProfesor && claveProfesor.trim() !== '';
+        
+        if (tieneClave) {
+            filter = `profesor.nombre = "${nombreProfesor}" && profesor.correo = "${correoProfesor}" && profesor.codigo = "${claveProfesor}"`;
+        } else {
+            filter = `profesor.nombre = "${nombreProfesor}" && profesor.correo = "${correoProfesor}" && (profesor.codigo = "" || profesor.codigo = null)`;
+        }
+        
+        // Optimización: usar getFirstListItem en lugar de getList
+        const records = await pb.collection('encuestas').getFirstListItem(filter).catch(() => null);
+        
+        const resultado = records || null;
+        
+        // Guardar en caché
+        EncuestaCache.set(nombreProfesor, correoProfesor, claveProfesor, resultado);
+        
+        return resultado;
+        
+    } catch (error) {
+        console.error('❌ Error buscando encuesta:', error);
+        return null;
+    }
+}
+
+// ===== VERIFICACIÓN FORZADA (SEGURA Y OPTIMIZADA) =====
+let verificacionForzadaTimeout = null;
+
+async function verificarEncuestaForzado(nombre, correo, clave, mostrarModal = true) {
+    if (!nombre || !correo || !validarEmail(correo)) return false;
+    
+    // Si ya preguntamos por esta combinación, no repetir
+    const idCombinacion = `${nombre}_${correo}_${clave}`;
+    if (yaPregunteEstaCombinacion && ultimaPreguntaEncuesta === idCombinacion) return false;
+    
+    try {
+        const ultimaEncuesta = await buscarUltimaEncuestaProfesor(nombre, correo, clave);
+        
+        if (ultimaEncuesta) {
+            yaPregunteEstaCombinacion = true;
+            ultimaPreguntaEncuesta = idCombinacion;
+            
+            if (mostrarModal) {
+                const aceptar = await mostrarModalRecuperarEncuesta(ultimaEncuesta);
+                if (aceptar) {
+                    await cargarEncuestaAlFormulario(ultimaEncuesta);
+                }
+            }
+            return true;
+        }
+    } catch (error) {
+        console.error('❌ Error en verificación forzada:', error);
+    }
+    
+    return false;
+}
+
+function cargarEncuestaAlFormulario(encuesta) {
+    if (!encuesta) return;
+    
+    console.log('🔄 Cargando encuesta anterior:', encuesta);
+    
+    if (encuesta.profesor) {
+        datosProfesor = { ...encuesta.profesor };
+        
+        document.getElementById('nombreProfesor').value = datosProfesor.nombre || '';
+        document.getElementById('buscadorProfesores').value = datosProfesor.nombre || '';
+        document.getElementById('correoProfesor').value = datosProfesor.correo || '';
+        document.getElementById('telefonoProfesor').value = datosProfesor.telefono || '';
+        document.getElementById('codigoProfesor').value = datosProfesor.codigo || '';
+        
+        const selectPlaza = document.getElementById('tipoPlaza');
+        const horasContainer = document.getElementById('horasPlazaContainer');
+        const inputHoras = document.getElementById('horasPlaza');
+        
+        if (selectPlaza && datosProfesor.tipoPlaza) {
+            selectPlaza.value = datosProfesor.tipoPlaza;
+            
+            if (datosProfesor.tipoPlaza === 'por_horas') {
+                horasContainer.style.display = 'flex';
+                if (inputHoras && datosProfesor.horasPlaza) {
+                    inputHoras.value = datosProfesor.horasPlaza;
+                }
+            } else {
+                horasContainer.style.display = 'none';
+            }
+        }
+    }
+    
+    if (encuesta.materias && encuesta.materias.length > 0) {
+        materiasSeleccionadas = encuesta.materias.map(m => ({...m}));
+        renderizarMaterias();
+        actualizarContadorMaterias();
+    }
+    
+    if (encuesta.horarios && encuesta.horarios.length > 0) {
+        horariosSeleccionados = encuesta.horarios.map(h => ({...h}));
+        restaurarHorariosSeleccionados();
+    }
+    
+    mostrarNotificacion(' Datos de última encuesta cargados', 'success');
+}
+
+// ===== DETECTAR CAMBIOS EN EL CORREO (BÚSQUEDA ESTRICTA) =====
+function inicializarDetectorDeCorreo() {
+    const inputCorreo = document.getElementById('correoProfesor');
+    const inputNombre = document.getElementById('nombreProfesor');
+    const inputClave = document.getElementById('codigoProfesor');
+    
+    if (inputCorreo) {
+        let timeoutId;
+        
+        inputCorreo.addEventListener('input', function() {
+            clearTimeout(timeoutId);
+            
+            timeoutId = setTimeout(async () => {
+                const nombre = inputNombre.value.trim();
+                const correo = this.value.trim();
+                const clave = inputClave.value.trim();
+                const tieneClave = clave !== '';
+                
+                if (nombre && correo && validarEmail(correo)) {
+                    console.log('📧 Correo ingresado, buscando encuestas...');
+                    
+                    const ultimaEncuesta = await buscarUltimaEncuestaProfesor(nombre, correo, clave);
+                    
+                    if (ultimaEncuesta) {
+                        // === USAR MODAL EN LUGAR DE CONFIRM ===
+                        const aceptar = await mostrarModalRecuperarEncuesta(ultimaEncuesta);
+                        
+                        if (aceptar) {
+                            cargarEncuestaAlFormulario(ultimaEncuesta);
+                        }
+                        // === FIN MODAL ===
+                    }
+                }
+            }, 800);
+        });
+    }
+}
+
+// ===== DETECTOR UNIFICADO OPTIMIZADO =====
+function inicializarDetectorUnificado() {
+    const inputNombre = document.getElementById('nombreProfesor');
+    const inputCorreo = document.getElementById('correoProfesor');
+    const inputClave = document.getElementById('codigoProfesor');
+    
+    if (!inputNombre || !inputCorreo) return;
+    
+    let timeoutId = null;
+    let verificacionProgramada = false;
+    let ultimoNombre = inputNombre.value;
+    let ultimoCorreo = inputCorreo.value;
+    let ultimaClave = inputClave?.value || '';
+    
+    // Observar cambios en el nombre
+    const nombreObserver = new MutationObserver(function() {
+        const nombreActual = inputNombre.value;
+        if (nombreActual !== ultimoNombre) {
+            ultimoNombre = nombreActual;
+            setTimeout(() => {
+                if (!bloqueado && !yaPregunteEstaCombinacion) {
+                    programarVerificacion('nombre_change');
+                }
+            }, 300);
+        }
+    });
+    nombreObserver.observe(inputNombre, { attributes: true, attributeFilter: ['value'] });
+    
+    // Función de verificación
+    async function verificarUnaVez(origen = 'desconocido') {
+        if (bloqueado || yaPregunteEstaCombinacion) return;
+        
+        const nombre = inputNombre.value.trim();
+        const correo = inputCorreo.value.trim();
+        const clave = inputClave?.value.trim() || '';
+        
+        if (!nombre || !correo || !validarEmail(correo)) return;
+        
+        bloqueado = true;
+        
+        // Usar la función optimizada
+        await verificarEncuestaForzado(nombre, correo, clave, true);
+        
+        setTimeout(() => { bloqueado = false; }, 2000);
+    }
+    
+    function programarVerificacion(origen) {
+        if (verificacionProgramada) return;
+        verificacionProgramada = true;
+        
+        if (timeoutId) clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            verificarUnaVez(origen);
+            verificacionProgramada = false;
+        }, 500); // Reducido de 800 a 500ms
+    }
+    
+    // Eventos
+    inputNombre.addEventListener('input', () => programarVerificacion('input'));
+    inputNombre.addEventListener('change', () => programarVerificacion('change'));
+    
+    inputCorreo.addEventListener('input', () => programarVerificacion('input'));
+    inputCorreo.addEventListener('change', () => programarVerificacion('change'));
+    
+    if (inputClave) {
+        inputClave.addEventListener('input', () => programarVerificacion('input'));
+        inputClave.addEventListener('change', () => programarVerificacion('change'));
+    }
+    
+    // Pegado
+    inputNombre.addEventListener('paste', () => setTimeout(() => programarVerificacion('paste'), 50));
+    inputCorreo.addEventListener('paste', () => setTimeout(() => programarVerificacion('paste'), 50));
+    if (inputClave) inputClave.addEventListener('paste', () => setTimeout(() => programarVerificacion('paste'), 50));
+    
+    // Focus y Blur
+    inputNombre.addEventListener('focus', () => setTimeout(() => programarVerificacion('focus'), 200));
+    inputCorreo.addEventListener('focus', () => setTimeout(() => programarVerificacion('focus'), 200));
+    inputNombre.addEventListener('blur', () => programarVerificacion('blur'));
+    inputCorreo.addEventListener('blur', () => programarVerificacion('blur'));
+    
+    // Observar cambios en value
+    const valueObserver = new MutationObserver(() => programarVerificacion('mutation'));
+    valueObserver.observe(inputCorreo, { attributes: true, attributeFilter: ['value'] });
+    if (inputClave) valueObserver.observe(inputClave, { attributes: true, attributeFilter: ['value'] });
+    
+    // Verificación periódica (cada 3 segundos, pero más inteligente)
+    let lastValues = { nombre: '', correo: '', clave: '' };
+    
+    setInterval(() => {
+        const nombreActual = inputNombre.value.trim();
+        const correoActual = inputCorreo.value.trim();
+        const claveActual = inputClave?.value.trim() || '';
+        
+        // Solo si hay cambios significativos
+        if (nombreActual !== lastValues.nombre || 
+            correoActual !== lastValues.correo || 
+            claveActual !== lastValues.clave) {
+            
+            lastValues = { nombre: nombreActual, correo: correoActual, clave: claveActual };
+            
+            if (nombreActual && correoActual && validarEmail(correoActual)) {
+                programarVerificacion('periodico');
+            }
+        }
+    }, 3000);
+    
+    // Verificación inicial con reintentos
+    let intentos = 0;
+    const maxIntentos = 8;
+    
+    function verificarInicio() {
+        const nombre = inputNombre.value.trim();
+        const correo = inputCorreo.value.trim();
+        const clave = inputClave?.value.trim() || '';
+        
+        if (nombre && correo && validarEmail(correo)) {
+            programarVerificacion('inicio');
+        } else if (intentos < maxIntentos) {
+            intentos++;
+            setTimeout(verificarInicio, 400);
+        }
+    }
+    
+    setTimeout(verificarInicio, 300);
+}
+
 
 // ===== DATOS DEL PROFESOR =====
 function inicializarDatosProfesor() {
@@ -3329,8 +4481,10 @@ function actualizarDatosProfesor() {
     datosProfesor.horasPlaza = inputHoras ? inputHoras.value : '';
 }
 
-// ===== FUNCIONES PARA EL MODAL DE CONFIRMACIÓN =====
+// ===== VALIDAR Y SCROLLEAR =====
 function validarYScrollear() {
+    if (window.validandoActivo) return true;
+    
     if (!datosProfesor.nombre) {
         mostrarNotificacion('Por favor, selecciona o ingresa tu nombre', 'warning');
         document.getElementById('buscadorProfesores').focus();
@@ -3342,6 +4496,13 @@ function validarYScrollear() {
         mostrarNotificacion('Por favor, ingresa tu correo electrónico', 'warning');
         document.getElementById('correoProfesor').focus();
         document.querySelector('.panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return false;
+    }
+    
+    // VALIDAR FORMATO DE CORREO
+    if (!validarEmail(datosProfesor.correo)) {
+        mostrarNotificacion('❌ El correo electrónico no tiene un formato válido', 'error');
+        document.getElementById('correoProfesor').focus();
         return false;
     }
     
@@ -3434,7 +4595,7 @@ function actualizarModalResumen() {
             
             const carrerasTexto = materia.carreras.map(c => {
                 let texto = `${c.carrera} (Sem ${c.semestre})`;
-                if (c.horas) {
+                if (c.horas && c.horas !== null) {
                     texto += ` - ${c.horas} h/sem`;
                 }
                 return texto;
@@ -3508,8 +4669,31 @@ function actualizarModalResumen() {
     }
 }
 
+// ===== ENVIAR ENCUESTA (CON BLOQUEO DE DOBLE CLIC) =====
+let enviandoEncuesta = false; // Variable global para controlar el envío
+
 async function confirmarEnvioEncuesta() {
+    // Si ya se está enviando, ignorar nuevos clics
+    if (enviandoEncuesta) {
+        console.log('⏳ Ya hay un envío en curso, ignorando...');
+        return;
+    }
+    
     try {
+        enviandoEncuesta = true;
+        
+        // Deshabilitar visualmente el botón
+        const btnConfirmar = document.getElementById('confirmarEnvioBtn');
+        const btnCancelar = document.getElementById('cancelarEnvioBtn');
+        
+        if (btnConfirmar) {
+            btnConfirmar.disabled = true;
+            btnConfirmar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+        }
+        if (btnCancelar) {
+            btnCancelar.disabled = true;
+        }
+        
         mostrarNotificacion('Enviando encuesta...', 'info');
         
         const encuesta = await pb.collection('encuestas').create({
@@ -3523,9 +4707,16 @@ async function confirmarEnvioEncuesta() {
         
         console.log('✅ Encuesta guardada en PocketBase:', encuesta);
         mostrarNotificacion('Encuesta enviada exitosamente', 'success', 6000);
+
+        // Limpiar caché para este profesor (ya no sirve el dato anterior)
+if (datosProfesor.nombre && datosProfesor.correo) {
+    EncuestaCache.clear(datosProfesor.nombre, datosProfesor.correo, datosProfesor.codigo);
+    console.log('🧹 Caché limpiado para:', datosProfesor.nombre);
+}
         
         cerrarModalConfirmacion();
-        
+        eliminarBorrador();
+        // Reset del formulario
         datosProfesor = {
             nombre: '',
             correo: '',
@@ -3589,6 +4780,19 @@ async function confirmarEnvioEncuesta() {
     } catch (error) {
         console.error('❌ Error al guardar en PocketBase:', error);
         mostrarNotificacion('Error al guardar la encuesta: ' + (error.message || 'Error desconocido'), 'error');
+    } finally {
+        // Restaurar botones
+        enviandoEncuesta = false;
+        const btnConfirmar = document.getElementById('confirmarEnvioBtn');
+        const btnCancelar = document.getElementById('cancelarEnvioBtn');
+        
+        if (btnConfirmar) {
+            btnConfirmar.disabled = false;
+            btnConfirmar.innerHTML = '<i class="fas fa-check-circle"></i> Sí, enviar encuesta';
+        }
+        if (btnCancelar) {
+            btnCancelar.disabled = false;
+        }
     }
 }
 
@@ -3621,6 +4825,81 @@ function configurarModal() {
                 cerrarModalConfirmacion();
             }
         });
+    }
+}
+
+// ===== MODAL PARA RECUPERAR ENCUESTA ANTERIOR =====
+let ultimaEncuestaEncontrada = null;
+let ultimaEncuestaResolver = null;
+
+function mostrarModalRecuperarEncuesta(encuesta) {
+    return new Promise((resolve) => {
+        ultimaEncuestaEncontrada = encuesta;
+        ultimaEncuestaResolver = resolve;
+        
+        const modal = document.getElementById('modalRecuperarEncuesta');
+        if (!modal) {
+            console.error('❌ Modal no encontrado');
+            resolve(false);
+            return;
+        }
+        
+        // Actualizar información
+        const profesor = encuesta.profesor || {};
+        const fecha = new Date(encuesta.fecha || encuesta.created);
+        const fechaStr = fecha.toLocaleString('es-MX', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        document.getElementById('recuperarProfesor').textContent = profesor.nombre || 'No especificado';
+        document.getElementById('recuperarFecha').textContent = fechaStr;
+        document.getElementById('recuperarMaterias').textContent = encuesta.materias?.length || 0;
+        document.getElementById('recuperarHorarios').textContent = encuesta.horarios?.length || 0;
+        document.getElementById('recuperarClave').textContent = profesor.codigo || 'No especificada';
+        
+        modal.style.display = 'flex';
+    });
+}
+
+function cerrarModalRecuperarEncuesta(aceptar) {
+    const modal = document.getElementById('modalRecuperarEncuesta');
+    if (modal) modal.style.display = 'none';
+    
+    if (ultimaEncuestaResolver) {
+        ultimaEncuestaResolver(aceptar);
+        ultimaEncuestaResolver = null;
+    }
+    ultimaEncuestaEncontrada = null;
+}
+
+function configurarModalRecuperarEncuesta() {
+    const modal = document.getElementById('modalRecuperarEncuesta');
+    const btnConfirmar = document.getElementById('btnRecuperarEncuestaConfirmar');
+    const btnCancelar = document.getElementById('btnRecuperarEncuestaCancelar');
+    const btnCerrar = document.getElementById('cerrarRecuperarModalBtn');
+    
+    if (btnConfirmar) {
+        btnConfirmar.onclick = () => cerrarModalRecuperarEncuesta(true);
+    }
+    
+    if (btnCancelar) {
+        btnCancelar.onclick = () => cerrarModalRecuperarEncuesta(false);
+    }
+    
+    if (btnCerrar) {
+        btnCerrar.onclick = () => cerrarModalRecuperarEncuesta(false);
+    }
+    
+    if (modal) {
+        modal.onclick = (e) => {
+            if (e.target === modal) {
+                cerrarModalRecuperarEncuesta(false);
+            }
+        };
     }
 }
 
@@ -4444,32 +5723,105 @@ async function exportarAExcelPersonalizado(encuestas) {
 // ===== CONFIGURACIÓN DE BOTONES =====
 function configurarBotones() {}
 
-// ===== INICIALIZACIÓN =====
+// ===== SISTEMA DE CAMBIO DE TEMA =====
+const ThemeManager = {
+    init: function() {
+        this.loadTheme();
+        this.setupListener();
+    },
+    
+    loadTheme: function() {
+        const temaGuardado = localStorage.getItem('tema_preferido');
+        const btn = document.getElementById('themeToggle');
+        
+        if (temaGuardado === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            if (btn) {
+                btn.innerHTML = '<span class="theme-text">Modo Claro</span>';
+                btn.classList.add('dark-mode');
+            }
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+            if (btn) {
+                btn.innerHTML = '<span class="theme-text">Modo Oscuro</span>';
+                btn.classList.remove('dark-mode');
+            }
+        }
+    },
+    
+    toggleTheme: function() {
+        const temaActual = document.documentElement.getAttribute('data-theme');
+        const btn = document.getElementById('themeToggle');
+        
+        if (temaActual === 'dark') {
+            document.documentElement.removeAttribute('data-theme');
+            localStorage.setItem('tema_preferido', 'light');
+            if (btn) {
+                btn.innerHTML = '<span class="theme-text">Modo Oscuro</span>';
+                btn.classList.remove('dark-mode');
+            }
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('tema_preferido', 'dark');
+            if (btn) {
+                btn.innerHTML = '<span class="theme-text">Modo Claro</span>';
+                btn.classList.add('dark-mode');
+            }
+        }
+    },
+    
+    setupListener: function() {
+        const btn = document.getElementById('themeToggle');
+        if (btn) {
+            btn.replaceWith(btn.cloneNode(true));
+            const newBtn = document.getElementById('themeToggle');
+            newBtn.addEventListener('click', () => this.toggleTheme());
+        }
+    }
+};
+
+// ===== INICIALIZACIÓN OPTIMIZADA =====
 async function inicializarAplicacion() {
     console.log('🚀 Iniciando Sistema de Encuesta...');
     
-    periodoActivo = await obtenerPeriodoGlobal();
+    // Mostrar interfaz inmediatamente
+    document.body.style.visibility = 'visible';
     
+    // 1. CARGAR DATOS ESENCIALES (PERÍODO)
     try {
-        await cargarMateriasGlobales();
-        await cargarProfesoresGlobales();
-        console.log('✅ Datos globales cargados de PocketBase');
+        periodoActivo = await obtenerPeriodoGlobal();
     } catch (error) {
-        console.warn('⚠️ Usando datos locales:', error);
+        console.warn('⚠️ Usando período por defecto:', error);
+        periodoActivo = 'ene-jun';
     }
     
-    if (periodoActivo === 'ene-jun') {
-        carrerasData = carrerasDataENEJUNTrabajo;
-    } else {
-        carrerasData = carrerasDataAGODICTrabajo;
-    }
+    // 2. INICIAR CARGA DE MATERIAS Y PROFESORES EN PARALELO (NO BLOQUEANTE)
+    Promise.allSettled([
+        cargarMateriasGlobales().catch(e => console.warn('Error en materias:', e)),
+        cargarProfesoresGlobales().catch(e => console.warn('Error en profesores:', e))
+    ]).then(() => {
+        console.log('✅ Datos globales cargados');
+        
+        // Actualizar período y generar materias
+        if (periodoActivo === 'ene-jun') {
+            carrerasData = carrerasDataENEJUNTrabajo;
+        } else {
+            carrerasData = carrerasDataAGODICTrabajo;
+        }
+        
+        todasLasMaterias = generarListaGlobalMaterias();
+        
+        console.log(`📚 Total de materias únicas: ${todasLasMaterias.length}`);
+        console.log(`👤 Total de profesores en base: ${profesoresDB.length}`);
+        console.log(`📅 Período activo: ${periodoActivo}`);
+        
+        // Actualizar vista de materias si está visible
+        if (document.getElementById('resultadosBusqueda').style.display === 'block') {
+            mostrarTodasLasMateriasDelFiltro();
+        }
+    });
     
-    todasLasMaterias = generarListaGlobalMaterias();
-    
-    console.log(`📚 Total de materias únicas: ${todasLasMaterias.length}`);
-    console.log(`👤 Total de profesores en base: ${profesoresDB.length}`);
-    console.log(`📅 Período activo: ${periodoActivo}`);
-    
+    // 3. INICIALIZAR COMPONENTES BÁSICOS (INMEDIATO)
     try {
         inicializarDatosProfesor();
         inicializarBuscadorProfesores();
@@ -4478,18 +5830,85 @@ async function inicializarAplicacion() {
         inicializarModoAdmin();
         configurarBotones();
         configurarModal();
+        configurarModalRecuperarEncuesta();
         
         actualizarOpcionesSemestre();
         
         setTimeout(() => {
             actualizarInterfazPeriodo();
-        }, 500);
+        }, 100);
         
-        console.log('✅ Sistema listo');
+        console.log('✅ Componentes básicos inicializados');
     } catch (error) {
-        console.error('❌ Error de inicialización:', error);
-        mostrarNotificacion('Error al iniciar la aplicación', 'error');
+        console.error('❌ Error en inicialización de componentes:', error);
     }
+    
+    // 4. INICIALIZAR DETECTOR UNIFICADO
+try {
+    inicializarDetectorUnificado();
+    console.log('✅ Detector unificado inicializado');
+} catch (error) {
+    console.error('❌ Error en detector:', error);
+}
+
+// 5. CONFIGURAR SISTEMA DE BORRADOR (CON RETRASO)
+setTimeout(() => {
+    try {
+        configurarBotonesBorrador();
+        
+        // Iniciar autoguardado
+        if (autoSaveInterval) clearInterval(autoSaveInterval);
+        autoSaveInterval = setInterval(() => {
+            guardarBorrador();
+        }, 15000);
+        
+        console.log('✅ Sistema de borrador activado');
+    } catch (error) {
+        console.error('❌ Error en sistema de borrador:', error);
+    }
+}, 300);
+
+// 6. VERIFICAR BORRADOR LOCAL (AL FINAL)
+setTimeout(() => {
+    try {
+        const borrador = cargarBorrador();
+        if (borrador && (borrador.profesor?.nombre || borrador.materias?.length > 0)) {
+            mostrarModalBorrador(borrador);
+        }
+    } catch (error) {
+        console.error('❌ Error al cargar borrador:', error);
+    }
+}, 800);
+
+// 7. INICIALIZAR THEME MANAGER (MODO OSCURO)
+setTimeout(() => {
+    try {
+        if (typeof ThemeManager !== 'undefined') {
+            ThemeManager.init();
+            console.log('✅ ThemeManager inicializado');
+        }
+    } catch (error) {
+        console.error('❌ Error en ThemeManager:', error);
+    }
+}, 200);
+    
+    console.log('✅ Proceso de inicio completado');
+}
+
+// ===== FUNCIÓN DIRECTA PARA DESCARTAR BORRADOR =====
+function descartarBorradorDirecto() {
+    console.log('🗑️ Descartando borrador...');
+    
+    // 1. Eliminar del localStorage
+    localStorage.removeItem(BORRADOR_KEY);
+    
+    // 2. Cerrar el modal
+    const modal = document.getElementById('borradorModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    
+    return false;
 }
 
 document.addEventListener('DOMContentLoaded', inicializarAplicacion);
